@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.CognitoIdentity" Version="3.3.2.36" />
+    <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="3.3.11.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Amazon.Extensions.CognitoAuthentication">
+      <HintPath>..\..\..\aws-sdk-net-extensions-cognito\src\Amazon.Extensions.CognitoAuthentication\bin\Debug\netstandard2.0\Amazon.Extensions.CognitoAuthentication.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
