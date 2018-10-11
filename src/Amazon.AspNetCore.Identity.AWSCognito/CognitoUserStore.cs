@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -245,9 +246,9 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 UserPoolId = _pool.PoolID
             };
 
-           await _provider.AdminResetUserPasswordAsync(request);
+            await _provider.AdminResetUserPasswordAsync(request).ConfigureAwait(false);
 
-           return true;
+            return true;
         }
 
         #endregion
@@ -266,18 +267,14 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             cancellationToken.ThrowIfCancellationRequested();
             IList<Claim> claims = new List<Claim>();
-            if (user.Attributes == null) // Attributes are not set, fetching them
+            if (user.Attributes == null)
             {
+                // Attributes are not set, fetching them
                 var details = await user.GetUserDetailsAsync();
-                details.UserAttributes.ForEach(item => claims.Add(new Claim(item.Name, item.Value)));
+                claims = details.UserAttributes.Select(att => new Claim(att.Name, att.Value)).ToList();
             }
             else
-            {
-                foreach (var item in user.Attributes)
-                {
-                    claims.Add(new Claim(item.Key, item.Value));
-                }
-            }
+                claims = user.Attributes.Select(att => new Claim(att.Key, att.Value)).ToList();
 
             return claims;
         }
