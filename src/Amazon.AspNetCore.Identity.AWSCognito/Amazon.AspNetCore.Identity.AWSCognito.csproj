@@ -11,9 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Amazon.Extensions.CognitoAuthentication">
-      <HintPath>..\..\..\aws-sdk-net-extensions-cognito\src\Amazon.Extensions.CognitoAuthentication\bin\Debug\netstandard2.0\Amazon.Extensions.CognitoAuthentication.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\..\aws-sdk-net-extensions-cognito\src\Amazon.Extensions.CognitoAuthentication\Amazon.Extensions.CognitoAuthentication.csproj" />
   </ItemGroup>
 
 </Project>

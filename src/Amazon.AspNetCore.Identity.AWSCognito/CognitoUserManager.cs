@@ -27,9 +27,23 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
     {
         private readonly CognitoUserStore<TUser> _userStore;
 
-        public CognitoUserManager(IUserStore<TUser> store, IOptions<IdentityOptions> optionsAccessor, IPasswordHasher<TUser> passwordHasher, IEnumerable<IUserValidator<TUser>> userValidators, IEnumerable<IPasswordValidator<TUser>> passwordValidators, ILookupNormalizer keyNormalizer, IdentityErrorDescriber errors, IServiceProvider services, ILogger<UserManager<TUser>> logger) : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger)
+        public CognitoUserManager(IUserStore<TUser> store, 
+            IOptions<IdentityOptions> optionsAccessor, 
+            IPasswordHasher<TUser> passwordHasher, 
+            IEnumerable<IUserValidator<TUser>> userValidators, 
+            IEnumerable<IPasswordValidator<TUser>> passwordValidators, 
+            ILookupNormalizer keyNormalizer, 
+            IdentityErrorDescriber errors, 
+            IServiceProvider services, 
+            ILogger<UserManager<TUser>> logger) : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger)
         {
-            _userStore = store as CognitoUserStore<TUser> ?? throw new ArgumentNullException(nameof(store));
+            if (store == null)
+                throw new ArgumentNullException(nameof(store));
+
+            if (store is CognitoUserStore<TUser>)
+                _userStore = store as CognitoUserStore<TUser>;
+            else
+                throw new ArgumentException("The store should be of type CognitoUserStore<TUser>", nameof(store));
         }
 
         /// <summary>
@@ -43,6 +57,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// otherwise null.</returns>
         public async new Task<AuthFlowResponse> CheckPasswordAsync(TUser user, string password)
         {
+            ThrowIfDisposed();
             return await _userStore.StartValidatePasswordAsync(user, password, CancellationToken).ConfigureAwait(false);
         }
 
@@ -72,7 +87,9 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 return IdentityResult.Success;
             }
             else
+            {
                 return IdentityResult.Failed(ErrorDescriber.PasswordMismatch()); //TODO: Create custom IdentityResult based on the errordescriber
+            }
         }
 
 
@@ -83,6 +100,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if the password needs to be changed, false otherwise.</returns>
         public async Task<bool> IsPasswordChangeRequiredAsync(TUser user)
         {
+            ThrowIfDisposed();
             return await _userStore.IsPasswordChangeRequiredAsync(user, CancellationToken).ConfigureAwait(false);
         }
 

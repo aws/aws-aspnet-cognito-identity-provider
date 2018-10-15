@@ -17,7 +17,6 @@ using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,20 +26,18 @@ using System.Threading.Tasks;
 
 namespace Amazon.AspNetCore.Identity.AWSCognito
 {
-    public class CognitoUserStore<TUser> :
+    public partial class CognitoUserStore<TUser> :
         IUserRoleStore<TUser>,
         IUserCognitoStore<TUser>,
         IUserClaimStore<TUser> where TUser : CognitoUser
     {
         private AmazonCognitoIdentityProviderClient _provider;
         private CognitoUserPool _pool;
-        private ILogger _logger;
 
-        public CognitoUserStore(AmazonCognitoIdentityProviderClient provider, CognitoUserPool pool, ILogger<CognitoUserStore<TUser>> logger)
+        public CognitoUserStore(AmazonCognitoIdentityProviderClient provider, CognitoUserPool pool)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public void Dispose()

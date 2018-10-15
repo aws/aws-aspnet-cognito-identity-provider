@@ -31,10 +31,29 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         private readonly CognitoUserClaimsPrincipalFactory<TUser> _claimsFactory;
         private readonly IHttpContextAccessor _contextAccessor;
 
-        public CognitoSignInManager(UserManager<TUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<TUser> claimsFactory, IOptions<IdentityOptions> optionsAccessor, ILogger<SignInManager<TUser>> logger, IAuthenticationSchemeProvider schemes) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes)
+        public CognitoSignInManager(UserManager<TUser> userManager, 
+            IHttpContextAccessor contextAccessor, 
+            IUserClaimsPrincipalFactory<TUser> claimsFactory, 
+            IOptions<IdentityOptions> optionsAccessor, 
+            ILogger<SignInManager<TUser>> logger,
+            IAuthenticationSchemeProvider schemes) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes)
         {
-            _userManager = userManager as CognitoUserManager<TUser> ?? throw new ArgumentNullException(nameof(userManager));
-            _claimsFactory = claimsFactory as CognitoUserClaimsPrincipalFactory<TUser> ?? throw new ArgumentNullException(nameof(claimsFactory));
+
+            if (userManager == null)
+                throw new ArgumentNullException(nameof(userManager));
+            if (claimsFactory == null)
+                throw new ArgumentNullException(nameof(claimsFactory));
+
+            if (userManager is CognitoUserManager<TUser>)
+                _userManager = userManager as CognitoUserManager<TUser>;
+            else
+                throw new ArgumentException("The userManager should be of type CognitoUserManager<TUser>", nameof(userManager));
+
+            if (claimsFactory is CognitoUserClaimsPrincipalFactory<TUser>)
+                _claimsFactory = claimsFactory as CognitoUserClaimsPrincipalFactory<TUser>;
+            else
+                throw new ArgumentException("The claimsFactory should be of type CognitoUserClaimsPrincipalFactory<TUser>", nameof(claimsFactory));
+
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
         }
 
@@ -51,7 +70,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         public override async Task<SignInResult> PasswordSignInAsync(string userName, string password,
             bool isPersistent, bool lockoutOnFailure)
         {
-            var user = await _userManager.FindByIdAsync(userName);
+            var user = await _userManager.FindByIdAsync(userName).ConfigureAwait(false);
             if (user == null)
             {
                 return SignInResult.Failed;
@@ -84,24 +103,28 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 
             var checkPasswordResult = await _userManager.CheckPasswordAsync(user, password).ConfigureAwait(false);
 
+            SignInResult signinResult;
+
             if (checkPasswordResult == null)
             {
-                return SignInResult.Failed;
+                signinResult = SignInResult.Failed;
             }
-
-            if (checkPasswordResult.ChallengeName == ChallengeNameType.SMS_MFA)
+            else if (checkPasswordResult.ChallengeName == ChallengeNameType.SMS_MFA)
             {
-                return SignInResult.TwoFactorRequired;
+                signinResult = SignInResult.TwoFactorRequired;
             }
-
-            if (user.SessionTokens != null && user.SessionTokens.IsValid())
+            else if (user.SessionTokens != null && user.SessionTokens.IsValid())
             {
                 var claimsPrincipal = await _claimsFactory.CreateAsync(user).ConfigureAwait(false);
                 await _contextAccessor.HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, claimsPrincipal);
-                return SignInResult.Success;
+                signinResult = SignInResult.Success;
+            }
+            else
+            {
+                signinResult = SignInResult.Failed;
             }
 
-            return SignInResult.Failed;
+            return signinResult;
         }
 
         /// <summary>
@@ -130,7 +153,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if the password needs to be changed, false otherwise.</returns>
         protected async Task<bool> IsPasswordChangeRequiredAsync(TUser user)
         {
-            return await _userManager.IsPasswordChangeRequiredAsync(user).ConfigureAwait(false);
+            return await _userManager.IsPasswordChangeRequiredAsync(user);
         }
     }
 }

@@ -19,20 +19,19 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 {
     public class CognitoSignInResult : SignInResult
     {
-        private static readonly CognitoSignInResult _passwordChangeRequired = new CognitoSignInResult { IsPasswordChangeRequired = true };
+        private static readonly CognitoSignInResult _passwordChangeRequired = new CognitoSignInResult { RequiresPasswordChange = true };
 
-        //
-        // Summary:
-        //     Returns a CognitoSignInResult that represents a required password change.
-        //
-        // Returns:
-        //     A CognitoSignInResult that represents a required password change.
+        /// <summary>
+        ///  Returns a CognitoSignInResult that represents a required password change.
+        /// </summary>
+        /// <returns>A CognitoSignInResult that represents a required password change.</returns>
         public static CognitoSignInResult PasswordChangeRequired => _passwordChangeRequired;
 
-        //
-        // Summary:
-        //     Returns a flag indication whether changing the password is required.
-        public bool IsPasswordChangeRequired { get; protected set; }
+        /// <summary>
+        ///  Returns a flag indication whether changing the password is required.
+        /// </summary>
+        /// <returns>A flag indication whether changing the password is required.</returns>
+        public bool RequiresPasswordChange { get; protected set; }
 
         /// <summary>
         /// Converts the value of the current <see cref="CognitoSignInResult"/> object to its equivalent string representation.
@@ -43,7 +42,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             return IsLockedOut ? "Lockedout" :
                    IsNotAllowed ? "NotAllowed" :
                    RequiresTwoFactor ? "RequiresTwoFactor" :
-                   IsPasswordChangeRequired ? "PasswordChangeRequired" :
+                   RequiresPasswordChange ? "RequiresPasswordChange" :
                    Succeeded ? "Succeeded" : "Failed";
         }
     }

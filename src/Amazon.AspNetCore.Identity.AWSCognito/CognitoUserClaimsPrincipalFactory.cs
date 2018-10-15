@@ -35,7 +35,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             var claims = await _userClaimStore.GetClaimsAsync(user, CancellationToken.None).ConfigureAwait(false) as List<Claim>;
             claims.Add(new Claim(ClaimTypes.Name, user.Username));
-            // Additional claim mapping needs to be designed
+            // TODO: Additional claim mapping needs to be designed
             var claimsIdentity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
             return new ClaimsPrincipal(claimsIdentity);
         }
