@@ -19,13 +19,11 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 {
     public class CognitoSignInResult : SignInResult
     {
-        private static readonly CognitoSignInResult _passwordChangeRequired = new CognitoSignInResult { RequiresPasswordChange = true };
-
         /// <summary>
         ///  Returns a CognitoSignInResult that represents a required password change.
         /// </summary>
         /// <returns>A CognitoSignInResult that represents a required password change.</returns>
-        public static CognitoSignInResult PasswordChangeRequired => _passwordChangeRequired;
+        public static readonly CognitoSignInResult PasswordChangeRequired = new CognitoSignInResult { RequiresPasswordChange = true };
 
         /// <summary>
         ///  Returns a flag indication whether changing the password is required.

@@ -25,7 +25,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 {
     public class CognitoUserManager<TUser> : UserManager<TUser> where TUser : CognitoUser
     {
-        private readonly CognitoUserStore<TUser> _userStore;
+        private readonly IUserCognitoStore<TUser> _userStore;
 
         public CognitoUserManager(IUserStore<TUser> store, 
             IOptions<IdentityOptions> optionsAccessor, 
@@ -40,10 +40,10 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             if (store == null)
                 throw new ArgumentNullException(nameof(store));
 
-            if (store is CognitoUserStore<TUser>)
-                _userStore = store as CognitoUserStore<TUser>;
+            if (store is IUserCognitoStore<TUser>)
+                _userStore = store as IUserCognitoStore<TUser>;
             else
-                throw new ArgumentException("The store should be of type CognitoUserStore<TUser>", nameof(store));
+                throw new ArgumentException("The store should be of type implementing IUserCognitoStore<TUser>", nameof(store));
         }
 
         /// <summary>

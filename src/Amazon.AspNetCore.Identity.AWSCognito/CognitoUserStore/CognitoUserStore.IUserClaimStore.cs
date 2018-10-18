@@ -41,7 +41,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             if (user.Attributes == null)
             {
                 // Attributes are not set, fetching them
-                var details = await user.GetUserDetailsAsync();
+                var details = await user.GetUserDetailsAsync().ConfigureAwait(false);
                 claims = details.UserAttributes.Select(att => new Claim(att.Name, att.Value)).ToList();
             }
             else

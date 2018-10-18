@@ -47,12 +47,12 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             if (userManager is CognitoUserManager<TUser>)
                 _userManager = userManager as CognitoUserManager<TUser>;
             else
-                throw new ArgumentException("The userManager should be of type CognitoUserManager<TUser>", nameof(userManager));
+                throw new ArgumentException("The userManager must be of type CognitoUserManager<TUser>", nameof(userManager));
 
             if (claimsFactory is CognitoUserClaimsPrincipalFactory<TUser>)
                 _claimsFactory = claimsFactory as CognitoUserClaimsPrincipalFactory<TUser>;
             else
-                throw new ArgumentException("The claimsFactory should be of type CognitoUserClaimsPrincipalFactory<TUser>", nameof(claimsFactory));
+                throw new ArgumentException("The claimsFactory must be of type CognitoUserClaimsPrincipalFactory<TUser>", nameof(claimsFactory));
 
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
         }
@@ -64,19 +64,24 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// <param name="userName">The user name to sign in.</param>
         /// <param name="password">The password to attempt to sign in with.</param>
         /// <param name="isPersistent">Flag indicating whether the sign-in cookie should persist after the browser is closed.</param>
-        /// <param name="lockoutOnFailure">Flag indicating if the user account should be locked if the sign in fails.</param>
+        /// <param name="lockoutOnFailure">Flag indicating if the user account should be locked if the sign in fails. Cognito does not handle account lock out. This parameter is not used</param>
         /// <returns>The task object representing the asynchronous operation containing the <see name="SignInResult"/>
         /// for the sign-in attempt.</returns>
         public override async Task<SignInResult> PasswordSignInAsync(string userName, string password,
             bool isPersistent, bool lockoutOnFailure)
         {
+            if(lockoutOnFailure)
+            {
+                throw new NotSupportedException("Lockout is not enabled for the CognitoUserManager.");
+            }
+
             var user = await _userManager.FindByIdAsync(userName).ConfigureAwait(false);
             if (user == null)
             {
                 return SignInResult.Failed;
             }
 
-            return await PasswordSignInAsync(user, password, isPersistent, lockoutOnFailure);
+            return await PasswordSignInAsync(user, password, isPersistent, lockoutOnFailure).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -89,13 +94,18 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// for the sign-in attempt.</returns>
         public override async Task<SignInResult> CheckPasswordSignInAsync(TUser user, string password, bool lockoutOnFailure)
         {
+            if (lockoutOnFailure)
+            {
+                throw new NotSupportedException("Lockout is not enabled for the CognitoUserManager.");
+            }
+
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
             }
 
             // Prechecks if the user password needs to be changed
-            var error = await PreSignInCheck(user);
+            var error = await PreSignInCheck(user).ConfigureAwait(false);
             if (error != null)
             {
                 return error;
@@ -116,7 +126,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             else if (user.SessionTokens != null && user.SessionTokens.IsValid())
             {
                 var claimsPrincipal = await _claimsFactory.CreateAsync(user).ConfigureAwait(false);
-                await _contextAccessor.HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, claimsPrincipal);
+                await _contextAccessor.HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, claimsPrincipal).ConfigureAwait(false);
                 signinResult = SignInResult.Success;
             }
             else
@@ -139,7 +149,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             {
                 return SignInResult.NotAllowed;
             }
-            if (await IsPasswordChangeRequiredAsync(user))
+            if (await IsPasswordChangeRequiredAsync(user).ConfigureAwait(false))
             {
                 return CognitoSignInResult.PasswordChangeRequired;
             }
@@ -153,7 +163,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if the password needs to be changed, false otherwise.</returns>
         protected async Task<bool> IsPasswordChangeRequiredAsync(TUser user)
         {
-            return await _userManager.IsPasswordChangeRequiredAsync(user);
+            return await _userManager.IsPasswordChangeRequiredAsync(user).ConfigureAwait(false);
         }
     }
 }
