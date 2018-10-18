@@ -64,7 +64,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// <param name="userName">The user name to sign in.</param>
         /// <param name="password">The password to attempt to sign in with.</param>
         /// <param name="isPersistent">Flag indicating whether the sign-in cookie should persist after the browser is closed.</param>
-        /// <param name="lockoutOnFailure">Flag indicating if the user account should be locked if the sign in fails. Cognito does not handle account lock out. This parameter is not used</param>
+        /// <param name="lockoutOnFailure">Cognito does not handle account lock out. This parameter must be set to false, or a NotSupportedException will be thrown.</param>
         /// <returns>The task object representing the asynchronous operation containing the <see name="SignInResult"/>
         /// for the sign-in attempt.</returns>
         public override async Task<SignInResult> PasswordSignInAsync(string userName, string password,
@@ -89,7 +89,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// </summary>
         /// <param name="user">The user to sign in.</param>
         /// <param name="password">The password to attempt to sign in with.</param>
-        /// <param name="lockoutOnFailure">Flag indicating if the user account should be locked if the sign in fails. Cognito does not handle account lock out. This parameter is not used</param>
+        /// <param name="lockoutOnFailure">Cognito does not handle account lock out. This parameter must be set to false, or a NotSupportedException will be thrown.</param>
         /// <returns>The task object representing the asynchronous operation containing the <see name="SignInResult"/>
         /// for the sign-in attempt.</returns>
         public override async Task<SignInResult> CheckPasswordSignInAsync(TUser user, string password, bool lockoutOnFailure)
