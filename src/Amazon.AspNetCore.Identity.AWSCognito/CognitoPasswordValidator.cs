@@ -25,7 +25,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
     {
         // This is the list of what is considered to be a special characters by Cognito
         // See: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-policies.html
-        private readonly char[] _cognitoSymbols = { '^', '$', '*', '.', '[', ']', '{', '}', '(', ')', '?', '-', '"', '!', '@', '#', '%', '&', '/', '\\', ',', '>', '<', '\'', ':', ';', '|', '_', '~', '`' };
+        private static readonly char[] CognitoSymbols = { '^', '$', '*', '.', '[', ']', '{', '}', '(', ')', '?', '-', '"', '!', '@', '#', '%', '&', '/', '\\', ',', '>', '<', '\'', ':', ';', '|', '_', '~', '`' };
 
         /// <summary>
         /// Validates a password based on a Cognito user pool password policy as an asynchronous operation.
@@ -33,7 +33,8 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// <param name="manager">The <see cref="UserManager{CognitoUser}"/> to retrieve the <paramref name="user"/> properties from.</param>
         /// <param name="user">The user whose password should be validated.</param>
         /// <param name="password">The password supplied for validation</param>
-        /// <returns>The task object representing the asynchronous operation.</returns>
+        /// <returns>The task object representing the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
         public async Task<IdentityResult> ValidateAsync(UserManager<CognitoUser> manager, CognitoUser user, string password)
         {
             // Retrieve the password policy set by the user's user pool
@@ -62,7 +63,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 errors.Add(errorDescriber.PasswordRequiresDigit());
             }
 
-            var passwordContainsASymbol = password.IndexOfAny(_cognitoSymbols) > 0;
+            var passwordContainsASymbol = password.IndexOfAny(CognitoSymbols) > 0;
             if (!passwordContainsASymbol && passwordPolicy.RequireSymbols)
             {
                 errors.Add(errorDescriber.PasswordRequiresNonAlphanumeric());

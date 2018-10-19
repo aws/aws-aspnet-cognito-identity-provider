@@ -26,7 +26,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 {
     public class CognitoUserManager<TUser> : UserManager<TUser> where TUser : CognitoUser
     {
-        // This specific type is needed to accomodate all the interface it implements.
+        // This specific type is needed to accomodate all the interfaces it implements.
         private readonly CognitoUserStore<TUser> _userStore;
 
         public CognitoUserManager(IUserStore<TUser> store, 
@@ -45,7 +45,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             if (store is CognitoUserStore<TUser>)
                 _userStore = store as CognitoUserStore<TUser>;
             else
-                throw new ArgumentException("The store should be of type CognitoUserStore<TUser>", nameof(store));
+                throw new ArgumentException("The store must be of type CognitoUserStore<TUser>", nameof(store));
         }
 
         /// <summary>
@@ -158,9 +158,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             ThrowIfDisposed();
 
-            var result = await CreateAsync(user, password, null).ConfigureAwait(false);
-
-            return result;
+            return await CreateAsync(user, password, null).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -220,7 +218,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             }
             if (errors.Count > 0)
             {
-                Logger.LogWarning(14, "User {userId} password validation failed: {errors}.", await GetUserIdAsync(user), string.Join(";", errors.Select(e => e.Code)));
+                Logger.LogWarning(14, "User {userId} password validation failed: {errors}.", await GetUserIdAsync(user).ConfigureAwait(false), string.Join(";", errors.Select(e => e.Code)));
                 return IdentityResult.Failed(errors.ToArray());
             }
             return IdentityResult.Success;
