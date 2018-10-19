@@ -14,7 +14,9 @@
  */
 
 using Amazon.Extensions.CognitoAuthentication;
+using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -58,6 +60,31 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// <param name="user">The user to reset the password for.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if the password was reset, false otherwise.</returns>
         Task<bool> ResetUserPasswordAsync(TUser user, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Registers the specified <paramref name="user"/> in Cognito with the given password,
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to create.</param>
+        /// <param name="password">The password for the user to register with</param>
+        /// <param name="validationData">The validation data to be sent to the pre sign-up lambda triggers.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        Task<IdentityResult> CreateAsync(TUser user, string password, IDictionary<string, string> validationData, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Registers the specified <paramref name="user"/> in Cognito with the given password,
+        /// as an asynchronous operation. Also submits the validation data to the pre sign-up lambda trigger.
+        /// </summary>
+        /// <param name="user">The user to create.</param>
+        /// <param name="validationData">The validation data to be sent to the pre sign-up lambda triggers.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        Task<IdentityResult> CreateAsync(TUser user, IDictionary<string, string> validationData, CancellationToken cancellationToken);
 
     }
 }

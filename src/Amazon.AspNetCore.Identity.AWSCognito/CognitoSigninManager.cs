@@ -58,16 +58,16 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         }
 
         /// <summary>
-        /// Attempts to sign in the specified <paramref name="userName"/> and <paramref name="password"/> combination
+        /// Attempts to sign in the specified <paramref name="userId"/> and <paramref name="password"/> combination
         /// as an asynchronous operation.
         /// </summary>
-        /// <param name="userName">The user name to sign in.</param>
+        /// <param name="userId">The user id to sign in with. This can be a username, an email, or a phone number depending on the user pool policy.</param>
         /// <param name="password">The password to attempt to sign in with.</param>
         /// <param name="isPersistent">Flag indicating whether the sign-in cookie should persist after the browser is closed.</param>
         /// <param name="lockoutOnFailure">Cognito does not handle account lock out. This parameter must be set to false, or a NotSupportedException will be thrown.</param>
         /// <returns>The task object representing the asynchronous operation containing the <see name="SignInResult"/>
         /// for the sign-in attempt.</returns>
-        public override async Task<SignInResult> PasswordSignInAsync(string userName, string password,
+        public override async Task<SignInResult> PasswordSignInAsync(string userId, string password,
             bool isPersistent, bool lockoutOnFailure)
         {
             if(lockoutOnFailure)
@@ -75,7 +75,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 throw new NotSupportedException("Lockout is not enabled for the CognitoUserManager.");
             }
 
-            var user = await _userManager.FindByIdAsync(userName).ConfigureAwait(false);
+            var user = await _userManager.FindByIdAsync(userId).ConfigureAwait(false);
             if (user == null)
             {
                 return SignInResult.Failed;

@@ -70,9 +70,36 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             return Task.FromResult(user.Username);
         }
 
+        /// <summary>
+        /// Registers the specified <paramref name="user"/> in Cognito,
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to create.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
         public Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            return CreateAsync(user, null, cancellationToken);
+        }
+
+        /// <summary>
+        /// Registers the specified <paramref name="user"/> in Cognito,
+        /// as an asynchronous operation. Also submits the validation data to the pre sign-up lambda trigger.
+        /// </summary>
+        /// <param name="user">The user to create.</param>
+        /// <param name="validationData">The validation data to be sent to the pre sign-up lambda triggers.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public async Task<IdentityResult> CreateAsync(TUser user, IDictionary<string, string> validationData, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await _pool.AdminSignupAsync(user.UserID, user.Attributes, validationData).ConfigureAwait(false);
+            return IdentityResult.Success;
         }
 
         public Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken)
