@@ -33,10 +33,28 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
         }
 
+        #region IDisposable
+        private bool disposed = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return; 
+
+            if (disposing)
+            {
+                _provider.Dispose();
+            }
+            
+            disposed = true;
+        }
+
         public void Dispose()
         {
-
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
+        #endregion
 
         #region IUserCognitoStore
 
@@ -77,7 +95,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             cancellationToken.ThrowIfCancellationRequested();
             // We start an auth process as the user needs a valid session id to be able to change it's password.
-            var authResult = await StartValidatePasswordAsync(user, currentPassword, cancellationToken);
+            var authResult = await StartValidatePasswordAsync(user, currentPassword, cancellationToken).ConfigureAwait(false);
             if (authResult.ChallengeName == ChallengeNameType.NEW_PASSWORD_REQUIRED || (user.SessionTokens != null && user.SessionTokens.IsValid()))
             {
                 await user.ChangePasswordAsync(currentPassword, newPassword).ConfigureAwait(false);
@@ -95,7 +113,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         public Task<bool> IsPasswordChangeRequiredAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            bool IsPasswordChangeRequired = user.Status.Equals(CognitoConstants.StatusForceChangePassword) || user.Status.Equals(CognitoConstants.StatusResetRequired);
+            bool IsPasswordChangeRequired = user.Status.Equals(CognitoConstants.StatusForceChangePassword, StringComparison.InvariantCulture) || user.Status.Equals(CognitoConstants.StatusResetRequired, StringComparison.InvariantCulture);
             return Task.FromResult(IsPasswordChangeRequired);
         }
 
