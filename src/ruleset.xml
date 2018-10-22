@@ -1,0 +1,18 @@
+<RuleSet Name="RoslynAnalyzer ruleset" ToolsVersion="10.0">
+  <Rules AnalyzerId="Microsoft.CodeQuality.Analyzers" RuleNamespace="Microsoft.CodeQuality.Analyzers">
+    <!--
+        Suppress verbose warning for nameof() usage.
+        https://github.com/dotnet/roslyn-analyzers/issues/1561
+    -->
+    <Rule Id="CA2208" Action="None" />
+
+    <!-- Raise missing .ConfigureAwait() to a compile time error. -->
+    <Rule Id="CA2007" Action="Error" />
+
+    <!-- Raise missing Dispose(bool) to a compile time error. -->
+    <Rule Id="CA1063" Action="Error" />
+
+    <!-- string.Equals(string) should also pass in StringComparison -->
+    <Rule Id="CA1037" Action="Error" />
+  </Rules>
+</RuleSet>

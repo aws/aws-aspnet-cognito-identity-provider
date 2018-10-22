@@ -145,7 +145,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         protected override async Task<SignInResult> PreSignInCheck(TUser user)
         {
             // Checks for email/phone number confirmation status
-            if (!await CanSignInAsync(user))
+            if (!await CanSignInAsync(user).ConfigureAwait(false))
             {
                 return SignInResult.NotAllowed;
             }
