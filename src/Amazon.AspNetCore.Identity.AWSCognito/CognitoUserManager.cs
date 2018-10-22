@@ -19,13 +19,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Amazon.AspNetCore.Identity.AWSCognito
 {
     public class CognitoUserManager<TUser> : UserManager<TUser> where TUser : CognitoUser
     {
-        private readonly IUserCognitoStore<TUser> _userStore;
+        // This specific type is needed to accomodate all the interfaces it implements.
+        private readonly CognitoUserStore<TUser> _userStore;
 
         public CognitoUserManager(IUserStore<TUser> store, 
             IOptions<IdentityOptions> optionsAccessor, 
@@ -37,13 +39,16 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             IServiceProvider services, 
             ILogger<UserManager<TUser>> logger) : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger)
         {
-            if (store == null)
-                throw new ArgumentNullException(nameof(store));
 
-            if (store is IUserCognitoStore<TUser>)
-                _userStore = store as IUserCognitoStore<TUser>;
+            var userStore = store as CognitoUserStore<TUser>;
+            if (userStore == null)
+            {
+                throw new ArgumentException("The store must be of type CognitoUserStore<TUser>", nameof(store));
+            }
             else
-                throw new ArgumentException("The store should be of type implementing IUserCognitoStore<TUser>", nameof(store));
+            {
+                _userStore = userStore;
+            }
         }
 
         /// <summary>
@@ -92,7 +97,6 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             }
         }
 
-
         /// <summary>
         /// Checks if the password needs to be changed for the specified <paramref name="user"/>.
         /// </summary>
@@ -125,6 +129,102 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 
             var change = await ChangePasswordAsync(user, token, newPassword).ConfigureAwait(false);
             return change;
+        }
+
+        /// <summary>
+        /// Creates the specified <paramref name="user"/> in Cognito with a generated password sent to the user,
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to create.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public override async Task<IdentityResult> CreateAsync(TUser user)
+        {
+            ThrowIfDisposed();
+
+            return await _userStore.CreateAsync(user, CancellationToken);
+        }
+
+        /// <summary>
+        /// Creates the specified <paramref name="user"/> in Cognito with the given password,
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to create.</param>
+        /// <param name="password">The password for the user.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public override async Task<IdentityResult> CreateAsync(TUser user, string password)
+        {
+            ThrowIfDisposed();
+
+            return await CreateAsync(user, password, null).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Creates the specified <paramref name="user"/> in Cognito with the given password and validation data,
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to create.</param>
+        /// <param name="password">The password for the user</param>
+        /// <param name="validationData">The validation data to be sent to the pre sign-up lambda triggers.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public async Task<IdentityResult> CreateAsync(TUser user, string password, IDictionary<string, string> validationData)
+        {
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (password == null)
+            {
+                throw new ArgumentNullException(nameof(password));
+            }
+            var validate = await ValidatePasswordInternal(user, password).ConfigureAwait(false);
+            if (!validate.Succeeded)
+            {
+                return validate;
+            }
+
+            var result = await _userStore.CreateAsync(user, password, validationData, CancellationToken).ConfigureAwait(false);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Validates the given password against injected IPasswordValidator password validators,
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to validate the password for.</param>
+        /// <param name="password">The password to validate.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        private async Task<IdentityResult> ValidatePasswordInternal(TUser user, string password)
+        {
+            var errors = new List<IdentityError>();
+            foreach (var v in PasswordValidators)
+            {
+                var result = await v.ValidateAsync(this, user, password).ConfigureAwait(false);
+                if (!result.Succeeded)
+                {
+                    errors.AddRange(result.Errors);
+                }
+            }
+            if (errors.Count > 0)
+            {
+                Logger.LogWarning(14, "User {userId} password validation failed: {errors}.", await GetUserIdAsync(user).ConfigureAwait(false), string.Join(";", errors.Select(e => e.Code)));
+                return IdentityResult.Failed(errors.ToArray());
+            }
+            return IdentityResult.Success;
         }
     }
 }

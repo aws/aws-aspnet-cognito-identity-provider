@@ -16,7 +16,9 @@
 using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
+using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -134,6 +136,25 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             await _provider.AdminResetUserPasswordAsync(request).ConfigureAwait(false);
 
             return true;
+        }
+
+        /// <summary>
+        /// Registers the specified <paramref name="user"/> in Cognito with the given password,
+        /// as an asynchronous operation. Also submits the validation data to the pre sign-up lambda trigger.
+        /// </summary>
+        /// <param name="user">The user to create.</param>
+        /// <param name="password">The password for the user to register with</param>
+        /// <param name="validationData">The validation data to be sent to the pre sign-up lambda triggers.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public async Task<IdentityResult> CreateAsync(TUser user, string password, IDictionary<string, string> validationData, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            await _pool.SignUpAsync(user.UserID, password, user.Attributes, validationData).ConfigureAwait(false);
+            return IdentityResult.Success;
         }
 
         #endregion
