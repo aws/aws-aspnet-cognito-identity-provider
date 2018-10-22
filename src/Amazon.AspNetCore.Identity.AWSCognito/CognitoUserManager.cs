@@ -41,9 +41,14 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
 
             var userStore = store as CognitoUserStore<TUser>;
-            if (userStore == null) throw new ArgumentException("The store must be of type CognitoUserStore<TUser>", nameof(store));
-            else _userStore = userStore; 
-
+            if (userStore == null)
+            {
+                throw new ArgumentException("The store must be of type CognitoUserStore<TUser>", nameof(store));
+            }
+            else
+            {
+                _userStore = userStore;
+            }
         }
 
         /// <summary>
