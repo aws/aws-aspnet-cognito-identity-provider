@@ -39,13 +39,11 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             IServiceProvider services, 
             ILogger<UserManager<TUser>> logger) : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger)
         {
-            if (store == null)
-                throw new ArgumentNullException(nameof(store));
 
-            if (store is CognitoUserStore<TUser>)
-                _userStore = store as CognitoUserStore<TUser>;
-            else
-                throw new ArgumentException("The store must be of type CognitoUserStore<TUser>", nameof(store));
+            var userStore = store as CognitoUserStore<TUser>;
+            if (userStore == null) throw new ArgumentException("The store must be of type CognitoUserStore<TUser>", nameof(store));
+            else _userStore = userStore; 
+
         }
 
         /// <summary>
