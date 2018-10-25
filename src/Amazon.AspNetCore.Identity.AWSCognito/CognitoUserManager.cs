@@ -86,15 +86,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var success = await  _userStore.ChangePasswordAsync(user, currentPassword, newPassword, CancellationToken).ConfigureAwait(false);
-            if (success)
-            {
-                return IdentityResult.Success;
-            }
-            else
-            {
-                return IdentityResult.Failed(ErrorDescriber.PasswordMismatch()); //TODO: Create custom IdentityResult based on the errordescriber
-            }
+            return await _userStore.ChangePasswordAsync(user, currentPassword, newPassword, CancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -119,7 +111,21 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public override async Task<IdentityResult> ResetPasswordAsync(TUser user, string token, string newPassword)
+        public override Task<IdentityResult> ResetPasswordAsync(TUser user, string token, string newPassword)
+        {
+            throw new NotImplementedException("This is not supported by Cognito. Use the ResetPasswordAsync(TUser user) overload instead.");
+        }
+
+        /// <summary>
+        /// Resets the <paramref name="user"/>'s password and sends the new password to the user 
+        /// via email or sms depending on the user pool policy.
+        /// </summary>
+        /// <param name="user">The user whose password should be reset.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public async Task<IdentityResult> ResetPasswordAsync(TUser user)
         {
             ThrowIfDisposed();
             if (user == null)
@@ -127,8 +133,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var change = await ChangePasswordAsync(user, token, newPassword).ConfigureAwait(false);
-            return change;
+            return await _userStore.ResetUserPasswordAsync(user, CancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -144,7 +149,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             ThrowIfDisposed();
 
-            return await _userStore.CreateAsync(user, CancellationToken);
+            return await _userStore.CreateAsync(user, CancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -225,6 +230,216 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 return IdentityResult.Failed(errors.ToArray());
             }
             return IdentityResult.Success;
+        }
+
+        /// <summary>
+        /// Generates an email confirmation token for the specified user.
+        /// </summary>
+        /// <param name="user">The user to generate an email confirmation token for.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, an email confirmation token.
+        /// </returns>
+        public override Task<string> GenerateEmailConfirmationTokenAsync(TUser user)
+        {
+            throw new NotImplementedException("Cognito does not support directly retrieving the token value. Use SendEmailConfirmationTokenAsync() instead.");
+        }
+
+        /// <summary>
+        /// Generates a telephone number change token for the specified user.
+        /// </summary>
+        /// <param name="user">The user to generate a telephone number token for.</param>
+        /// <param name="phoneNumber">The new phone number the validation token should be sent to.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the telephone change number token.
+        /// </returns>
+        public override Task<string> GenerateChangePhoneNumberTokenAsync(TUser user, string phoneNumber)
+        {
+            throw new NotImplementedException("Cognito does not support directly retrieving the token value. Use SendPhoneConfirmationTokenAsync() instead.");
+        }
+
+        /// <summary>
+        /// Generates and sends an email confirmation token for the specified user.
+        /// </summary>
+        /// <param name="user">The user to generate and send an email confirmation token for.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public async virtual Task<IdentityResult> SendEmailConfirmationTokenAsync(TUser user)
+        {
+            ThrowIfDisposed();
+
+            return await _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoStandardAttributes.Email, CancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Generates and sends a phone confirmation token for the specified user.
+        /// </summary>
+        /// <param name="user">The user to generate and send a phone confirmation token for.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public async virtual Task<IdentityResult> SendPhoneConfirmationTokenAsync(TUser user)
+        {
+            ThrowIfDisposed();
+
+            return await _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoStandardAttributes.PhoneNumber, CancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Confirms the email of an user by validating that an email confirmation token is valid for the specified <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user to validate the token against.</param>
+        /// <param name="confirmationCode">The email confirmation code to validate.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public override async Task<IdentityResult> ConfirmEmailAsync(TUser user, string confirmationCode)
+        {
+            ThrowIfDisposed();
+
+            return await _userStore.VerifyUserAttributeAsync(user, CognitoStandardAttributes.Email, confirmationCode, CancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Confirms the phone number of an user by validating that an email confirmation token is valid for the specified <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user to validate the token against.</param>
+        /// <param name="confirmationCode">The phone number confirmation code to validate.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public async Task<IdentityResult> ConfirmPhoneNumberAsync(TUser user, string confirmationCode)
+        {
+            ThrowIfDisposed();
+
+            return await _userStore.VerifyUserAttributeAsync(user, CognitoStandardAttributes.PhoneNumber, confirmationCode, CancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Confirms the specified <paramref name="user"/> account with the specified
+        /// <paramref name="confirmationCode"/> he was sent by email or sms,
+        /// as an asynchronous operation.
+        /// When a new user is confirmed, the user's attribute through which the 
+        /// confirmation code was sent (email address or phone number) is marked as verified. 
+        /// If this attribute is also set to be used as an alias, then the user can sign in with
+        /// that attribute (email address or phone number) instead of the username.
+        /// </summary>
+        /// <param name="user">The user to confirm.</param>
+        /// <param name="confirmationCode">The confirmation code that was sent by email or sms.</param>
+        /// <param name="forcedAliasCreation">If set to true, this resolves potential alias conflicts by marking the attribute email or phone number verified.
+        /// If set to false and an alias conflict exists, then the user confirmation will fail.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public virtual async Task<IdentityResult> ConfirmSignUpAsync(TUser user, string confirmationCode, bool forcedAliasCreation)
+        {
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (string.IsNullOrWhiteSpace(confirmationCode))
+            {
+                throw new ArgumentException("The confirmation code can not be null or blank", nameof(confirmationCode));
+            }
+            return await _userStore.ConfirmSignUpAsync(user, confirmationCode, forcedAliasCreation, CancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Admin confirms the specified <paramref name="user"/> 
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to confirm.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public virtual async Task<IdentityResult> AdminConfirmSignUpAsync(TUser user)
+        {
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return await _userStore.AdminConfirmSignUpAsync(user, CancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Sets the phone number for the specified <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user whose phone number to set.</param>
+        /// <param name="phoneNumber">The phone number to set.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public override async Task<IdentityResult> SetPhoneNumberAsync(TUser user, string phoneNumber)
+        {
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            await _userStore.SetPhoneNumberAsync(user, phoneNumber, CancellationToken).ConfigureAwait(false);
+            return await UpdateUserAsync(user).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Sets the <paramref name="email"/> address for a <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user whose email should be set.</param>
+        /// <param name="email">The email to set.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public override async Task<IdentityResult> SetEmailAsync(TUser user, string email)
+        {
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            await _userStore.SetEmailAsync(user, email, CancellationToken).ConfigureAwait(false);
+            return await UpdateUserAsync(user).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Updates a users emails if the specified email change <paramref name="token"/> is valid for the user.
+        /// </summary>
+        /// <param name="user">The user whose email should be updated.</param>
+        /// <param name="newEmail">The new email address.</param>
+        /// <param name="token">The change email token to be verified.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public override Task<IdentityResult> ChangeEmailAsync(TUser user, string newEmail, string token)
+        {
+            throw new NotImplementedException("Cognito does not support changing and confirming the email simultaneously, use SetEmailAsync() and ConfirmEmailAsync()");
+        }
+
+        /// <summary>
+        /// Updates the user attributes. 
+        /// </summary>
+        /// <param name="user">The user with the new attributes values changed.</param>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        protected override async Task<IdentityResult> UpdateUserAsync(TUser user)
+        {
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return await _userStore.UpdateAsync(user, CancellationToken).ConfigureAwait(false);
         }
     }
 }

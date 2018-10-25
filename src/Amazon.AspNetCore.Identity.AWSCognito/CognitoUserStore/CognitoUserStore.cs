@@ -28,11 +28,13 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
     {
         private AmazonCognitoIdentityProviderClient _provider;
         private CognitoUserPool _pool;
+        private IdentityErrorDescriber _errorDescribers;
 
-        public CognitoUserStore(AmazonCognitoIdentityProviderClient provider, CognitoUserPool pool)
+        public CognitoUserStore(AmazonCognitoIdentityProviderClient provider, CognitoUserPool pool, IdentityErrorDescriber errors)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
+            _errorDescribers = errors ?? throw new ArgumentNullException(nameof(errors));
         }
 
         #region IDisposable
@@ -45,7 +47,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 
             if (disposing)
             {
-                _provider.Dispose();
+
             }
             
             disposed = true;
@@ -87,13 +89,13 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         }
 
         /// <summary>
-        /// Changes the passowrd on the cognito account associated with the <paramref name="user"/>.
+        /// Changes the password on the cognito account associated with the <paramref name="user"/>.
         /// </summary>
         /// <param name="user">The user to change the password for.</param>
         /// <param name="currentPassword">The current password of the user.</param>
         /// <param name="newPassword">The new passord for the user.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if changing the password was successful, false otherwise.</returns>
-        public async Task<bool> ChangePasswordAsync(TUser user, string currentPassword, string newPassword, CancellationToken cancellationToken)
+        public async Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             // We start an auth process as the user needs a valid session id to be able to change it's password.
@@ -101,10 +103,10 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             if (authResult.ChallengeName == ChallengeNameType.NEW_PASSWORD_REQUIRED || (user.SessionTokens != null && user.SessionTokens.IsValid()))
             {
                 await user.ChangePasswordAsync(currentPassword, newPassword).ConfigureAwait(false);
-                return true;
+                return IdentityResult.Success;
             }
             else
-                return false;
+                return IdentityResult.Failed(_errorDescribers.PasswordMismatch());
         }
 
         /// <summary>
@@ -124,7 +126,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// </summary>
         /// <param name="user">The user to reset the password for.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if the password was reset, false otherwise.</returns>
-        public async Task<bool> ResetUserPasswordAsync(TUser user, CancellationToken cancellationToken)
+        public async Task<IdentityResult> ResetUserPasswordAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var request = new AdminResetUserPasswordRequest
@@ -135,7 +137,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 
             await _provider.AdminResetUserPasswordAsync(request).ConfigureAwait(false);
 
-            return true;
+            return IdentityResult.Success;
         }
 
         /// <summary>
@@ -155,6 +157,160 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 
             await _pool.SignUpAsync(user.UserID, password, user.Attributes, validationData).ConfigureAwait(false);
             return IdentityResult.Success;
+        }
+
+        /// <summary>
+        /// Confirms the specified <paramref name="user"/> with the specified
+        /// <paramref name="confirmationCode"/> he was sent by email or sms,
+        /// as an asynchronous operation.
+        /// When a new user is confirmed, the user's attribute through which the 
+        /// confirmation code was sent (email address or phone number) is marked as verified. 
+        /// If this attribute is also set to be used as an alias, then the user can sign in with
+        /// that attribute (email address or phone number) instead of the username.
+        /// </summary>
+        /// <param name="user">The user to confirm.</param>
+        /// <param name="confirmationCode">The confirmation code that was sent by email or sms.</param>
+        /// <param name="forcedAliasCreation">If set to true, this resolves potential alias conflicts by marking the attribute email or phone number verified.
+        /// If set to false and an alias conflict exists, then the user confirmation will fail.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public async Task<IdentityResult> ConfirmSignUpAsync(TUser user, string confirmationCode, bool forcedAliasCreation, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            await user.ConfirmSignUpAsync(confirmationCode, forcedAliasCreation).ConfigureAwait(false);
+            return IdentityResult.Success;
+        }
+
+        /// <summary>
+        /// Admin confirms the specified <paramref name="user"/>, regardless of the confirmation code
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to confirm.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public async Task<IdentityResult> AdminConfirmSignUpAsync(TUser user, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            await _provider.AdminConfirmSignUpAsync(new AdminConfirmSignUpRequest
+            {
+                Username = user.Username,
+                UserPoolId = _pool.PoolID
+            }).ConfigureAwait(false);
+            return IdentityResult.Success;
+        }
+
+        /// <summary>
+        /// Generates and sends a verification code for the specified <paramref name="user"/>, 
+        /// and the specified <paramref name="attributeName"/>,
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to send the verification code to.</param>
+        /// <param name="attributeName">The attribute to verify.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public async Task<IdentityResult> GetUserAttributeVerificationCodeAsync(TUser user, string attributeName, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if(attributeName != CognitoStandardAttributes.PhoneNumber && attributeName != CognitoStandardAttributes.Email)
+            {
+                throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoStandardAttributes.PhoneNumber, CognitoStandardAttributes.Email), nameof(attributeName));
+            }
+            
+            await _provider.GetUserAttributeVerificationCodeAsync(new GetUserAttributeVerificationCodeRequest
+            {
+                AccessToken = user.SessionTokens.AccessToken,
+                AttributeName = attributeName
+            }).ConfigureAwait(false);
+            return IdentityResult.Success;
+        }
+
+        /// <summary>
+        /// Verifies the confirmation <paramref name="code"/> for the specified <paramref name="user"/>, 
+        /// and the specified <paramref name="attributeName"/>,
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to verify the code for.</param>
+        /// <param name="attributeName">The attribute to verify.</param>
+        /// <param name="code">The verification code to check.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public async Task<IdentityResult> VerifyUserAttributeAsync(TUser user, string attributeName, string code, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (attributeName != CognitoStandardAttributes.PhoneNumber && attributeName != CognitoStandardAttributes.Email)
+            {
+                throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoStandardAttributes.PhoneNumber, CognitoStandardAttributes.Email), nameof(attributeName));
+            }
+
+            await _provider.VerifyUserAttributeAsync(new VerifyUserAttributeRequest
+            {
+                AccessToken = user.SessionTokens.AccessToken,
+                AttributeName = attributeName,
+                Code = code
+            }).ConfigureAwait(false);
+            return IdentityResult.Success;
+        }
+
+        /// <summary>
+        /// Internal method to get a user attribute value, while checking if this attribute is readable
+        /// </summary>
+        /// <param name="user">The user to retrieve the attribute for.</param>
+        /// <param name="attributeName">The attribute to retrieve.</param>
+        /// <returns></returns>
+        private async Task<string> GetAttributeValueAsync(TUser user, string attributeName, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (user.Attributes == null)
+            {
+                throw new ArgumentException("user.Attributes must be initialized.");
+            }
+            var clientConfig = await _pool.GetUserPoolClientConfiguration().ConfigureAwait(false);
+            if (!clientConfig.ReadAttributes.Contains(attributeName))
+            {
+                throw new NotAuthorizedException(string.Format("Reading attribute {0} is not allowed by the user pool client configuration.", attributeName));
+            }
+
+            // This throws a KeyNotFoundException if the attribute name does not exist in the dictionnary.
+            return user.Attributes[attributeName];
+        }
+
+        /// <summary>
+        /// Internal method to get a user attribute value, while checking if this attribute is settable.
+        /// </summary>
+        /// <param name="user">The user to set the attribute for.</param>
+        /// <param name="attributeName">The attribute name.</param>
+        /// <param name="attributeValue">The new attribute value.</param>
+        /// <returns></returns>
+        private async Task SetAttributeValueAsync(TUser user, string attributeName, string attributeValue, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (user.Attributes == null)
+            {
+                throw new ArgumentException("user.Attributes must be initialized.");
+            }
+
+            var clientConfig = await _pool.GetUserPoolClientConfiguration().ConfigureAwait(false);
+
+            if (!clientConfig.WriteAttributes.Contains(attributeName))
+            {
+                throw new NotAuthorizedException(string.Format("Writing to attribute {0} is not allowed by the user pool client configuration.", attributeName));
+            }
+
+            user.Attributes[attributeName] = attributeValue;
         }
 
         #endregion

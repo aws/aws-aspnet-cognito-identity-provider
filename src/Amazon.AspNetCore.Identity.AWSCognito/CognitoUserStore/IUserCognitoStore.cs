@@ -39,13 +39,13 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         Task<AuthFlowResponse> StartValidatePasswordAsync(TUser user, string password, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Changes the passowrd on the cognito account associated with the <paramref name="user"/>.
+        /// Changes the password on the cognito account associated with the <paramref name="user"/>.
         /// </summary>
         /// <param name="user">The user to change the password for.</param>
         /// <param name="currentPassword">The current password of the user.</param>
         /// <param name="newPassword">The new passord for the user.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if changing the password was successful, false otherwise.</returns>
-        Task<bool> ChangePasswordAsync(TUser user, string currentPassword, string newPassword, CancellationToken cancellationToken);
+        Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword, CancellationToken cancellationToken);
 
         /// <summary>
         /// Checks if the password needs to be changed for the specified <paramref name="user"/>.
@@ -59,7 +59,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// </summary>
         /// <param name="user">The user to reset the password for.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if the password was reset, false otherwise.</returns>
-        Task<bool> ResetUserPasswordAsync(TUser user, CancellationToken cancellationToken);
+        Task<IdentityResult> ResetUserPasswordAsync(TUser user, CancellationToken cancellationToken);
 
         /// <summary>
         /// Registers the specified <paramref name="user"/> in Cognito with the given password,
@@ -85,6 +85,63 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// of the operation.
         /// </returns>
         Task<IdentityResult> CreateAsync(TUser user, IDictionary<string, string> validationData, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Confirms the specified <paramref name="user"/> with the specified
+        /// <paramref name="confirmationCode"/> he was sent by email or sms,
+        /// as an asynchronous operation.
+        /// When a new user is confirmed, the user's attribute through which the 
+        /// confirmation code was sent (email address or phone number) is marked as verified. 
+        /// If this attribute is also set to be used as an alias, then the user can sign in with
+        /// that attribute (email address or phone number) instead of the username.
+        /// </summary>
+        /// <param name="user">The user to confirm.</param>
+        /// <param name="confirmationCode">The confirmation code that was sent by email or sms.</param>
+        /// <param name="forcedAliasCreation">If set to true, this resolves potential alias conflicts by marking the attribute email or phone number verified.
+        /// If set to false and an alias conflict exists, then the user confirmation will fail.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        Task<IdentityResult> ConfirmSignUpAsync(TUser user, string confirmationCode, bool forcedAliasCreation, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Admin confirms the specified <paramref name="user"/>, regardless of the confirmation code
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to confirm.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        Task<IdentityResult> AdminConfirmSignUpAsync(TUser user, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Generates and sends a verification code for the specified <paramref name="user"/>, 
+        /// and the specified <paramref name="attributeName"/>,
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to send the verification code to.</param>
+        /// <param name="attributeName">The attribute to verify.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        Task<IdentityResult> GetUserAttributeVerificationCodeAsync(TUser user, string attributeName, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Verifies the confirmation <paramref name="code"/> for the specified <paramref name="user"/>, 
+        /// and the specified <paramref name="attributeName"/>,
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to verify the code for.</param>
+        /// <param name="attributeName">The attribute to verify.</param>
+        /// <param name="code">The verification code to check.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        Task<IdentityResult> VerifyUserAttributeAsync(TUser user, string attributeName, string code, CancellationToken cancellationToken);
 
     }
 }
