@@ -34,7 +34,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             IPasswordHasher<TUser> passwordHasher, 
             IEnumerable<IUserValidator<TUser>> userValidators, 
             IEnumerable<IPasswordValidator<TUser>> passwordValidators, 
-            ILookupNormalizer keyNormalizer, 
+            CognitoKeyNormalizer keyNormalizer, 
             IdentityErrorDescriber errors, 
             IServiceProvider services, 
             ILogger<UserManager<TUser>> logger) : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger)
@@ -148,6 +148,10 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         public override async Task<IdentityResult> CreateAsync(TUser user)
         {
             ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
 
             return await _userStore.CreateAsync(user, CancellationToken).ConfigureAwait(false);
         }

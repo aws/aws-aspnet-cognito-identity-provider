@@ -109,9 +109,17 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             throw new NotImplementedException();
         }
 
-        public Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
+        /// <summary>
+        /// Finds and returns a user, if any, who has the specified normalized user name.
+        /// </summary>
+        /// <param name="normalizedUserName">The normalized user name to search for.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="normalizedUserName"/> if it exists.
+        /// </returns>
+        public async Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito is case-sensitive and does not support normalized user name");
+            return await FindByIdAsync(normalizedUserName, cancellationToken).ConfigureAwait(false);
         }
 
         public Task<string> GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken)
