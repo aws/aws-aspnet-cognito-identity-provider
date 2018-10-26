@@ -77,7 +77,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public override async Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword)
+        public override Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword)
         {
             ThrowIfDisposed();
 
@@ -86,7 +86,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return await _userStore.ChangePasswordAsync(user, currentPassword, newPassword, CancellationToken).ConfigureAwait(false);
+            return _userStore.ChangePasswordAsync(user, currentPassword, newPassword, CancellationToken);
         }
 
         /// <summary>
@@ -273,7 +273,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             ThrowIfDisposed();
 
-            return await _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoStandardAttributes.Email, CancellationToken).ConfigureAwait(false);
+            return await _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttributesConstants.Email, CancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -288,7 +288,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             ThrowIfDisposed();
 
-            return await _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoStandardAttributes.PhoneNumber, CancellationToken).ConfigureAwait(false);
+            return await _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttributesConstants.PhoneNumber, CancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -304,7 +304,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             ThrowIfDisposed();
 
-            return await _userStore.VerifyUserAttributeAsync(user, CognitoStandardAttributes.Email, confirmationCode, CancellationToken).ConfigureAwait(false);
+            return await _userStore.VerifyUserAttributeAsync(user, CognitoAttributesConstants.Email, confirmationCode, CancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -320,7 +320,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             ThrowIfDisposed();
 
-            return await _userStore.VerifyUserAttributeAsync(user, CognitoStandardAttributes.PhoneNumber, confirmationCode, CancellationToken).ConfigureAwait(false);
+            return await _userStore.VerifyUserAttributeAsync(user, CognitoAttributesConstants.PhoneNumber, confirmationCode, CancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>

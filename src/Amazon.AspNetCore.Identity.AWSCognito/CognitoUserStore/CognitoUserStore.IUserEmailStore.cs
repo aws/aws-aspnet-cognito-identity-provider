@@ -32,14 +32,14 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await GetAttributeValueAsync(user, CognitoStandardAttributes.Email, cancellationToken).ConfigureAwait(false);
+            return await GetAttributeValueAsync(user, CognitoAttributesConstants.Email, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<bool> GetEmailConfirmedAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await GetAttributeValueAsync(user, CognitoStandardAttributes.EmailVerified, cancellationToken).ConfigureAwait(false) == "true";
+            return String.Equals(await GetAttributeValueAsync(user, CognitoAttributesConstants.EmailVerified, cancellationToken).ConfigureAwait(false), "true", StringComparison.InvariantCultureIgnoreCase);
         }
 
         public Task<string> GetNormalizedEmailAsync(TUser user, CancellationToken cancellationToken)
@@ -47,11 +47,11 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             throw new NotImplementedException("Cognito does not support normalized emails.");
         }
 
-        public async Task SetEmailAsync(TUser user, string email, CancellationToken cancellationToken)
+        public Task SetEmailAsync(TUser user, string email, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            await SetAttributeValueAsync(user, CognitoStandardAttributes.Email, email, cancellationToken).ConfigureAwait(false);
+            return SetAttributeValueAsync(user, CognitoAttributesConstants.Email, email, cancellationToken);
         }
 
         public Task SetEmailConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken)

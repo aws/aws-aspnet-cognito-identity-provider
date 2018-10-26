@@ -220,9 +220,9 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if(attributeName != CognitoStandardAttributes.PhoneNumber && attributeName != CognitoStandardAttributes.Email)
+            if(attributeName != CognitoAttributesConstants.PhoneNumber && attributeName != CognitoAttributesConstants.Email)
             {
-                throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoStandardAttributes.PhoneNumber, CognitoStandardAttributes.Email), nameof(attributeName));
+                throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoAttributesConstants.PhoneNumber, CognitoAttributesConstants.Email), nameof(attributeName));
             }
             
             await _provider.GetUserAttributeVerificationCodeAsync(new GetUserAttributeVerificationCodeRequest
@@ -249,9 +249,9 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (attributeName != CognitoStandardAttributes.PhoneNumber && attributeName != CognitoStandardAttributes.Email)
+            if (attributeName != CognitoAttributesConstants.PhoneNumber && attributeName != CognitoAttributesConstants.Email)
             {
-                throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoStandardAttributes.PhoneNumber, CognitoStandardAttributes.Email), nameof(attributeName));
+                throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoAttributesConstants.PhoneNumber, CognitoAttributesConstants.Email), nameof(attributeName));
             }
 
             await _provider.VerifyUserAttributeAsync(new VerifyUserAttributeRequest

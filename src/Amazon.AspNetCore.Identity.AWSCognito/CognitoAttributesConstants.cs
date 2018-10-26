@@ -15,7 +15,7 @@
 
 namespace Amazon.AspNetCore.Identity.AWSCognito
 {
-    public class CognitoStandardAttributes
+    public static class CognitoAttributesConstants
     {
         // This list of default attributes follows the OpenID Connect specification.
         // Source: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html

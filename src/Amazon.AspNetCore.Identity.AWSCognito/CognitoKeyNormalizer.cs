@@ -17,8 +17,18 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Amazon.AspNetCore.Identity.AWSCognito
 {
+    /// <summary>
+    /// Implements ILookupNormalizer by returning the key without changes as Cogito is case sensitive.
+    /// For instance, a group named 'Test' is not the same as a group named 'test' in Cognito.
+    /// The same is applicable to usernames.
+    /// </summary>
     public class CognitoKeyNormalizer : ILookupNormalizer
     {
+        /// <summary>
+        /// Normalizes the key to be be used by Cognito.
+        /// </summary>
+        /// <param name="key">The key to normalize</param>
+        /// <returns></returns>
         public string Normalize(string key)
         {
             // Cognito does not handle normalization, returning the key as is.

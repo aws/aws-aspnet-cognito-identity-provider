@@ -27,21 +27,21 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await GetAttributeValueAsync(user, CognitoStandardAttributes.PhoneNumber, cancellationToken).ConfigureAwait(false);
+            return await GetAttributeValueAsync(user, CognitoAttributesConstants.PhoneNumber, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<bool> GetPhoneNumberConfirmedAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await GetAttributeValueAsync(user, CognitoStandardAttributes.PhoneNumberVerified, cancellationToken).ConfigureAwait(false) == "true";
+            return String.Equals(await GetAttributeValueAsync(user, CognitoAttributesConstants.PhoneNumberVerified, cancellationToken).ConfigureAwait(false), "true", StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public async Task SetPhoneNumberAsync(TUser user, string phoneNumber, CancellationToken cancellationToken)
+        public Task SetPhoneNumberAsync(TUser user, string phoneNumber, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            await SetAttributeValueAsync(user, CognitoStandardAttributes.PhoneNumber, phoneNumber, cancellationToken).ConfigureAwait(false);
+            return SetAttributeValueAsync(user, CognitoAttributesConstants.PhoneNumber, phoneNumber, cancellationToken);
         }
 
         public Task SetPhoneNumberConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken)
