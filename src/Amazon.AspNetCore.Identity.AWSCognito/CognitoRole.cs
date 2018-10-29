@@ -25,7 +25,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             RoleArn = roleArn;
         }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
         public string Description { get; set; }
 

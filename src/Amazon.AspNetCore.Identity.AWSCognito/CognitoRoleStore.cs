@@ -25,28 +25,6 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 {
     public class CognitoRoleStore<TRole> : IRoleStore<TRole> where TRole : CognitoRole
     {
-        #region IDisposable
-        private bool disposed = false;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-                return;
-
-            if (disposing)
-            {
-
-            }
-
-            disposed = true;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        #endregion
 
         private AmazonCognitoIdentityProviderClient _provider;
         private CognitoUserPool _pool;
@@ -77,7 +55,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 RoleArn = role.RoleArn,
                 UserPoolId = _pool.PoolID
 
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
 
             return IdentityResult.Success;
         }
@@ -99,7 +77,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 GroupName = role.Name,
                 UserPoolId = _pool.PoolID
 
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
 
             return IdentityResult.Success;
         }
@@ -118,7 +96,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 GroupName = roleName,
                 UserPoolId = _pool.PoolID
 
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
 
             return new CognitoRole(response.Group.GroupName, response.Group.Description,
                 response.Group.Precedence, response.Group.RoleArn) as TRole;
@@ -144,7 +122,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 RoleArn = role.RoleArn,
                 UserPoolId = _pool.PoolID
 
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
 
             return IdentityResult.Success;
         }
@@ -161,26 +139,50 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 
         public Task SetRoleNameAsync(TRole role, string roleName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito does not allow updating a group name as it is considered as a key");
+            throw new NotSupportedException("Cognito does not allow updating a group name as it is considered as a key");
         }
 
         public Task<string> GetRoleIdAsync(TRole role, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito does not expose group ids, use GetRoleNameAsync() instead");
+            throw new NotSupportedException("Cognito does not expose group ids, use GetRoleNameAsync() instead");
         }
 
         public Task<TRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito does not expose group ids, use FindByNameAsync() instead");
+            throw new NotSupportedException("Cognito does not expose group ids, use FindByNameAsync() instead");
         }
 
         public Task SetNormalizedRoleNameAsync(TRole role, string normalizedName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito is case-sensitive and does not support normalized group names. Use SetRoleNameAsync() instead");
+            throw new NotSupportedException("Cognito is case-sensitive and does not support normalized group names. Use SetRoleNameAsync() instead");
         }
         public Task<string> GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito is case-sensitive and does not support normalized group names. Use GetRoleNameAsync() instead");
+            throw new NotSupportedException("Cognito is case-sensitive and does not support normalized group names. Use GetRoleNameAsync() instead");
         }
+
+        #region IDisposable
+        private bool disposed = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+
+            }
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
+
     }
 }

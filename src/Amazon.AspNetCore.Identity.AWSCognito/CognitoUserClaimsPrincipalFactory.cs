@@ -31,13 +31,11 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         public CognitoUserClaimsPrincipalFactory(IUserClaimStore<TUser> userClaimStore, UserManager<TUser> userManager)
         {
             _userClaimStore = userClaimStore ?? throw new ArgumentNullException(nameof(userClaimStore));
-            if (userManager == null)
-                throw new ArgumentNullException(nameof(userManager));
 
-            if (userManager is CognitoUserManager<TUser>)
-                _userManager = userManager as CognitoUserManager<TUser>;
-            else
-                throw new ArgumentException("The userManager must be of type CognitoUserManager<TUser>", nameof(userManager));
+            _userManager = userManager as CognitoUserManager<TUser>;
+
+            if (userManager == null)
+                throw new ArgumentNullException("The userManager must be of type CognitoUserManager<TUser>", nameof(userManager));
         }
 
         public async Task<ClaimsPrincipal> CreateAsync(TUser user)

@@ -113,7 +113,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// </returns>
         public override Task<IdentityResult> ResetPasswordAsync(TUser user, string token, string newPassword)
         {
-            throw new NotImplementedException("This is not supported by Cognito. Use the ResetPasswordAsync(TUser user) overload instead.");
+            throw new NotSupportedException("This is not supported by Cognito. Use the ResetPasswordAsync(TUser user) overload instead.");
         }
 
         /// <summary>
@@ -245,7 +245,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// </returns>
         public override Task<string> GenerateEmailConfirmationTokenAsync(TUser user)
         {
-            throw new NotImplementedException("Cognito does not support directly retrieving the token value. Use SendEmailConfirmationTokenAsync() instead.");
+            throw new NotSupportedException("Cognito does not support directly retrieving the token value. Use SendEmailConfirmationTokenAsync() instead.");
         }
 
         /// <summary>
@@ -258,7 +258,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// </returns>
         public override Task<string> GenerateChangePhoneNumberTokenAsync(TUser user, string phoneNumber)
         {
-            throw new NotImplementedException("Cognito does not support directly retrieving the token value. Use SendPhoneConfirmationTokenAsync() instead.");
+            throw new NotSupportedException("Cognito does not support directly retrieving the token value. Use SendPhoneConfirmationTokenAsync() instead.");
         }
 
         /// <summary>
@@ -427,7 +427,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// </returns>
         public override Task<IdentityResult> ChangeEmailAsync(TUser user, string newEmail, string token)
         {
-            throw new NotImplementedException("Cognito does not support changing and confirming the email simultaneously, use SetEmailAsync() and ConfirmEmailAsync()");
+            throw new NotSupportedException("Cognito does not support changing and confirming the email simultaneously, use SetEmailAsync() and ConfirmEmailAsync()");
         }
 
         /// <summary>

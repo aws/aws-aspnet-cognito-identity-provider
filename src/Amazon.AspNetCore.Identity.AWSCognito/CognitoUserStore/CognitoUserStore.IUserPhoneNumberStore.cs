@@ -46,7 +46,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 
         public Task SetPhoneNumberConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito does not allow updating the phone_verified attribute. This attribute gets updated automatically upon phone number change or confirmation.");
+            throw new NotSupportedException("Cognito does not allow updating the phone_verified attribute. This attribute gets updated automatically upon phone number change or confirmation.");
         }
     }
 }

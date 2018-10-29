@@ -124,17 +124,17 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 
         public Task<string> GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito is case-sensitive and does not support normalized user name");
+            throw new NotSupportedException("Cognito is case-sensitive and does not support normalized user name");
         }
 
         public Task SetNormalizedUserNameAsync(TUser user, string normalizedName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito is case-sensitive and does not support normalized user name");
+            throw new NotSupportedException("Cognito is case-sensitive and does not support normalized user name");
         }
 
         public Task SetUserNameAsync(TUser user, string userName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito does not allow changing username, but the preferred_username attribute is allowed to change");
+            throw new NotSupportedException("Cognito does not allow changing username, but the preferred_username attribute is allowed to change");
         }
 
         /// <summary>
@@ -197,7 +197,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// <param name="user">The user to add to the named role.</param>
         /// <param name="roleName">The name of the role to add the user to.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public async Task AddToRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
+        public Task AddToRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null)
@@ -205,12 +205,12 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            await _provider.AdminAddUserToGroupAsync(new AdminAddUserToGroupRequest
+            return _provider.AdminAddUserToGroupAsync(new AdminAddUserToGroupRequest
             {
                 GroupName = roleName,
                 Username = user.Username,
                 UserPoolId = _pool.PoolID
-            }).ConfigureAwait(false);
+            });
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// <param name="user">The user to remove the named role from.</param>
         /// <param name="roleName">The name of the role to remove.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public async Task RemoveFromRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
+        public Task RemoveFromRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null)
@@ -227,12 +227,12 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            await _provider.AdminRemoveUserFromGroupAsync(new AdminRemoveUserFromGroupRequest
+            return _provider.AdminRemoveUserFromGroupAsync(new AdminRemoveUserFromGroupRequest
             {
                 GroupName = roleName,
                 Username = user.Username,
                 UserPoolId = _pool.PoolID
-            }).ConfigureAwait(false);
+            });
         }
 
         /// <summary>
