@@ -161,9 +161,9 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// </summary>
         /// <param name="user">The user to check if the password needs to be changed.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if the password needs to be changed, false otherwise.</returns>
-        protected async Task<bool> IsPasswordChangeRequiredAsync(TUser user)
+        protected Task<bool> IsPasswordChangeRequiredAsync(TUser user)
         {
-            return await _userManager.IsPasswordChangeRequiredAsync(user).ConfigureAwait(false);
+            return _userManager.IsPasswordChangeRequiredAsync(user);
         }
     }
 }

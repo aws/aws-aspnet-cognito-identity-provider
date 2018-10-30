@@ -13,10 +13,12 @@
  * permissions and limitations under the License.
  */
 
+using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -107,29 +109,82 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Finds and returns a user, if any, who has the specified normalized user name.
+        /// </summary>
+        /// <param name="normalizedUserName">The normalized user name to search for.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="normalizedUserName"/> if it exists.
+        /// </returns>
         public Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito is case-sensitive and does not support normalized user name");
+            return FindByIdAsync(normalizedUserName, cancellationToken);
         }
 
         public Task<string> GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito is case-sensitive and does not support normalized user name");
+            throw new NotSupportedException("Cognito is case-sensitive and does not support normalized user name");
         }
 
         public Task SetNormalizedUserNameAsync(TUser user, string normalizedName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito is case-sensitive and does not support normalized user name");
+            throw new NotSupportedException("Cognito is case-sensitive and does not support normalized user name");
         }
 
         public Task SetUserNameAsync(TUser user, string userName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("Cognito does not allow changing username, but the preferred_username attribute is allowed to change");
         }
 
-        public Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken)
+        /// <summary>
+        /// Updates the specified <paramref name="user"/> attributes in the user store.
+        /// </summary>
+        /// <param name="user">The user to update attributes for.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
+        public async Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            // Only update user writable attributes.
+            var clientConfig = await _pool.GetUserPoolClientConfiguration().ConfigureAwait(false);
+            var newValues = clientConfig.WriteAttributes
+                .Where(key => user.Attributes.ContainsKey(key))
+                .ToDictionary(key => key, key => user.Attributes[key]);
+
+            await _provider.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
+            {
+                UserAttributes = CreateAttributeList(newValues),
+                Username = user.Username,
+                UserPoolId = _pool.PoolID
+            }).ConfigureAwait(false);
+
+            return IdentityResult.Success;
+        }
+
+        /// <summary>
+        /// Internal method to convert a dictionary of user attributes to a list of AttributeType
+        /// </summary>
+        /// <param name="attributeDict">Dictionary containing attributes of type string</param>
+        /// <returns>Returns a List of AttributeType objects</returns>
+        internal List<AttributeType> CreateAttributeList(IDictionary<string, string> attributeDict)
+        {
+            List<AttributeType> attributeList = new List<AttributeType>();
+            foreach (KeyValuePair<string, string> data in attributeDict)
+            {
+                AttributeType attribute = new AttributeType()
+                {
+                    Name = data.Key,
+                    Value = data.Value
+                };
+
+                attributeList.Add(attribute);
+            }
+            return attributeList;
         }
 
         #endregion
