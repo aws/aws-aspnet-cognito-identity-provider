@@ -34,6 +34,8 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
+            // IdentityErrorDescriber provides predefined error strings such as PasswordMismatch() or InvalidUserName(String)
+            // This is used when returning an instance of IdentityResult, which can be constructed with an array of errors to be surfaced to the UI.
             _errorDescribers = errors ?? throw new ArgumentNullException(nameof(errors));
         }
 
