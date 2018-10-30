@@ -26,41 +26,18 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 {
     public partial class CognitoUserStore<TUser> : IUserCognitoStore<TUser> where TUser : CognitoUser
     {
-        private AmazonCognitoIdentityProviderClient _provider;
+        private AmazonCognitoIdentityProviderClient _cognitoClient;
         private CognitoUserPool _pool;
         private IdentityErrorDescriber _errorDescribers;
 
-        public CognitoUserStore(AmazonCognitoIdentityProviderClient provider, CognitoUserPool pool, IdentityErrorDescriber errors)
+        public CognitoUserStore(AmazonCognitoIdentityProviderClient cognitoClient, CognitoUserPool pool, IdentityErrorDescriber errors)
         {
-            _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+            _cognitoClient = cognitoClient ?? throw new ArgumentNullException(nameof(cognitoClient));
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
             // IdentityErrorDescriber provides predefined error strings such as PasswordMismatch() or InvalidUserName(String)
             // This is used when returning an instance of IdentityResult, which can be constructed with an array of errors to be surfaced to the UI.
             _errorDescribers = errors ?? throw new ArgumentNullException(nameof(errors));
         }
-
-        #region IDisposable
-        private bool disposed = false;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-                return; 
-
-            if (disposing)
-            {
-
-            }
-            
-            disposed = true;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        #endregion
 
         #region IUserCognitoStore
 
@@ -137,7 +114,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 UserPoolId = _pool.PoolID
             };
 
-            await _provider.AdminResetUserPasswordAsync(request).ConfigureAwait(false);
+            await _cognitoClient.AdminResetUserPasswordAsync(request).ConfigureAwait(false);
 
             return IdentityResult.Success;
         }
@@ -199,7 +176,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            await _provider.AdminConfirmSignUpAsync(new AdminConfirmSignUpRequest
+            await _cognitoClient.AdminConfirmSignUpAsync(new AdminConfirmSignUpRequest
             {
                 Username = user.Username,
                 UserPoolId = _pool.PoolID
@@ -227,7 +204,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoAttributesConstants.PhoneNumber, CognitoAttributesConstants.Email), nameof(attributeName));
             }
             
-            await _provider.GetUserAttributeVerificationCodeAsync(new GetUserAttributeVerificationCodeRequest
+            await _cognitoClient.GetUserAttributeVerificationCodeAsync(new GetUserAttributeVerificationCodeRequest
             {
                 AccessToken = user.SessionTokens.AccessToken,
                 AttributeName = attributeName
@@ -256,7 +233,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoAttributesConstants.PhoneNumber, CognitoAttributesConstants.Email), nameof(attributeName));
             }
 
-            await _provider.VerifyUserAttributeAsync(new VerifyUserAttributeRequest
+            await _cognitoClient.VerifyUserAttributeAsync(new VerifyUserAttributeRequest
             {
                 AccessToken = user.SessionTokens.AccessToken,
                 AttributeName = attributeName,
@@ -315,6 +292,24 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             user.Attributes[attributeName] = attributeValue;
         }
 
+        #endregion
+
+        #region IDisposable
+        private bool disposed = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
         #endregion
     }
 }

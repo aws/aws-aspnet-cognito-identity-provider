@@ -156,7 +156,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 .Where(key => user.Attributes.ContainsKey(key))
                 .ToDictionary(key => key, key => user.Attributes[key]);
 
-            await _provider.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
+            await _cognitoClient.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
             {
                 UserAttributes = CreateAttributeList(newValues),
                 Username = user.Username,
@@ -205,7 +205,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return _provider.AdminAddUserToGroupAsync(new AdminAddUserToGroupRequest
+            return _cognitoClient.AdminAddUserToGroupAsync(new AdminAddUserToGroupRequest
             {
                 GroupName = roleName,
                 Username = user.Username,
@@ -227,7 +227,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return _provider.AdminRemoveUserFromGroupAsync(new AdminRemoveUserFromGroupRequest
+            return _cognitoClient.AdminRemoveUserFromGroupAsync(new AdminRemoveUserFromGroupRequest
             {
                 GroupName = roleName,
                 Username = user.Username,
@@ -248,7 +248,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 throw new ArgumentNullException(nameof(user));
             }
             // This calls retrieve ALL the groups
-            var response = await _provider.AdminListGroupsForUserAsync(new AdminListGroupsForUserRequest
+            var response = await _cognitoClient.AdminListGroupsForUserAsync(new AdminListGroupsForUserRequest
             {
                 Username = user.Username,
                 UserPoolId = _pool.PoolID
@@ -290,7 +290,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             cancellationToken.ThrowIfCancellationRequested();
 
             // This calls retrieve ALL the user for a group
-            var response = await _provider.ListUsersInGroupAsync(new ListUsersInGroupRequest
+            var response = await _cognitoClient.ListUsersInGroupAsync(new ListUsersInGroupRequest
             {
                 GroupName = roleName,
                 UserPoolId = _pool.PoolID

@@ -26,12 +26,12 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
     public class CognitoRoleStore<TRole> : IRoleStore<TRole> where TRole : CognitoRole
     {
 
-        private AmazonCognitoIdentityProviderClient _provider;
+        private AmazonCognitoIdentityProviderClient _cognitoClient;
         private CognitoUserPool _pool;
 
-        public CognitoRoleStore(AmazonCognitoIdentityProviderClient provider, CognitoUserPool pool)
+        public CognitoRoleStore(AmazonCognitoIdentityProviderClient cognitoClient, CognitoUserPool pool)
         {
-            _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+            _cognitoClient = cognitoClient ?? throw new ArgumentNullException(nameof(cognitoClient));
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
         }
 
@@ -47,7 +47,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             {
                 throw new ArgumentNullException(nameof(role));
             }
-            await _provider.CreateGroupAsync(new CreateGroupRequest()
+            await _cognitoClient.CreateGroupAsync(new CreateGroupRequest()
             {
                 Description = role.Description,
                 GroupName = role.Name,
@@ -72,7 +72,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             {
                 throw new ArgumentNullException(nameof(role));
             }
-            await _provider.DeleteGroupAsync(new DeleteGroupRequest()
+            await _cognitoClient.DeleteGroupAsync(new DeleteGroupRequest()
             {
                 GroupName = role.Name,
                 UserPoolId = _pool.PoolID
@@ -83,7 +83,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         }
 
         /// <summary>
-        /// Finds the role who has the specified normalized name as an asynchronous operation.
+        /// Finds the role that has the specified normalized name as an asynchronous operation.
         /// </summary>
         /// <param name="roleName">The role name to look for.</param>
         /// <returns>A <see cref="Task{TResult}"/> that represents the result of the look up.</returns>
@@ -91,7 +91,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var response = await _provider.GetGroupAsync(new GetGroupRequest()
+            var response = await _cognitoClient.GetGroupAsync(new GetGroupRequest()
             {
                 GroupName = roleName,
                 UserPoolId = _pool.PoolID
@@ -114,7 +114,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             {
                 throw new ArgumentNullException(nameof(role));
             }
-            await _provider.UpdateGroupAsync(new UpdateGroupRequest()
+            await _cognitoClient.UpdateGroupAsync(new UpdateGroupRequest()
             {
                 Description = role.Description,
                 GroupName = role.Name,
@@ -137,28 +137,65 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             return Task.FromResult(role.Name);
         }
 
+        /// <summary>
+        /// Sets the name of a role in the store as an asynchronous operation.
+        /// This is currently not supported as changing a role name is not supported by Cognito.
+        /// </summary>
+        /// <param name="role">The role whose name should be set.</param>
+        /// <param name="roleName">The name of the role.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public Task SetRoleNameAsync(TRole role, string roleName, CancellationToken cancellationToken)
         {
             throw new NotSupportedException("Changing role names in not supported.");
         }
 
+        /// <summary>
+        /// Gets the ID for a role from the store as an asynchronous operation.
+        /// This is currently not supported as Cognito does not expose role ids.
+        /// Use GetRoleNameAsync() instead.
+        /// </summary>
+        /// <param name="role">The role whose ID should be returned.</param>
+        /// <returns>A <see cref="Task{TResult}"/> that contains the ID of the role.</returns>
         public Task<string> GetRoleIdAsync(TRole role, CancellationToken cancellationToken)
         {
-            throw new NotSupportedException("Cognito does not expose group ids, use GetRoleNameAsync() instead");
+            throw new NotSupportedException("Cognito does not expose role ids, use GetRoleNameAsync() instead");
         }
 
+        /// <summary>
+        /// Finds the role that has the specified ID as an asynchronous operation.
+        /// This is currently not supported as Cognito does not expose role ids.
+        /// Use FindByNameAsync() instead.
+        /// </summary>
+        /// <param name="roleId">The role ID to look for.</param>
+        /// <returns>A <see cref="Task{TResult}"/> that result of the look up.</returns>
         public Task<TRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
         {
-            throw new NotSupportedException("Cognito does not expose group ids, use FindByNameAsync() instead");
+            throw new NotSupportedException("Cognito does not expose role ids, use FindByNameAsync() instead");
         }
 
+        /// <summary>
+        /// Set a role's normalized name as an asynchronous operation.
+        /// This is currently not supported as Cognito is case-sensitive and does not support normalized role names.
+        /// Use SetRoleNameAsync() instead.
+        /// </summary>
+        /// <param name="role">The role whose normalized name should be set.</param>
+        /// <param name="normalizedName">The normalized name to set</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public Task SetNormalizedRoleNameAsync(TRole role, string normalizedName, CancellationToken cancellationToken)
         {
-            throw new NotSupportedException("Cognito is case-sensitive and does not support normalized group names. Use SetRoleNameAsync() instead");
+            throw new NotSupportedException("Cognito is case-sensitive and does not support normalized role names. Use SetRoleNameAsync() instead");
         }
+
+        /// <summary>
+        /// Get a role's normalized name as an asynchronous operation.
+        /// This is currently not supported as Cognito is case-sensitive and does not support normalized role names.
+        /// Use GetRoleNameAsync() instead.
+        /// </summary>
+        /// <param name="role">The role whose normalized name should be retrieved.</param>
+        /// <returns>A <see cref="Task{TResult}"/> that contains the name of the role.</returns>
         public Task<string> GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken)
         {
-            throw new NotSupportedException("Cognito is case-sensitive and does not support normalized group names. Use GetRoleNameAsync() instead");
+            throw new NotSupportedException("Cognito is case-sensitive and does not support normalized role names. Use GetRoleNameAsync() instead");
         }
 
         #region IDisposable
@@ -168,11 +205,6 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         {
             if (disposed)
                 return;
-
-            if (disposing)
-            {
-
-            }
 
             disposed = true;
         }
