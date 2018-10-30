@@ -25,7 +25,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
     {
         public Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito does not support normalized emails.");
+            throw new NotSupportedException("Cognito does not support normalized emails.");
         }
 
         public async Task<string> GetEmailAsync(TUser user, CancellationToken cancellationToken)
@@ -44,7 +44,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 
         public Task<string> GetNormalizedEmailAsync(TUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito does not support normalized emails.");
+            throw new NotSupportedException("Cognito does not support normalized emails.");
         }
 
         public Task SetEmailAsync(TUser user, string email, CancellationToken cancellationToken)
@@ -56,12 +56,12 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 
         public Task SetEmailConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito does not allow updating the email_verified attribute. This attribute gets updated automatically upon email change or confirmation.");
+            throw new NotSupportedException("Cognito does not allow updating the email_verified attribute. This attribute gets updated automatically upon email change or confirmation.");
         }
 
         public Task SetNormalizedEmailAsync(TUser user, string normalizedEmail, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito does not support normalized emails.");
+            throw new NotSupportedException("Cognito does not support normalized emails.");
         }
     }
 }

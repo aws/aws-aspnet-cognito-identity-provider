@@ -117,24 +117,24 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="normalizedUserName"/> if it exists.
         /// </returns>
-        public async Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
+        public Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
-            return await FindByIdAsync(normalizedUserName, cancellationToken).ConfigureAwait(false);
+            return FindByIdAsync(normalizedUserName, cancellationToken);
         }
 
         public Task<string> GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito is case-sensitive and does not support normalized user name");
+            throw new NotSupportedException("Cognito is case-sensitive and does not support normalized user name");
         }
 
         public Task SetNormalizedUserNameAsync(TUser user, string normalizedName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito is case-sensitive and does not support normalized user name");
+            throw new NotSupportedException("Cognito is case-sensitive and does not support normalized user name");
         }
 
         public Task SetUserNameAsync(TUser user, string userName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException("Cognito does not allow changing username, but the preferred_username attribute is allowed to change");
+            throw new NotSupportedException("Cognito does not allow changing username, but the preferred_username attribute is allowed to change");
         }
 
         /// <summary>
