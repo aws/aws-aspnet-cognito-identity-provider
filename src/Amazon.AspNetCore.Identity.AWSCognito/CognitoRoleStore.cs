@@ -139,7 +139,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 
         public Task SetRoleNameAsync(TRole role, string roleName, CancellationToken cancellationToken)
         {
-            throw new NotSupportedException("Cognito does not allow updating a group name as it is considered as a key");
+            throw new NotSupportedException("Changing role names in not supported.");
         }
 
         public Task<string> GetRoleIdAsync(TRole role, CancellationToken cancellationToken)
