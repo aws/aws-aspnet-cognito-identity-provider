@@ -60,10 +60,10 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object
         /// if the specified <paramref name="password" /> matches the one store for the <paramref name="user"/>,
         /// otherwise null.</returns>
-        public async new Task<AuthFlowResponse> CheckPasswordAsync(TUser user, string password)
+        public new Task<AuthFlowResponse> CheckPasswordAsync(TUser user, string password)
         {
             ThrowIfDisposed();
-            return await _userStore.StartValidatePasswordAsync(user, password, CancellationToken).ConfigureAwait(false);
+            return _userStore.StartValidatePasswordAsync(user, password, CancellationToken);
         }
 
         /// <summary>
@@ -94,10 +94,10 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// </summary>
         /// <param name="user">The user to check if the password needs to be changed.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if the password needs to be changed, false otherwise.</returns>
-        public async Task<bool> IsPasswordChangeRequiredAsync(TUser user)
+        public Task<bool> IsPasswordChangeRequiredAsync(TUser user)
         {
             ThrowIfDisposed();
-            return await _userStore.IsPasswordChangeRequiredAsync(user, CancellationToken).ConfigureAwait(false);
+            return _userStore.IsPasswordChangeRequiredAsync(user, CancellationToken);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public async Task<IdentityResult> ResetPasswordAsync(TUser user)
+        public Task<IdentityResult> ResetPasswordAsync(TUser user)
         {
             ThrowIfDisposed();
             if (user == null)
@@ -133,7 +133,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return await _userStore.ResetUserPasswordAsync(user, CancellationToken).ConfigureAwait(false);
+            return _userStore.ResetUserPasswordAsync(user, CancellationToken);
         }
 
         /// <summary>
@@ -145,7 +145,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public override async Task<IdentityResult> CreateAsync(TUser user)
+        public override Task<IdentityResult> CreateAsync(TUser user)
         {
             ThrowIfDisposed();
             if (user == null)
@@ -153,7 +153,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return await _userStore.CreateAsync(user, CancellationToken).ConfigureAwait(false);
+            return _userStore.CreateAsync(user, CancellationToken);
         }
 
         /// <summary>
@@ -166,11 +166,11 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public override async Task<IdentityResult> CreateAsync(TUser user, string password)
+        public override Task<IdentityResult> CreateAsync(TUser user, string password)
         {
             ThrowIfDisposed();
 
-            return await CreateAsync(user, password, null).ConfigureAwait(false);
+            return CreateAsync(user, password, null);
         }
 
         /// <summary>
@@ -269,11 +269,11 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public async virtual Task<IdentityResult> SendEmailConfirmationTokenAsync(TUser user)
+        public virtual Task<IdentityResult> SendEmailConfirmationTokenAsync(TUser user)
         {
             ThrowIfDisposed();
 
-            return await _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttributesConstants.Email, CancellationToken).ConfigureAwait(false);
+            return _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttributesConstants.Email, CancellationToken);
         }
 
         /// <summary>
@@ -284,11 +284,11 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public async virtual Task<IdentityResult> SendPhoneConfirmationTokenAsync(TUser user)
+        public virtual Task<IdentityResult> SendPhoneConfirmationTokenAsync(TUser user)
         {
             ThrowIfDisposed();
 
-            return await _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttributesConstants.PhoneNumber, CancellationToken).ConfigureAwait(false);
+            return _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttributesConstants.PhoneNumber, CancellationToken);
         }
 
         /// <summary>
@@ -300,11 +300,11 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public override async Task<IdentityResult> ConfirmEmailAsync(TUser user, string confirmationCode)
+        public override Task<IdentityResult> ConfirmEmailAsync(TUser user, string confirmationCode)
         {
             ThrowIfDisposed();
 
-            return await _userStore.VerifyUserAttributeAsync(user, CognitoAttributesConstants.Email, confirmationCode, CancellationToken).ConfigureAwait(false);
+            return _userStore.VerifyUserAttributeAsync(user, CognitoAttributesConstants.Email, confirmationCode, CancellationToken);
         }
 
         /// <summary>
@@ -316,11 +316,11 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public async Task<IdentityResult> ConfirmPhoneNumberAsync(TUser user, string confirmationCode)
+        public Task<IdentityResult> ConfirmPhoneNumberAsync(TUser user, string confirmationCode)
         {
             ThrowIfDisposed();
 
-            return await _userStore.VerifyUserAttributeAsync(user, CognitoAttributesConstants.PhoneNumber, confirmationCode, CancellationToken).ConfigureAwait(false);
+            return _userStore.VerifyUserAttributeAsync(user, CognitoAttributesConstants.PhoneNumber, confirmationCode, CancellationToken);
         }
 
         /// <summary>
@@ -340,7 +340,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public virtual async Task<IdentityResult> ConfirmSignUpAsync(TUser user, string confirmationCode, bool forcedAliasCreation)
+        public virtual Task<IdentityResult> ConfirmSignUpAsync(TUser user, string confirmationCode, bool forcedAliasCreation)
         {
             ThrowIfDisposed();
 
@@ -352,7 +352,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             {
                 throw new ArgumentException("The confirmation code can not be null or blank", nameof(confirmationCode));
             }
-            return await _userStore.ConfirmSignUpAsync(user, confirmationCode, forcedAliasCreation, CancellationToken).ConfigureAwait(false);
+            return _userStore.ConfirmSignUpAsync(user, confirmationCode, forcedAliasCreation, CancellationToken);
         }
 
         /// <summary>
@@ -364,7 +364,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public virtual async Task<IdentityResult> AdminConfirmSignUpAsync(TUser user)
+        public virtual Task<IdentityResult> AdminConfirmSignUpAsync(TUser user)
         {
             ThrowIfDisposed();
 
@@ -372,7 +372,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            return await _userStore.AdminConfirmSignUpAsync(user, CancellationToken).ConfigureAwait(false);
+            return _userStore.AdminConfirmSignUpAsync(user, CancellationToken);
         }
 
         /// <summary>
@@ -436,14 +436,14 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// <param name="user">The user with the new attributes values changed.</param>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
-        protected override async Task<IdentityResult> UpdateUserAsync(TUser user)
+        protected override Task<IdentityResult> UpdateUserAsync(TUser user)
         {
             ThrowIfDisposed();
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            return await _userStore.UpdateAsync(user, CancellationToken).ConfigureAwait(false);
+            return _userStore.UpdateAsync(user, CancellationToken);
         }
     }
 }

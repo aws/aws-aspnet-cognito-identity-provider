@@ -117,9 +117,9 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="normalizedUserName"/> if it exists.
         /// </returns>
-        public async Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
+        public Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
-            return await FindByIdAsync(normalizedUserName, cancellationToken).ConfigureAwait(false);
+            return FindByIdAsync(normalizedUserName, cancellationToken);
         }
 
         public Task<string> GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken)
