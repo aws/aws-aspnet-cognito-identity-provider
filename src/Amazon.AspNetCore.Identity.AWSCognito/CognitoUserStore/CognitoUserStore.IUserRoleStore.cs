@@ -156,7 +156,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 .Where(key => user.Attributes.ContainsKey(key))
                 .ToDictionary(key => key, key => user.Attributes[key]);
 
-            await _provider.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
+            await _cognitoClient.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
             {
                 UserAttributes = CreateAttributeList(newValues),
                 Username = user.Username,
@@ -191,35 +191,113 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 
         #region IUserRoleStore
 
-        // Roles Handling:
+        /// <summary>
+        /// Add the specified <paramref name="user"/> to the named role.
+        /// </summary>
+        /// <param name="user">The user to add to the named role.</param>
+        /// <param name="roleName">The name of the role to add the user to.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public Task AddToRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
         {
-            //WIP: AdminAddUserToGroupAsync
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            return _cognitoClient.AdminAddUserToGroupAsync(new AdminAddUserToGroupRequest
+            {
+                GroupName = roleName,
+                Username = user.Username,
+                UserPoolId = _pool.PoolID
+            });
         }
 
+        /// <summary>
+        /// Remove the specified <paramref name="user"/> from the named role.
+        /// </summary>
+        /// <param name="user">The user to remove the named role from.</param>
+        /// <param name="roleName">The name of the role to remove.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public Task RemoveFromRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
         {
-            //WIP: AdminRemoveUserFromGroupAsync
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            return _cognitoClient.AdminRemoveUserFromGroupAsync(new AdminRemoveUserFromGroupRequest
+            {
+                GroupName = roleName,
+                Username = user.Username,
+                UserPoolId = _pool.PoolID
+            });
         }
 
-        public Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken)
+        /// <summary>
+        /// Gets a list of role names the specified <paramref name="user"/> belongs to.
+        /// </summary>
+        /// <param name="user">The user whose role names to retrieve.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a list of role names.</returns>
+        public async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken)
         {
-            //WIP: ListGroupsAsync
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            // This calls retrieve ALL the groups
+            var response = await _cognitoClient.AdminListGroupsForUserAsync(new AdminListGroupsForUserRequest
+            {
+                Username = user.Username,
+                UserPoolId = _pool.PoolID
+            }).ConfigureAwait(false);
+
+            return response.Groups.Select(group => group.GroupName).ToList();
         }
 
-        public Task<bool> IsInRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
+        /// <summary>
+        /// Returns a flag indicating whether the specified <paramref name="user"/> is a member of the given named role.
+        /// </summary>
+        /// <param name="user">The user whose role membership should be checked.</param>
+        /// <param name="roleName">The name of the role to be checked.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing a flag indicating whether the specified <paramref name="user"/> is
+        /// a member of the named role.
+        /// </returns>
+        public async Task<bool> IsInRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
         {
-            //WIP: AdminListGroupsForUserAsync
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var userRoles = await GetRolesAsync(user, cancellationToken).ConfigureAwait(false);
+            return userRoles.Contains(roleName);
         }
 
-        public Task<IList<TUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
+        /// <summary>
+        /// Returns a list of Users who are members of the named role.
+        /// </summary>
+        /// <param name="roleName">The name of the role whose membership should be returned.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing a list of users who are in the named role.
+        /// </returns>
+        public async Task<IList<TUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
         {
-            //WIP: ListUsersInGroupAsync
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // This calls retrieve ALL the user for a group
+            var response = await _cognitoClient.ListUsersInGroupAsync(new ListUsersInGroupRequest
+            {
+                GroupName = roleName,
+                UserPoolId = _pool.PoolID
+            }).ConfigureAwait(false);
+
+            return response.Users.Select(user => _pool.GetUser(user.Username, user.UserStatus,
+                user.Attributes.ToDictionary(att => att.Name, att => att.Value))).ToList() as IList<TUser>;
         }
         #endregion
     }
