@@ -125,8 +125,6 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             }
             else if (user.SessionTokens != null && user.SessionTokens.IsValid())
             {
-                var claimsPrincipal = await _claimsFactory.CreateAsync(user).ConfigureAwait(false);
-                await _contextAccessor.HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, claimsPrincipal).ConfigureAwait(false);
                 signinResult = SignInResult.Success;
             }
             else

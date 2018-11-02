@@ -26,11 +26,11 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 {
     public partial class CognitoUserStore<TUser> : IUserCognitoStore<TUser> where TUser : CognitoUser
     {
-        private AmazonCognitoIdentityProviderClient _cognitoClient;
+        private IAmazonCognitoIdentityProvider _cognitoClient;
         private CognitoUserPool _pool;
         private IdentityErrorDescriber _errorDescribers;
 
-        public CognitoUserStore(AmazonCognitoIdentityProviderClient cognitoClient, CognitoUserPool pool, IdentityErrorDescriber errors)
+        public CognitoUserStore(IAmazonCognitoIdentityProvider cognitoClient, CognitoUserPool pool, IdentityErrorDescriber errors)
         {
             _cognitoClient = cognitoClient ?? throw new ArgumentNullException(nameof(cognitoClient));
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
@@ -114,7 +114,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 UserPoolId = _pool.PoolID
             };
 
-            await _cognitoClient.AdminResetUserPasswordAsync(request).ConfigureAwait(false);
+            await _cognitoClient.AdminResetUserPasswordAsync(request, cancellationToken).ConfigureAwait(false);
 
             return IdentityResult.Success;
         }
@@ -180,7 +180,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             {
                 Username = user.Username,
                 UserPoolId = _pool.PoolID
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
             return IdentityResult.Success;
         }
 
@@ -208,7 +208,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             {
                 AccessToken = user.SessionTokens.AccessToken,
                 AttributeName = attributeName
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
             return IdentityResult.Success;
         }
 
@@ -238,7 +238,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 AccessToken = user.SessionTokens.AccessToken,
                 AttributeName = attributeName,
                 Code = code
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
             return IdentityResult.Success;
         }
 
