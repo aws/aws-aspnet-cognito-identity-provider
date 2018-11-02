@@ -26,11 +26,11 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
 {
     public partial class CognitoUserStore<TUser> : IUserCognitoStore<TUser> where TUser : CognitoUser
     {
-        private AmazonCognitoIdentityProviderClient _cognitoClient;
+        private IAmazonCognitoIdentityProvider _cognitoClient;
         private CognitoUserPool _pool;
         private IdentityErrorDescriber _errorDescribers;
 
-        public CognitoUserStore(AmazonCognitoIdentityProviderClient cognitoClient, CognitoUserPool pool, IdentityErrorDescriber errors)
+        public CognitoUserStore(IAmazonCognitoIdentityProvider cognitoClient, CognitoUserPool pool, IdentityErrorDescriber errors)
         {
             _cognitoClient = cognitoClient ?? throw new ArgumentNullException(nameof(cognitoClient));
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
