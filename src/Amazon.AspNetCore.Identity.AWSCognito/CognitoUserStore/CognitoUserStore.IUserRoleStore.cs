@@ -161,7 +161,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 UserAttributes = CreateAttributeList(newValues),
                 Username = user.Username,
                 UserPoolId = _pool.PoolID
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
 
             return IdentityResult.Success;
         }
@@ -210,7 +210,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 GroupName = roleName,
                 Username = user.Username,
                 UserPoolId = _pool.PoolID
-            });
+            }, cancellationToken);
         }
 
         /// <summary>
@@ -232,7 +232,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
                 GroupName = roleName,
                 Username = user.Username,
                 UserPoolId = _pool.PoolID
-            });
+            }, cancellationToken);
         }
 
         /// <summary>
@@ -252,7 +252,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             {
                 Username = user.Username,
                 UserPoolId = _pool.PoolID
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
 
             return response.Groups.Select(group => group.GroupName).ToList();
         }
@@ -294,7 +294,7 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
             {
                 GroupName = roleName,
                 UserPoolId = _pool.PoolID
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
 
             return response.Users.Select(user => _pool.GetUser(user.Username, user.UserStatus,
                 user.Attributes.ToDictionary(att => att.Name, att => att.Value))).ToList() as IList<TUser>;

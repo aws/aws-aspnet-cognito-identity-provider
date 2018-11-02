@@ -26,10 +26,10 @@ namespace Amazon.AspNetCore.Identity.AWSCognito
     public class CognitoRoleStore<TRole> : IRoleStore<TRole> where TRole : CognitoRole
     {
 
-        private AmazonCognitoIdentityProviderClient _cognitoClient;
+        private IAmazonCognitoIdentityProvider _cognitoClient;
         private CognitoUserPool _pool;
 
-        public CognitoRoleStore(AmazonCognitoIdentityProviderClient cognitoClient, CognitoUserPool pool)
+        public CognitoRoleStore(IAmazonCognitoIdentityProvider cognitoClient, CognitoUserPool pool)
         {
             _cognitoClient = cognitoClient ?? throw new ArgumentNullException(nameof(cognitoClient));
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
