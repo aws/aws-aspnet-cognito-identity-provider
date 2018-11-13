@@ -13,15 +13,17 @@
  * permissions and limitations under the License.
  */
 
+using Amazon.AspNetCore.Identity.AWSCognito;
+using Amazon.AspNetCore.Identity.AWSCognito.Exceptions;
+using Amazon.AspNetCore.Identity.AWSCognito.Extensions;
 using Amazon.CognitoIdentityProvider;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 
-namespace Amazon.AspNetCore.Identity.AWSCognito.Extensions
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class CognitoServiceCollectionExtensions
     {
@@ -73,6 +75,8 @@ namespace Amazon.AspNetCore.Identity.AWSCognito.Extensions
 
     internal static class CognitoUserPoolFactory
     {
+        private const string MissingConfigurationExceptionMessage = "No IConfiguration object instance was found in the service collection. Could not instanciate a CognitoUserPool object.";
+
         public static CognitoUserPool CreateUserPoolClient(IServiceProvider provider)
         {
             // Checks if AWSCognitoClientOptions are already set up
@@ -84,9 +88,13 @@ namespace Amazon.AspNetCore.Identity.AWSCognito.Extensions
                 {
                     options = configuration.GetAWSCognitoClientOptions();
                 }
+                else
+                {
+                    throw new CognitoConfigurationException(MissingConfigurationExceptionMessage);
+                }
             }
 
-            var cognitoClient = (IAmazonCognitoIdentityProvider)provider.GetService(typeof(IAmazonCognitoIdentityProvider));
+            var cognitoClient = provider.GetService<IAmazonCognitoIdentityProvider>();
             var cognitoPool = new CognitoUserPool(options.UserPoolId, options.UserPoolClientId, cognitoClient, options.UserPoolClientSecret);
             return cognitoPool;
         }

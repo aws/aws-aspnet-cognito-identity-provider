@@ -14,9 +14,9 @@
  */
 
 using Amazon.AspNetCore.Identity.AWSCognito.Exceptions;
-using Microsoft.Extensions.Configuration;
+using Amazon.AspNetCore.Identity.AWSCognito.Extensions;
 
-namespace Amazon.AspNetCore.Identity.AWSCognito.Extensions
+namespace Microsoft.Extensions.Configuration
 {
     public static class ConfigurationExtensions
     {
@@ -54,14 +54,14 @@ namespace Amazon.AspNetCore.Identity.AWSCognito.Extensions
             if (section == null)
                 return options;
 
-            options.UserPoolClientId = TryGetConfigurationValue(section, ConfigurationClientIdKey);
-            options.UserPoolClientSecret = TryGetConfigurationValue(section, ConfigurationClientSecretKey);
-            options.UserPoolId = TryGetConfigurationValue(section, ConfigurationUserPoolIdKey);
+            options.UserPoolClientId = GetConfigurationValue(section, ConfigurationClientIdKey);
+            options.UserPoolClientSecret = GetConfigurationValue(section, ConfigurationClientSecretKey);
+            options.UserPoolId = GetConfigurationValue(section, ConfigurationUserPoolIdKey);
             
             return options;
         }
 
-        private static string TryGetConfigurationValue(IConfiguration section, string configurationKey)
+        private static string GetConfigurationValue(IConfiguration section, string configurationKey)
         {
             if (!string.IsNullOrEmpty(section[configurationKey]))
             {
