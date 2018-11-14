@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <CodeAnalysisRuleSet>../ruleset.xml</CodeAnalysisRuleSet>
+    <Version>0.9.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
