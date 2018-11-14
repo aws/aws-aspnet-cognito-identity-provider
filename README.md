@@ -35,7 +35,7 @@ You can do this by running the following command on their respective source code
 dotnet pack
 ```
 
-## Instructions
+## Adding AWS Cognito as an Identity Provider
 
 To add AWS Cognito as an Identity Provider, make the following change to your code:
 
@@ -85,6 +85,38 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
+## Using the CognitoUser class as your web application user class
+
+Once AWS Cognito is added as the default ASP.NET Core Identity Provider, you will need to make changes to your code to use the newly introduced CognitoUser class instead of the default ApplicationUser class.
+
+These changes will be required in existing RaZor views and controllers. Here is an example with a RaZor view:
+
+```csharp
+@using Microsoft.AspNetCore.Identity
+@using Amazon.Extensions.CognitoAuthentication
+
+@inject SignInManager<CognitoUser> SignInManager
+@inject UserManager<CognitoUser> UserManager
+```
+
+In addition, this library introduces two child classes of SigninManager and UserManager designed for AWS Cognito authentication and user management workflow: CognitoSigninManager and CognitoUserManager classes.
+
+These two classes expose additional methods designed to support AWS Cognito features, such as sending validation data to pre-signup [AWS Lambda triggers](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-pre-sign-up.html) when registering a new user:
+
+```csharp
+/// <summary>
+/// Creates the specified <paramref name="user"/> in Cognito with the given password and validation data,
+/// as an asynchronous operation.
+/// </summary>
+/// <param name="user">The user to create.</param>
+/// <param name="password">The password for the user</param>
+/// <param name="validationData">The validation data to be sent to the pre sign-up lambda triggers.</param>
+/// <returns>
+/// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+/// of the operation.
+/// </returns>
+public async Task<IdentityResult> CreateAsync(TUser user, string password, IDictionary<string, string> validationData)
+```
 
 # Getting Help
 
