@@ -4,8 +4,9 @@
 
 **This software is in development and we do not recommend using this software in production environment.**
 
-ASP.NET Core Identity Provider for [Amazon Cognito](https://aws.amazon.com/cognito/) simplifies using [Amazon Cognito](https://aws.amazon.com/cognito/) as a membership storage solution for building ASP.NET Core web applications using [ASP.NET Core Identity](https://github.com/aspnet/Identity/).  
+ASP.NET Core Identity Provider for [Amazon Cognito](https://aws.amazon.com/cognito/) simplifies using [Amazon Cognito](https://aws.amazon.com/cognito/) as a membership storage solution for building ASP.NET Core web applications using [ASP.NET Core Identity](https://github.com/aspnet/Identity/).
 
+This library is not compatible with older versions of Identity such as the ones for ASP.NET MVC5 and lower. It only supports ASP.NET Core Identity and targets the .NET Standard 2.0.
 
 The library introduces the following dependencies:
 
