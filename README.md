@@ -29,10 +29,11 @@ While this library is in development, you will need to build it manually, along 
 
 * [Amazon.Extensions.CognitoAuthentication](https://github.com/aws/aws-sdk-net-extensions-cognito)
 
-You can do this by running the following command on their respective source code repositories:
+You can do this by checking out the [Amazon.Extensions.CognitoAuthentication](https://github.com/aws/aws-sdk-net-extensions-cognito) project at the same level as this repository, along with you ASP.NET Core web application. Your ASP.NET Core web application csproj file can then include the following lines:
 
 ```csharp
-dotnet pack
+<ProjectReference Include="..\..\..\aws-aspnet-cognito-identity-provider\src\Amazon.AspNetCore.Identity.AWSCognito\Amazon.AspNetCore.Identity.AWSCognito.csproj" />
+<ProjectReference Include="..\..\..\aws-sdk-net-extensions-cognito\src\Amazon.Extensions.CognitoAuthentication\Amazon.Extensions.CognitoAuthentication.csproj" />
 ```
 
 ## Adding AWS Cognito as an Identity Provider
