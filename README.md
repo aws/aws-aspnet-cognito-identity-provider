@@ -1,10 +1,10 @@
 ![.NET on AWS Banner](./logo.png ".NET on AWS")
 
-## ASP.NET Core Identity Provider for AWS Cognito
+## ASP.NET Core Identity Provider for Amazon Cognito
 
 This software is in development and we do not recommend using this software in production environment.
 
-ASP.NET Core Identity Provider for [AWS Cognito](https://aws.amazon.com/cognito/) simplifies using [AWS Cognito](https://aws.amazon.com/cognito/) as a membership storage solution for building ASP.NET Core web applications using [ASP.NET Core Identity](https://github.com/aspnet/Identity/).  
+ASP.NET Core Identity Provider for [Amazon Cognito](https://aws.amazon.com/cognito/) simplifies using [Amazon Cognito](https://aws.amazon.com/cognito/) as a membership storage solution for building ASP.NET Core web applications using [ASP.NET Core Identity](https://github.com/aspnet/Identity/).  
 
 
 The library introduces the following dependencies:
@@ -22,7 +22,7 @@ The library introduces the following dependencies:
 
 Follow the examples below to see how the library can be integrated into your web application.  
 
-This library extends the ASP.NET Core Identity membership system by using AWS Cognito as a [Custom Storage Provider for ASP.NET Identity](https://docs.microsoft.com/en-us/aspnet/identity/overview/extensibility/overview-of-custom-storage-providers-for-aspnet-identity).
+This library extends the ASP.NET Core Identity membership system by using Amazon Cognito as a [Custom Storage Provider for ASP.NET Identity](https://docs.microsoft.com/en-us/aspnet/identity/overview/extensibility/overview-of-custom-storage-providers-for-aspnet-identity).
 
 ## Building the library
 While this library is in development, you will need to build it manually, along with the following dependency:
@@ -36,16 +36,16 @@ You can do this by checking out the [Amazon.Extensions.CognitoAuthentication](ht
 <ProjectReference Include="..\..\..\aws-sdk-net-extensions-cognito\src\Amazon.Extensions.CognitoAuthentication\Amazon.Extensions.CognitoAuthentication.csproj" />
 ```
 
-## Adding AWS Cognito as an Identity Provider
+## Adding Amazon Cognito as an Identity Provider
 
-To add AWS Cognito as an Identity Provider, make the following change to your code:
+To add Amazon Cognito as an Identity Provider, make the following change to your code:
 
 Startup.cs:
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-    // Adds AWS Cognito as Identity Provider
+    // Adds Amazon Cognito as Identity Provider
     services.AddCognitoIdentity();
     ...
 }
@@ -69,18 +69,18 @@ In order to automatically inject Cognito service and user pool clients make the 
 }
 ```
 
-Alternatively, instead of using the appsettings.json you can directly inject your own instances of AWS Cognito service and user pool clients to be used when calling AddCognitoIdentity():
+Alternatively, instead of using the appsettings.json you can directly inject your own instances of Amazon Cognito service and user pool clients to be used when calling AddCognitoIdentity():
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
     ...
-    // Adds your own instance of AWS Cognito clients 
+    // Adds your own instance of Amazon Cognito clients 
     // cognitoIdentityProvider and cognitoUserPool are variables you would have instanciated yourself
     services.AddSingleton<IAmazonCognitoIdentityProvider>(cognitoIdentityProvider);
     services.AddSingleton<CognitoUserPool>(cognitoUserPool);
 
-    // Adds AWS Cognito as Identity Provider
+    // Adds Amazon Cognito as Identity Provider
     services.AddCognitoIdentity();
     ...
 }
@@ -88,7 +88,7 @@ public void ConfigureServices(IServiceCollection services)
 
 ## Using the CognitoUser class as your web application user class
 
-Once AWS Cognito is added as the default ASP.NET Core Identity Provider, you will need to make changes to your code to use the newly introduced CognitoUser class instead of the default ApplicationUser class.
+Once Amazon Cognito is added as the default ASP.NET Core Identity Provider, you will need to make changes to your code to use the newly introduced CognitoUser class instead of the default ApplicationUser class.
 
 These changes will be required in existing RaZor views and controllers. Here is an example with a RaZor view:
 
@@ -100,9 +100,9 @@ These changes will be required in existing RaZor views and controllers. Here is 
 @inject UserManager<CognitoUser> UserManager
 ```
 
-In addition, this library introduces two child classes of SigninManager and UserManager designed for AWS Cognito authentication and user management workflow: CognitoSigninManager and CognitoUserManager classes.
+In addition, this library introduces two child classes of SigninManager and UserManager designed for Amazon Cognito authentication and user management workflow: CognitoSigninManager and CognitoUserManager classes.
 
-These two classes expose additional methods designed to support AWS Cognito features, such as sending validation data to pre-signup [AWS Lambda triggers](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-pre-sign-up.html) when registering a new user:
+These two classes expose additional methods designed to support Amazon Cognito features, such as sending validation data to pre-signup [AWS Lambda triggers](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-pre-sign-up.html) when registering a new user:
 
 ```csharp
 /// <summary>

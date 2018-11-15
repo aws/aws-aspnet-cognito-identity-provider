@@ -19,7 +19,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Amazon.AspNetCore.Identity.AWSCognito
+namespace Amazon.AspNetCore.Identity.Cognito
 {
     public partial class CognitoUserStore<TUser> : IUserEmailStore<TUser> where TUser : CognitoUser
     {

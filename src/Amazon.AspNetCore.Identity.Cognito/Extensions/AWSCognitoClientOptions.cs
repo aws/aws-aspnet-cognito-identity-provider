@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-namespace Amazon.AspNetCore.Identity.AWSCognito.Extensions
+namespace Amazon.AspNetCore.Identity.Cognito.Extensions
 {
     public class AWSCognitoClientOptions
     {

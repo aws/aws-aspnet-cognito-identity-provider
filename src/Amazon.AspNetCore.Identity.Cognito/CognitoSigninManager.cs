@@ -23,7 +23,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 
-namespace Amazon.AspNetCore.Identity.AWSCognito
+namespace Amazon.AspNetCore.Identity.Cognito
 {
     public class CognitoSignInManager<TUser> : SignInManager<TUser> where TUser : CognitoUser
     {
