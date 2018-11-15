@@ -22,7 +22,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Amazon.AspNetCore.Identity.AWSCognito
+namespace Amazon.AspNetCore.Identity.Cognito
 {
     public partial class CognitoUserStore<TUser> : IUserClaimStore<TUser> where TUser : CognitoUser
     {

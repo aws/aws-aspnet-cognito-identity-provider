@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Amazon.AspNetCore.Identity.AWSCognito
+namespace Amazon.AspNetCore.Identity.Cognito
 {
     public class CognitoPasswordValidator : IPasswordValidator<CognitoUser>
     {

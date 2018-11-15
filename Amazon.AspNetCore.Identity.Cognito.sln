@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Amazon.AspNetCore.Identity.AWSCognito", "src\Amazon.AspNetCore.Identity.AWSCognito\Amazon.AspNetCore.Identity.AWSCognito.csproj", "{EC93E92B-BE99-4891-BCBA-72121FC88F31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Amazon.AspNetCore.Identity.Cognito", "src\Amazon.AspNetCore.Identity.Cognito\Amazon.AspNetCore.Identity.Cognito.csproj", "{EC93E92B-BE99-4891-BCBA-72121FC88F31}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Amazon.Extensions.CognitoAuthentication", "..\aws-sdk-net-extensions-cognito\src\Amazon.Extensions.CognitoAuthentication\Amazon.Extensions.CognitoAuthentication.csproj", "{EEB5B65E-6838-4AB3-8065-ECF39FEB4073}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{EC93E92B-BE99-4891-BCBA-72121FC88F31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC93E92B-BE99-4891-BCBA-72121FC88F31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC93E92B-BE99-4891-BCBA-72121FC88F31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEB5B65E-6838-4AB3-8065-ECF39FEB4073}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEB5B65E-6838-4AB3-8065-ECF39FEB4073}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEB5B65E-6838-4AB3-8065-ECF39FEB4073}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEB5B65E-6838-4AB3-8065-ECF39FEB4073}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

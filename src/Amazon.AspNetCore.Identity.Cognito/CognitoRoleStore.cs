@@ -21,7 +21,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Amazon.AspNetCore.Identity.AWSCognito
+namespace Amazon.AspNetCore.Identity.Cognito
 {
     public class CognitoRoleStore<TRole> : IRoleStore<TRole> where TRole : CognitoRole
     {

@@ -13,9 +13,9 @@
  * permissions and limitations under the License.
  */
 
-using Amazon.AspNetCore.Identity.AWSCognito;
-using Amazon.AspNetCore.Identity.AWSCognito.Exceptions;
-using Amazon.AspNetCore.Identity.AWSCognito.Extensions;
+using Amazon.AspNetCore.Identity.Cognito;
+using Amazon.AspNetCore.Identity.Cognito.Exceptions;
+using Amazon.AspNetCore.Identity.Cognito.Extensions;
 using Amazon.CognitoIdentityProvider;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;

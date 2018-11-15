@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-namespace Amazon.AspNetCore.Identity.AWSCognito
+namespace Amazon.AspNetCore.Identity.Cognito
 {
     public class CognitoRole
     {

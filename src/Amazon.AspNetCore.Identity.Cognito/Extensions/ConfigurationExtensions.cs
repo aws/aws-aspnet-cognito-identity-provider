@@ -13,8 +13,8 @@
  * permissions and limitations under the License.
  */
 
-using Amazon.AspNetCore.Identity.AWSCognito.Exceptions;
-using Amazon.AspNetCore.Identity.AWSCognito.Extensions;
+using Amazon.AspNetCore.Identity.Cognito.Exceptions;
+using Amazon.AspNetCore.Identity.Cognito.Extensions;
 
 namespace Microsoft.Extensions.Configuration
 {

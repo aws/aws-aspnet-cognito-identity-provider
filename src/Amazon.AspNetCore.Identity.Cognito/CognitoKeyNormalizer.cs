@@ -15,7 +15,7 @@
 
 using Microsoft.AspNetCore.Identity;
 
-namespace Amazon.AspNetCore.Identity.AWSCognito
+namespace Amazon.AspNetCore.Identity.Cognito
 {
     /// <summary>
     /// Implements ILookupNormalizer by returning the key without changes as Cogito is case sensitive.

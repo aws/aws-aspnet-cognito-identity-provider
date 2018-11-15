@@ -15,7 +15,7 @@
 
 using System;
 
-namespace Amazon.AspNetCore.Identity.AWSCognito.Exceptions
+namespace Amazon.AspNetCore.Identity.Cognito.Exceptions
 {
     public class CognitoConfigurationException : Exception
     {
