@@ -2,7 +2,7 @@
 
 ## ASP.NET Core Identity Provider for Amazon Cognito
 
-This software is in development and we do not recommend using this software in production environment.
+**This software is in development and we do not recommend using this software in production environment.**
 
 ASP.NET Core Identity Provider for [Amazon Cognito](https://aws.amazon.com/cognito/) simplifies using [Amazon Cognito](https://aws.amazon.com/cognito/) as a membership storage solution for building ASP.NET Core web applications using [ASP.NET Core Identity](https://github.com/aspnet/Identity/).  
 
@@ -121,12 +121,9 @@ public async Task<IdentityResult> CreateAsync(TUser user, string password, IDict
 
 # Getting Help
 
-You can use the following community resources to get help. We use the [GitHub issues](https://github.com/aws/aws-aspnet-cognito-identity-provider/issues) for tracking bugs and feature requests and have limited bandwidth to address them.
+We use the [GitHub issues](https://github.com/aws/aws-aspnet-cognito-identity-provider/issues) for tracking bugs and feature requests and have limited bandwidth to address them.
 
-* Ask a question on [StackOverflow](http://stackoverflow.com/) and tag it with `aws` and `.net`
-* Come join the AWS .NET community chat on [gitter](https://gitter.im/aws/aws-sdk-net)
-* Open a support ticket with [AWS Support](https://console.aws.amazon.com/support/home)
-* If it turns out that you may have found a bug, please open an [issue](https://github.com/aws/aws-aspnet-cognito-identity-provider/issues/new)
+If you think you may have found a bug, please open an [issue](https://github.com/aws/aws-aspnet-cognito-identity-provider/issues/new)
 
 # Contributing
 
