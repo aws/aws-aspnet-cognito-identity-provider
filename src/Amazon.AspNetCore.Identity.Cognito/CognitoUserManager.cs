@@ -20,6 +20,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Amazon.AspNetCore.Identity.Cognito
@@ -434,8 +435,10 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// Updates the user attributes. 
         /// </summary>
         /// <param name="user">The user with the new attributes values changed.</param>
+        /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
+        /// </returns>
         protected override Task<IdentityResult> UpdateUserAsync(TUser user)
         {
             ThrowIfDisposed();
@@ -444,6 +447,56 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 throw new ArgumentNullException(nameof(user));
             }
             return _userStore.UpdateAsync(user, CancellationToken);
+        }
+
+        /// <summary>
+        /// Adds the specified <paramref name="claims"/> to the <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user to add the claim to.</param>
+        /// <param name="claims">The claims to add.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public override async Task<IdentityResult> AddClaimsAsync(TUser user, IEnumerable<Claim> claims)
+        {
+            ThrowIfDisposed();
+            if (claims == null)
+            {
+                throw new ArgumentNullException(nameof(claims));
+            }
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            await _userStore.AddClaimsAsync(user, claims, CancellationToken).ConfigureAwait(false);
+            return IdentityResult.Success;
+        }
+
+        /// <summary>
+        /// Removes the specified <paramref name="claims"/> from the given <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user to remove the specified <paramref name="claims"/> from.</param>
+        /// <param name="claims">A collection of <see cref="Claim"/>s to remove.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public override async Task<IdentityResult> RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims)
+        {
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (claims == null)
+            {
+                throw new ArgumentNullException(nameof(claims));
+            }
+
+            await _userStore.RemoveClaimsAsync(user, claims, CancellationToken).ConfigureAwait(false);
+            return IdentityResult.Success;
         }
     }
 }
