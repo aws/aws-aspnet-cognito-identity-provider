@@ -47,7 +47,9 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public async Task<ClaimsPrincipal> CreateAsync(TUser user)
         {
             var claims = await _userManager.GetClaimsAsync(user).ConfigureAwait(false) as List<Claim>;
-            // TODO: Additional claim mapping needs to be designed
+
+            AddClaimTypesToCognitoAttributesMapping(claims);
+
             var userNameClaimType = _identityOptions.ClaimsIdentity.UserNameClaimType;
             claims.Add(new Claim(userNameClaimType, user.Username));
 
@@ -58,6 +60,45 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
             var claimsIdentity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
             return new ClaimsPrincipal(claimsIdentity);
+        }
+
+        /// <summary>
+        /// Internal method to map System.Security.Claims.ClaimTypes to Cognito Standard Attributes
+        /// </summary>
+        /// <param name="claims"></param>
+        private void AddClaimTypesToCognitoAttributesMapping(List<Claim> claims)
+        {
+            var emailClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.Email);
+            if(emailClaim != null)
+                claims.Add(new Claim(ClaimTypes.Email, emailClaim.Value));
+
+            var birthDateClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.BirthDate);
+            if (birthDateClaim != null)
+                claims.Add(new Claim(ClaimTypes.DateOfBirth, birthDateClaim.Value));
+
+            var familyNameClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.FamilyName);
+            if (familyNameClaim != null)
+                claims.Add(new Claim(ClaimTypes.Surname, familyNameClaim.Value));
+
+            var genderClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.Gender);
+            if (genderClaim != null)
+                claims.Add(new Claim(ClaimTypes.Gender, genderClaim.Value));
+
+            var givenNameClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.GivenName);
+            if (givenNameClaim != null)
+                claims.Add(new Claim(ClaimTypes.GivenName, givenNameClaim.Value));
+
+            var nameClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.Name);
+            if (nameClaim != null)
+                claims.Add(new Claim(ClaimTypes.Name, nameClaim.Value));
+
+            var phoneNumberClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.PhoneNumber);
+            if (phoneNumberClaim != null)
+                claims.Add(new Claim(ClaimTypes.MobilePhone, phoneNumberClaim.Value));
+
+            var websiteClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.Website);
+            if (websiteClaim != null)
+                claims.Add(new Claim(ClaimTypes.Webpage, websiteClaim.Value));
         }
     }
 }
