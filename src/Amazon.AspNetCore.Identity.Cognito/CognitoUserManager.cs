@@ -461,13 +461,13 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public override async Task<IdentityResult> AddClaimsAsync(TUser user, IEnumerable<Claim> claims)
         {
             ThrowIfDisposed();
-            if (claims == null)
-            {
-                throw new ArgumentNullException(nameof(claims));
-            }
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (claims == null)
+            {
+                throw new ArgumentNullException(nameof(claims));
             }
 
             await _userStore.AddClaimsAsync(user, claims, CancellationToken).ConfigureAwait(false);

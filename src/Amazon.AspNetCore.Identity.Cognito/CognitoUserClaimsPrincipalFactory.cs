@@ -48,7 +48,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             var claims = await _userManager.GetClaimsAsync(user).ConfigureAwait(false) as List<Claim>;
 
-            AddClaimTypesToCognitoAttributesMapping(claims);
+            MapClaimTypesToCognito(claims);
 
             var userNameClaimType = _identityOptions.ClaimsIdentity.UserNameClaimType;
             claims.Add(new Claim(userNameClaimType, user.Username));
@@ -66,7 +66,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// Internal method to map System.Security.Claims.ClaimTypes to Cognito Standard Attributes
         /// </summary>
         /// <param name="claims"></param>
-        private void AddClaimTypesToCognitoAttributesMapping(List<Claim> claims)
+        private void MapClaimTypesToCognito(List<Claim> claims)
         {
             var emailClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.Email);
             if(emailClaim != null)

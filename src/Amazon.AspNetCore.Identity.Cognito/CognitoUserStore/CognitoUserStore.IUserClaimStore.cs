@@ -93,7 +93,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            throw new NotSupportedException("Cognito does not support replacing claims (custom attributes). Call RemoveClaimsAsync() and AddClaimsAsync() instead.");
+            throw new NotSupportedException("Cognito does not support replacing claims. Call RemoveClaimsAsync() and AddClaimsAsync() instead.");
         }
 
         /// <summary>
