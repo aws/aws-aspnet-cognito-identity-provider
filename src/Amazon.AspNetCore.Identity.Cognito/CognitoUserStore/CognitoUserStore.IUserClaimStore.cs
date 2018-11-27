@@ -13,6 +13,7 @@
  * permissions and limitations under the License.
  */
 
+using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -30,24 +31,25 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// Gets a list of <see cref="Claim"/>s to be belonging to the specified <paramref name="user"/> as an asynchronous operation.
         /// </summary>
         /// <param name="user">The role whose claims to retrieve.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>
         /// A <see cref="Task{TResult}"/> that represents the result of the asynchronous query, a list of <see cref="Claim"/>s.
         /// </returns>
         public async Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            IList<Claim> claims = new List<Claim>();
-            if (user.Attributes == null)
+            if (user == null)
             {
-                // Attributes are not set, fetching them
-                var details = await user.GetUserDetailsAsync().ConfigureAwait(false);
-                claims = details.UserAttributes.Select(att => new Claim(att.Name, att.Value)).ToList();
+                throw new ArgumentNullException(nameof(user));
             }
-            else
-                claims = user.Attributes.Select(att => new Claim(att.Key, att.Value)).ToList();
 
-            return claims;
+            var details = await _cognitoClient.AdminGetUserAsync(new AdminGetUserRequest
+            {
+
+                Username = user.Username,
+                UserPoolId = _pool.PoolID
+            }, cancellationToken).ConfigureAwait(false);
+
+            return details.UserAttributes.Select(att => new Claim(att.Name, att.Value)).ToList();
         }
 
         /// <summary>
@@ -55,11 +57,29 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <param name="user">The user to add the claim to.</param>
         /// <param name="claims">The collection of <see cref="Claim"/>s to add.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
+        public async Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (claims == null)
+            {
+                throw new ArgumentNullException(nameof(claims));
+            }
+
+            if (claims.Any())
+            {
+                await _cognitoClient.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
+                {
+                    UserAttributes = CreateAttributeList(claims.ToDictionary(claim => claim.Type, claim => claim.Value)),
+                    Username = user.Username,
+                    UserPoolId = _pool.PoolID
+                }, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
@@ -68,12 +88,12 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="user">The user to replace the claim on.</param>
         /// <param name="claim">The claim to replace.</param>
         /// <param name="newClaim">The new claim to replace the existing <paramref name="claim"/> with.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
         public Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken)
         {
-            //For custom attributes, you must prepend the custom: prefix to the attribute name.
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            throw new NotSupportedException("Cognito does not support replacing claims. Call RemoveClaimsAsync() and AddClaimsAsync() instead.");
         }
 
         /// <summary>
@@ -81,25 +101,50 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <param name="user">The user to remove the specified <paramref name="claims"/> from.</param>
         /// <param name="claims">A collection of <see cref="Claim"/>s to remove.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
+        public async Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (claims == null)
+            {
+                throw new ArgumentNullException(nameof(claims));
+            }
+
+            var userClaims = await GetClaimsAsync(user, cancellationToken).ConfigureAwait(false);
+
+            // Only removes the claims that the user actually have.
+            var matchedClaims = userClaims.Select(claim => new { claim.Type, claim.Value })
+                                            .Intersect(claims.Select(claim => new { claim.Type, claim.Value }));
+
+            if (matchedClaims.Any())
+            {
+                await _cognitoClient.AdminDeleteUserAttributesAsync(new AdminDeleteUserAttributesRequest
+                {
+                    UserAttributeNames = matchedClaims.Select(claim => claim.Type).ToList(),
+                    Username = user.Username,
+                    UserPoolId = _pool.PoolID
+                }, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
         /// Returns a list of users who contain the specified <see cref="Claim"/>.
         /// </summary>
         /// <param name="claim">The claim to look for.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>
         /// A <see cref="Task{TResult}"/> that represents the result of the asynchronous query, a list of <typeparamref name="TUser"/> who
         /// contain the specified claim.
         /// </returns>
         public Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            throw new NotSupportedException("Cognito does not support retrieving the list of users with specific claims.");
         }
     }
 }

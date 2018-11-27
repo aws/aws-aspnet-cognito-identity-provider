@@ -29,6 +29,18 @@ namespace Amazon.AspNetCore.Identity.Cognito
         private readonly CognitoUserManager<TUser> _userManager;
         private readonly IdentityOptions _identityOptions;
 
+        private readonly Dictionary<string, string> claimToAttributesMapping = new Dictionary<string, string>()
+        {
+            { ClaimTypes.Email, CognitoAttributesConstants.Email },
+            { ClaimTypes.DateOfBirth, CognitoAttributesConstants.BirthDate },
+            { ClaimTypes.Surname, CognitoAttributesConstants.FamilyName },
+            { ClaimTypes.Gender, CognitoAttributesConstants.Gender },
+            { ClaimTypes.GivenName, CognitoAttributesConstants.GivenName },
+            { ClaimTypes.Name, CognitoAttributesConstants.Name },
+            { ClaimTypes.MobilePhone, CognitoAttributesConstants.PhoneNumber },
+            { ClaimTypes.Webpage, CognitoAttributesConstants.Website }
+        };
+
         public CognitoUserClaimsPrincipalFactory(UserManager<TUser> userManager, IOptions<IdentityOptions> optionsAccessor)
         {
             _userManager = userManager as CognitoUserManager<TUser>;
@@ -47,7 +59,9 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public async Task<ClaimsPrincipal> CreateAsync(TUser user)
         {
             var claims = await _userManager.GetClaimsAsync(user).ConfigureAwait(false) as List<Claim>;
-            // TODO: Additional claim mapping needs to be designed
+
+            claimToAttributesMapping.ToList().ForEach(claim => MapClaimTypesToCognito(claims, claim.Key, claim.Value));
+
             var userNameClaimType = _identityOptions.ClaimsIdentity.UserNameClaimType;
             claims.Add(new Claim(userNameClaimType, user.Username));
 
@@ -58,6 +72,17 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
             var claimsIdentity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
             return new ClaimsPrincipal(claimsIdentity);
+        }
+
+        /// <summary>
+        /// Internal method to map System.Security.Claims.ClaimTypes to Cognito Standard Attributes
+        /// </summary>
+        /// <param name="claims"></param>
+        private void MapClaimTypesToCognito(List<Claim> claims, string claimType, string cognitoAttribute)
+        {
+            var claim = claims.FirstOrDefault(c => c.Type == cognitoAttribute);
+            if (claim != null)
+                claims.Add(new Claim(claimType, claim.Value));
         }
     }
 }
