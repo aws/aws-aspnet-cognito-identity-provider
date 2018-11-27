@@ -29,6 +29,18 @@ namespace Amazon.AspNetCore.Identity.Cognito
         private readonly CognitoUserManager<TUser> _userManager;
         private readonly IdentityOptions _identityOptions;
 
+        private Dictionary<string, string> claimToAttributesMapping = new Dictionary<string, string>()
+        {
+            { ClaimTypes.Email, CognitoAttributesConstants.Email },
+            { ClaimTypes.DateOfBirth, CognitoAttributesConstants.BirthDate },
+            { ClaimTypes.Surname, CognitoAttributesConstants.FamilyName },
+            { ClaimTypes.Gender, CognitoAttributesConstants.Gender },
+            { ClaimTypes.GivenName, CognitoAttributesConstants.GivenName },
+            { ClaimTypes.Name, CognitoAttributesConstants.Name },
+            { ClaimTypes.MobilePhone, CognitoAttributesConstants.PhoneNumber },
+            { ClaimTypes.Webpage, CognitoAttributesConstants.Website }
+        };
+
         public CognitoUserClaimsPrincipalFactory(UserManager<TUser> userManager, IOptions<IdentityOptions> optionsAccessor)
         {
             _userManager = userManager as CognitoUserManager<TUser>;
@@ -48,7 +60,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             var claims = await _userManager.GetClaimsAsync(user).ConfigureAwait(false) as List<Claim>;
 
-            MapClaimTypesToCognito(claims);
+            claimToAttributesMapping.ToList().ForEach(claim => MapClaimTypesToCognito(claims, claim.Key, claim.Value));
 
             var userNameClaimType = _identityOptions.ClaimsIdentity.UserNameClaimType;
             claims.Add(new Claim(userNameClaimType, user.Username));
@@ -66,39 +78,11 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// Internal method to map System.Security.Claims.ClaimTypes to Cognito Standard Attributes
         /// </summary>
         /// <param name="claims"></param>
-        private void MapClaimTypesToCognito(List<Claim> claims)
+        private void MapClaimTypesToCognito(List<Claim> claims, string claimType, string cognitoAttribute)
         {
-            var emailClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.Email);
-            if(emailClaim != null)
-                claims.Add(new Claim(ClaimTypes.Email, emailClaim.Value));
-
-            var birthDateClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.BirthDate);
-            if (birthDateClaim != null)
-                claims.Add(new Claim(ClaimTypes.DateOfBirth, birthDateClaim.Value));
-
-            var familyNameClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.FamilyName);
-            if (familyNameClaim != null)
-                claims.Add(new Claim(ClaimTypes.Surname, familyNameClaim.Value));
-
-            var genderClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.Gender);
-            if (genderClaim != null)
-                claims.Add(new Claim(ClaimTypes.Gender, genderClaim.Value));
-
-            var givenNameClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.GivenName);
-            if (givenNameClaim != null)
-                claims.Add(new Claim(ClaimTypes.GivenName, givenNameClaim.Value));
-
-            var nameClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.Name);
-            if (nameClaim != null)
-                claims.Add(new Claim(ClaimTypes.Name, nameClaim.Value));
-
-            var phoneNumberClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.PhoneNumber);
-            if (phoneNumberClaim != null)
-                claims.Add(new Claim(ClaimTypes.MobilePhone, phoneNumberClaim.Value));
-
-            var websiteClaim = claims.FirstOrDefault(claim => claim.Type == CognitoAttributesConstants.Website);
-            if (websiteClaim != null)
-                claims.Add(new Claim(ClaimTypes.Webpage, websiteClaim.Value));
+            var claim = claims.FirstOrDefault(c => c.Type == cognitoAttribute);
+            if (claim != null)
+                claims.Add(new Claim(claimType, claim.Value));
         }
     }
 }
