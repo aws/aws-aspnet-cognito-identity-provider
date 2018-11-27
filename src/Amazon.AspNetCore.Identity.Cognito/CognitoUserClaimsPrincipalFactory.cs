@@ -29,7 +29,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         private readonly CognitoUserManager<TUser> _userManager;
         private readonly IdentityOptions _identityOptions;
 
-        private Dictionary<string, string> claimToAttributesMapping = new Dictionary<string, string>()
+        private readonly Dictionary<string, string> claimToAttributesMapping = new Dictionary<string, string>()
         {
             { ClaimTypes.Email, CognitoAttributesConstants.Email },
             { ClaimTypes.DateOfBirth, CognitoAttributesConstants.BirthDate },
