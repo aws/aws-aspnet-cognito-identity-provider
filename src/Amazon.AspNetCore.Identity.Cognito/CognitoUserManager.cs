@@ -68,6 +68,40 @@ namespace Amazon.AspNetCore.Identity.Cognito
         }
 
         /// <summary>
+        /// Checks if the <param name="user"> can log in with the specified 2fa code challenge <paramref name="code"/>.
+        /// </summary>
+        /// <param name="user">The user try to log in with.</param>
+        /// <param name="code">The 2fa code to check</param>
+        /// <param name="authWorkflowSessionId">The ongoing Cognito authentication workflow id.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object linked to that authentication workflow.</returns>
+        public Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId)
+        {
+            ThrowIfDisposed();
+            return _userStore.RespondToTwoFactorChallengeAsync(user, code, authWorkflowSessionId, CancellationToken);
+        }
+
+        /// <summary>
+        /// Sets a flag indicating whether the specified <paramref name="user"/> has two factor authentication enabled or not,
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user whose two factor authentication enabled status should be set.</param>
+        /// <param name="enabled">A flag indicating whether the specified <paramref name="user"/> has two factor authentication enabled.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, the <see cref="IdentityResult"/> of the operation
+        /// </returns>
+        public override async Task<IdentityResult> SetTwoFactorEnabledAsync(TUser user, bool enabled)
+        {
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            await _userStore.SetTwoFactorEnabledAsync(user, enabled, CancellationToken).ConfigureAwait(false);
+            return IdentityResult.Success;
+        }
+
+        /// <summary>
         /// Changes a user's password after confirming the specified <paramref name="currentPassword"/> is correct,
         /// as an asynchronous operation.
         /// </summary>
