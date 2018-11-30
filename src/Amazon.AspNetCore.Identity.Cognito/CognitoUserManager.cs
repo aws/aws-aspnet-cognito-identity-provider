@@ -64,6 +64,11 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public new Task<AuthFlowResponse> CheckPasswordAsync(TUser user, string password)
         {
             ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
             return _userStore.StartValidatePasswordAsync(user, password, CancellationToken);
         }
 
@@ -77,6 +82,11 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId)
         {
             ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
             return _userStore.RespondToTwoFactorChallengeAsync(user, code, authWorkflowSessionId, CancellationToken);
         }
 
