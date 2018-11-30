@@ -17,6 +17,7 @@ using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,6 +38,11 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public async Task<bool> GetTwoFactorEnabledAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
             var request = new AdminGetUserRequest
             {
                 Username = user.Username,
@@ -57,6 +63,10 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public async Task SetTwoFactorEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
 
             var request = new AdminSetUserSettingsRequest
             {
