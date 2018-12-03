@@ -542,5 +542,21 @@ namespace Amazon.AspNetCore.Identity.Cognito
             await _userStore.RemoveClaimsAsync(user, claims, CancellationToken).ConfigureAwait(false);
             return IdentityResult.Success;
         }
+
+        /// <summary>
+        /// Signs the current user out of Cognito.
+        /// </summary>
+        /// <param name="user">The user to sign out.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        public async Task SignOutAsync(TUser user)
+        {
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            await _userStore.SignOutAsync(user, CancellationToken).ConfigureAwait(false);
+        }
     }
 }
