@@ -151,18 +151,20 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <param name="user">The user whose password should be reset.</param>
         /// <param name="token">The password reset token to verify.</param>
-        /// <param name="newPassword">The new password to set if reset token verification fails.</param>
+        /// <param name="newPassword">The new password to set if reset token verification succeeds.</param>
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
         public override Task<IdentityResult> ResetPasswordAsync(TUser user, string token, string newPassword)
         {
-            throw new NotSupportedException("This is not supported by Cognito. Use the ResetPasswordAsync(TUser user) overload instead.");
+            ThrowIfDisposed();
+
+            return _userStore.ChangePasswordWithTokenAsync(user, token, newPassword, CancellationToken);
         }
 
         /// <summary>
-        /// Resets the <paramref name="user"/>'s password and sends the new password to the user 
+        /// Resets the <paramref name="user"/>'s password and sends the confirmation token to the user 
         /// via email or sms depending on the user pool policy.
         /// </summary>
         /// <param name="user">The user whose password should be reset.</param>
@@ -178,7 +180,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return _userStore.ResetUserPasswordAsync(user, CancellationToken);
+            return _userStore.ResetPasswordAsync(user, CancellationToken);
         }
 
         /// <summary>

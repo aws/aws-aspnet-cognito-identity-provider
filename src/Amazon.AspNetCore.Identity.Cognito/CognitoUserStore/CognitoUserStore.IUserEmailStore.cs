@@ -13,9 +13,11 @@
  * permissions and limitations under the License.
  */
 
+using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,9 +25,31 @@ namespace Amazon.AspNetCore.Identity.Cognito
 {
     public partial class CognitoUserStore<TUser> : IUserEmailStore<TUser> where TUser : CognitoUser
     {
-        public Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
+        /// <summary>
+        /// Gets the user, if any, associated with the specified, normalized email address.
+        /// </summary>
+        /// <param name="normalizedEmail">The normalized email address to return the user for.</param>
+        /// <returns>
+        /// The task object containing the results of the asynchronous lookup operation, the user if any associated with the specified normalized email address.
+        /// </returns>
+        public async Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
-            throw new NotSupportedException("Cognito does not support normalized emails.");
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var result = await _cognitoClient.ListUsersAsync(new ListUsersRequest
+            {
+                Filter = "email = \"" + normalizedEmail + "\"",
+                UserPoolId = _pool.PoolID
+            }, cancellationToken).ConfigureAwait(false);
+
+            if (result.Users.Count > 0)
+            {
+                return _pool.GetUser(result.Users[0].Username,
+                    result.Users[0].UserStatus,
+                    result.Users[0].Attributes.ToDictionary(att => att.Name, att => att.Value)) as TUser;
+            }
+
+            return null;
         }
 
         public async Task<string> GetEmailAsync(TUser user, CancellationToken cancellationToken)
