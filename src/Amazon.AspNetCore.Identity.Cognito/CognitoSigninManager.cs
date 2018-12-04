@@ -243,7 +243,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public async Task<SignInResult> RespondToTwoFactorChallengeAsync(string code, bool isPersistent, bool rememberClient)
         {
             var twoFactorInfo = await RetrieveTwoFactorInfoAsync().ConfigureAwait(false);
-            if (twoFactorInfo == null || twoFactorInfo.UserId == null)
+            if (twoFactorInfo == null ||  string.IsNullOrWhiteSpace(twoFactorInfo.UserId))
             {
                 return SignInResult.Failed;
             }
@@ -256,7 +256,11 @@ namespace Amazon.AspNetCore.Identity.Cognito
             // Responding to the Cognito challenge.
             await _userManager.RespondToTwoFactorChallengeAsync(user, code, twoFactorInfo.CognitoAuthenticationWorkflowId).ConfigureAwait(false);
 
-            if (user.SessionTokens != null && user.SessionTokens.IsValid())
+            if (user.SessionTokens == null && !user.SessionTokens.IsValid())
+            {
+                return SignInResult.Failed;
+            }
+            else
             {
                 // Cleanup external cookie
                 if (twoFactorInfo.LoginProvider != null)
@@ -275,8 +279,6 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 await SignInAsync(user, isPersistent, twoFactorInfo.LoginProvider).ConfigureAwait(false);
                 return SignInResult.Success;
             }
-
-            return SignInResult.Failed;
         }
 
         /// <summary>
