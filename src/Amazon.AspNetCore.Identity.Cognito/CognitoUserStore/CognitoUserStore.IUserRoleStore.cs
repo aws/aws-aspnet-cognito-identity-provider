@@ -104,9 +104,22 @@ namespace Amazon.AspNetCore.Identity.Cognito
             return IdentityResult.Success;
         }
 
-        public Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken)
+        /// <summary>
+        /// Deletes the specified <paramref name="user"/> from the user store.
+        /// </summary>
+        /// <param name="user">The user to delete.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
+        public async Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            await _cognitoClient.AdminDeleteUserAsync(new AdminDeleteUserRequest
+            {
+                Username = user.Username,
+                UserPoolId = _pool.PoolID
+            }, cancellationToken).ConfigureAwait(false);
+
+            return IdentityResult.Success;
         }
 
         /// <summary>

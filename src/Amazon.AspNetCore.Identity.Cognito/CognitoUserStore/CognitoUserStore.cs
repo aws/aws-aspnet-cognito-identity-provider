@@ -67,6 +67,28 @@ namespace Amazon.AspNetCore.Identity.Cognito
             }
         }
 
+
+        /// <summary>
+        /// Checks if the <param name="user"> can log in with the specified 2fa code challenge <paramref name="code"/>.
+        /// </summary>
+        /// <param name="user">The user try to log in with.</param>
+        /// <param name="code">The 2fa code to check</param>
+        /// <param name="authWorkflowSessionId">The ongoing Cognito authentication workflow id.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object linked to that authentication workflow.</returns>
+        public async Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            AuthFlowResponse context =
+                await user.RespondToSmsMfaAuthAsync(new RespondToSmsMfaRequest()
+                {
+                    SessionID = authWorkflowSessionId,
+                    MfaCode = code
+                }).ConfigureAwait(false);
+
+            return context;
+        }
+
         /// <summary>
         /// Checks if the <param name="user"> can log in with the specified 2fa code challenge <paramref name="code"/>.
         /// </summary>
@@ -94,7 +116,8 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="user">The user to change the password for.</param>
         /// <param name="currentPassword">The current password of the user.</param>
         /// <param name="newPassword">The new passord for the user.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if changing the password was successful, false otherwise.</returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
         public async Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -125,7 +148,8 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// Resets the password for the specified <paramref name="user"/>.
         /// </summary>
         /// <param name="user">The user to reset the password for.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if the password was reset, false otherwise.</returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
         public async Task<IdentityResult> ResetUserPasswordAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
