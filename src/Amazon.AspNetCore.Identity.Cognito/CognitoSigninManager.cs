@@ -21,6 +21,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Amazon.AspNetCore.Identity.Cognito
@@ -31,10 +33,13 @@ namespace Amazon.AspNetCore.Identity.Cognito
         private readonly CognitoUserClaimsPrincipalFactory<TUser> _claimsFactory;
         private readonly IHttpContextAccessor _contextAccessor;
 
-        public CognitoSignInManager(UserManager<TUser> userManager, 
-            IHttpContextAccessor contextAccessor, 
-            IUserClaimsPrincipalFactory<TUser> claimsFactory, 
-            IOptions<IdentityOptions> optionsAccessor, 
+        private const string Cognito2FAAuthWorkflowKey = "Cognito2FAAuthWorkflowId";
+        private const string Cognito2FAProviderKey = "Amazon Cognito 2FA";
+
+        public CognitoSignInManager(UserManager<TUser> userManager,
+            IHttpContextAccessor contextAccessor,
+            IUserClaimsPrincipalFactory<TUser> claimsFactory,
+            IOptions<IdentityOptions> optionsAccessor,
             ILogger<SignInManager<TUser>> logger,
             IAuthenticationSchemeProvider schemes) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes)
         {
@@ -70,7 +75,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public override async Task<SignInResult> PasswordSignInAsync(string userId, string password,
             bool isPersistent, bool lockoutOnFailure)
         {
-            if(lockoutOnFailure)
+            if (lockoutOnFailure)
             {
                 throw new NotSupportedException("Lockout is not enabled for the CognitoUserManager.");
             }
@@ -82,6 +87,36 @@ namespace Amazon.AspNetCore.Identity.Cognito
             }
 
             return await PasswordSignInAsync(user, password, isPersistent, lockoutOnFailure).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Attempts to sign in the specified <paramref name="user"/> and <paramref name="password"/> combination
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to sign in.</param>
+        /// <param name="password">The password to attempt to sign in with.</param>
+        /// <param name="isPersistent">Flag indicating whether the sign-in cookie should persist after the browser is closed.</param>
+        /// <param name="lockoutOnFailure">Cognito does not handle account lock out. This parameter must be set to false, or a NotSupportedException will be thrown.</param>
+        /// <returns>The task object representing the asynchronous operation containing the <see name="SignInResult"/>
+        /// for the sign-in attempt.</returns>
+        public override async Task<SignInResult> PasswordSignInAsync(TUser user, string password,
+            bool isPersistent, bool lockoutOnFailure)
+        {
+            if (lockoutOnFailure)
+            {
+                throw new NotSupportedException("Lockout is not enabled for the CognitoUserManager.");
+            }
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var attempt = await CheckPasswordSignInAsync(user, password, lockoutOnFailure).ConfigureAwait(false);
+            if (attempt.Succeeded)
+                await SignInAsync(user, isPersistent).ConfigureAwait(false);
+
+            return attempt;
         }
 
         /// <summary>
@@ -122,6 +157,16 @@ namespace Amazon.AspNetCore.Identity.Cognito
             else if (checkPasswordResult.ChallengeName == ChallengeNameType.SMS_MFA)
             {
                 signinResult = SignInResult.TwoFactorRequired;
+
+                var userPrincipal = new ClaimsPrincipal();
+                userPrincipal.AddIdentity(new ClaimsIdentity(new List<Claim>() {
+                    new Claim(ClaimTypes.Name, user.UserID),
+                    new Claim(Cognito2FAAuthWorkflowKey, checkPasswordResult.SessionID),
+                    new Claim(ClaimTypes.AuthenticationMethod, Cognito2FAProviderKey)
+                }));
+
+                // This signs in the user in the context of 2FA only. 
+                await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, userPrincipal).ConfigureAwait(false);
             }
             else if (user.SessionTokens != null && user.SessionTokens.IsValid())
             {
@@ -163,5 +208,104 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             return _userManager.IsPasswordChangeRequiredAsync(user);
         }
+
+        /// <summary>
+        /// Validates the two factor sign in code and creates and signs in the user, as an asynchronous operation.
+        /// </summary>
+        /// <param name="code">The two factor authentication code to validate.</param>
+        /// <param name="isPersistent">Flag indicating whether the sign-in cookie should persist after the browser is closed.</param>
+        /// <param name="rememberClient">Flag indicating whether the current browser should be remember, suppressing all further 
+        /// two factor authentication prompts.</param>
+        /// <returns>The task object representing the asynchronous operation containing the <see name="SignInResult"/>
+        /// for the sign-in attempt.</returns>
+        public async Task<SignInResult> RespondToTwoFactorChallengeAsync(string code, bool isPersistent, bool rememberClient)
+        {
+            var twoFactorInfo = await RetrieveTwoFactorInfoAsync().ConfigureAwait(false);
+            if (twoFactorInfo == null ||  string.IsNullOrWhiteSpace(twoFactorInfo.UserId))
+            {
+                return SignInResult.Failed;
+            }
+            var user = await _userManager.FindByIdAsync(twoFactorInfo.UserId).ConfigureAwait(false);
+            if (user == null)
+            {
+                return SignInResult.Failed;
+            }
+
+            // Responding to the Cognito challenge.
+            await _userManager.RespondToTwoFactorChallengeAsync(user, code, twoFactorInfo.CognitoAuthenticationWorkflowId).ConfigureAwait(false);
+
+            if (user.SessionTokens == null && !user.SessionTokens.IsValid())
+            {
+                return SignInResult.Failed;
+            }
+            else
+            {
+                // Cleanup external cookie
+                if (twoFactorInfo.LoginProvider != null)
+                {
+                    await Context.SignOutAsync(IdentityConstants.ExternalScheme).ConfigureAwait(false);
+                }
+                // Cleanup two factor user id cookie
+                await Context.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme).ConfigureAwait(false);
+
+                if (rememberClient)
+                {
+                    await RememberTwoFactorClientAsync(user).ConfigureAwait(false);
+                }
+
+                // This creates the ClaimPrincipal and signs in the user in the IdentityConstants.ApplicationScheme
+                await SignInAsync(user, isPersistent, twoFactorInfo.LoginProvider).ConfigureAwait(false);
+                return SignInResult.Success;
+            }
+        }
+
+        /// <summary>
+        /// Gets the <typeparamref name="TUser"/> for the current two factor authentication login, as an asynchronous operation.
+        /// </summary>
+        /// <returns>The task object representing the asynchronous operation containing the <typeparamref name="TUser"/>
+        /// for the sign-in attempt.</returns>
+        public override async Task<TUser> GetTwoFactorAuthenticationUserAsync()
+        {
+            var info = await RetrieveTwoFactorInfoAsync().ConfigureAwait(false);
+            if (info == null)
+            {
+                return null;
+            }
+
+            return await UserManager.FindByIdAsync(info.UserId).ConfigureAwait(false);
+        }
+
+        #region 2FA
+
+        /// <summary>
+        /// Retrieves the information related to the authentication workflow.
+        /// </summary>
+        /// <returns></returns>
+        private async Task<TwoFactorAuthenticationInfo> RetrieveTwoFactorInfoAsync()
+        {
+            var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorUserIdScheme).ConfigureAwait(false);
+            if (result?.Principal != null)
+            {
+                return new TwoFactorAuthenticationInfo
+                {
+                    UserId = result.Principal.FindFirstValue(ClaimTypes.Name),
+                    LoginProvider = result.Principal.FindFirstValue(ClaimTypes.AuthenticationMethod),
+                    CognitoAuthenticationWorkflowId = result.Principal.FindFirstValue(Cognito2FAAuthWorkflowKey)
+                };
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Utility class to model information related to the ongoing authentication workflow.
+        /// </summary>
+        internal class TwoFactorAuthenticationInfo
+        {
+            public string UserId { get; set; }
+            public string LoginProvider { get; set; }
+            public string CognitoAuthenticationWorkflowId { get; set; }
+        }
+
+        #endregion
     }
 }
