@@ -66,23 +66,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 return null;
             }
         }
-        /// <summary>
-        /// Signs the current user out of Cognito.
-        /// </summary>
-        /// <param name="user">The user to sign out.</param>
-        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
-        /// of the operation.
-        public async Task<IdentityResult> SignOutAsync(TUser user, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
 
-            user.SignOut();
-            return IdentityResult.Success;
-        }
 
         /// <summary>
         /// Checks if the <param name="user"> can log in with the specified 2fa code challenge <paramref name="code"/>.

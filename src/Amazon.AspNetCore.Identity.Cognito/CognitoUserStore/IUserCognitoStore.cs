@@ -151,13 +151,5 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="authWorkflowSessionId">The ongoing Cognito authentication workflow id.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object linked to that authentication workflow.</returns>
         Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Signs the current user out of Cognito.
-        /// </summary>
-        /// <param name="user">The user to sign out.</param>
-        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
-        /// of the operation.
-        Task<IdentityResult> SignOutAsync(TUser user, CancellationToken cancellationToken);
     }
 }

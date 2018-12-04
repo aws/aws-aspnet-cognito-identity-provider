@@ -202,17 +202,23 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <summary>
         /// Signs the current user out of Cognito in addition of signin the user out of the application.
         /// </summary>
-        /// <param name="user">The user to sign out.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public async Task SignOutAsync(TUser user)
+        public override async Task SignOutAsync()
         {
-            if (user == null)
+            // Retrieve the current signed in CognitoUser and log him out first
+            var result = await Context.AuthenticateAsync(IdentityConstants.ApplicationScheme).ConfigureAwait(false);
+            if (result?.Principal != null)
             {
-                throw new ArgumentNullException(nameof(user));
+                var user = await _userManager.FindByIdAsync(result.Principal.FindFirstValue(ClaimTypes.Name)).ConfigureAwait(false);
+                if (user != null)
+                {
+                    user.SignOut();
+                }
             }
-
-            await _userManager.SignOutAsync(user).ConfigureAwait(false);
-            await SignOutAsync().ConfigureAwait(false);
+           
+            await Context.SignOutAsync(IdentityConstants.ApplicationScheme).ConfigureAwait(false);
+            await Context.SignOutAsync(IdentityConstants.ExternalScheme).ConfigureAwait(false);
+            await Context.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme).ConfigureAwait(false);
         }
 
         /// <summary>
