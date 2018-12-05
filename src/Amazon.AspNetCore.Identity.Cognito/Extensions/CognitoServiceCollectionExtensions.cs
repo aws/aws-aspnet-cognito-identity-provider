@@ -54,6 +54,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IUserClaimStore<TUser>, CognitoUserStore<TUser>>();
             services.AddScoped<IUserClaimsPrincipalFactory<TUser>, CognitoUserClaimsPrincipalFactory<TUser>>();
             services.AddScoped<CognitoKeyNormalizer, CognitoKeyNormalizer>();
+            services.AddScoped<IdentityErrorDescriber, CognitoIdentityErrorDescriber>();
 
             services.AddHttpContextAccessor();
             return services;

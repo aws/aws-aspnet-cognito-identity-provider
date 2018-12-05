@@ -13,6 +13,7 @@
  * permissions and limitations under the License.
  */
 
+using Amazon.AspNetCore.Identity.Cognito.Exceptions;
 using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
@@ -28,15 +29,21 @@ namespace Amazon.AspNetCore.Identity.Cognito
     {
         private IAmazonCognitoIdentityProvider _cognitoClient;
         private CognitoUserPool _pool;
-        private IdentityErrorDescriber _errorDescribers;
+        private CognitoIdentityErrorDescriber _errorDescribers;
 
         public CognitoUserStore(IAmazonCognitoIdentityProvider cognitoClient, CognitoUserPool pool, IdentityErrorDescriber errors)
         {
             _cognitoClient = cognitoClient ?? throw new ArgumentNullException(nameof(cognitoClient));
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
+            
             // IdentityErrorDescriber provides predefined error strings such as PasswordMismatch() or InvalidUserName(String)
             // This is used when returning an instance of IdentityResult, which can be constructed with an array of errors to be surfaced to the UI.
-            _errorDescribers = errors ?? throw new ArgumentNullException(nameof(errors));
+            if (errors == null)
+                throw new ArgumentNullException(nameof(errors));
+            if (errors is CognitoIdentityErrorDescriber)
+                _errorDescribers = errors as CognitoIdentityErrorDescriber;
+            else
+                throw new ArgumentException("The IdentityErrorDescriber must be of type CognitoIdentityErrorDescriber", nameof(errors));
         }
 
         #region IUserCognitoStore
@@ -79,14 +86,21 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            AuthFlowResponse context =
-                await user.RespondToSmsMfaAuthAsync(new RespondToSmsMfaRequest()
-                {
-                    SessionID = authWorkflowSessionId,
-                    MfaCode = code
-                }).ConfigureAwait(false);
+            try
+            {
+                AuthFlowResponse context =
+                    await user.RespondToSmsMfaAuthAsync(new RespondToSmsMfaRequest()
+                    {
+                        SessionID = authWorkflowSessionId,
+                        MfaCode = code
+                    }).ConfigureAwait(false);
 
-            return context;
+                return context;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                throw new CognitoServiceException("Failed to respond to Cognito two factor challenge.", e);
+            }
         }
 
         /// <summary>
@@ -126,9 +140,15 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            await _pool.ConfirmForgotPassword(user.Username, token, newPassword, cancellationToken).ConfigureAwait(false);
-
-            return IdentityResult.Success;
+            try
+            {
+                await _pool.ConfirmForgotPassword(user.Username, token, newPassword, cancellationToken).ConfigureAwait(false);
+                return IdentityResult.Success;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to change Cognito User password", e.Message));
+            }
         }
 
         /// <summary>
