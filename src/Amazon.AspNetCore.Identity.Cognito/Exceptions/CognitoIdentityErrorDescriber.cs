@@ -13,6 +13,7 @@
  * permissions and limitations under the License.
  */
 
+using Amazon.CognitoIdentityProvider;
 using Microsoft.AspNetCore.Identity;
 using System;
 
@@ -30,14 +31,14 @@ namespace Amazon.AspNetCore.Identity.Cognito.Exceptions
         /// Returns the <see cref="IdentityError"/> indicating a CognitoServiceError.
         /// </summary>
         /// <param name="failingOperationMessage">The message related to the operation that failed</param>
-        /// <param name="exceptionMessage">The exception message.</param>
+        /// <param name="exception">The exception</param>
         /// <returns>The default <see cref="IdentityError"/>.</returns>
-        public IdentityError CognitoServiceError(string failingOperationMessage, string exceptionMessage)
+        public IdentityError CognitoServiceError(string failingOperationMessage, AmazonCognitoIdentityProviderException exception)
         {
             return new IdentityError
             {
                 Code = nameof(CognitoServiceError),
-                Description = String.Format("{0} : {1}", failingOperationMessage, exceptionMessage)
+                Description = String.Format("{0} : {1}", failingOperationMessage, exception.Message)
             };
         }
     }

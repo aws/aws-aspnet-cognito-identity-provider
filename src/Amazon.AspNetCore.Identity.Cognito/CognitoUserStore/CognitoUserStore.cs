@@ -147,7 +147,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             }
             catch (AmazonCognitoIdentityProviderException e)
             {
-                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to change Cognito User password", e.Message));
+                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to change Cognito User password", e));
             }
         }
 
