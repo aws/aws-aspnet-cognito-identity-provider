@@ -26,6 +26,9 @@ namespace Amazon.AspNetCore.Identity.Cognito
 {
     public partial class CognitoUserStore<TUser> : IUserCognitoStore<TUser> where TUser : CognitoUser
     {
+        private const string UserStatusForceChangePassword = "FORCE_CHANGE_PASSWORD";
+        private const string UserStatusResetRequired = "RESET_REQUIRED";
+
         private IAmazonCognitoIdentityProvider _cognitoClient;
         private CognitoUserPool _pool;
         private IdentityErrorDescriber _errorDescribers;
@@ -119,7 +122,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public Task<bool> IsPasswordChangeRequiredAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            bool IsPasswordChangeRequired = user.Status.Equals(CognitoConstants.StatusForceChangePassword, StringComparison.InvariantCulture) || user.Status.Equals(CognitoConstants.StatusResetRequired, StringComparison.InvariantCulture);
+            bool IsPasswordChangeRequired = user.Status.Equals(UserStatusForceChangePassword, StringComparison.InvariantCulture) || user.Status.Equals(UserStatusResetRequired, StringComparison.InvariantCulture);
             return Task.FromResult(IsPasswordChangeRequired);
         }
 
