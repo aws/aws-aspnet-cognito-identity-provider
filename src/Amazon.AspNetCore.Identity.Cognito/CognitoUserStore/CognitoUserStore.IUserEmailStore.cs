@@ -13,6 +13,8 @@
  * permissions and limitations under the License.
  */
 
+using Amazon.AspNetCore.Identity.Cognito.Exceptions;
+using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
@@ -36,17 +38,24 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var result = await _cognitoClient.ListUsersAsync(new ListUsersRequest
+            try
             {
-                Filter = "email = \"" + normalizedEmail + "\"",
-                UserPoolId = _pool.PoolID
-            }, cancellationToken).ConfigureAwait(false);
+                var result = await _cognitoClient.ListUsersAsync(new ListUsersRequest
+                {
+                    Filter = "email = \"" + normalizedEmail + "\"",
+                    UserPoolId = _pool.PoolID
+                }, cancellationToken).ConfigureAwait(false);
 
-            if (result.Users.Count > 0)
+                if (result.Users.Count > 0)
+                {
+                    return _pool.GetUser(result.Users[0].Username,
+                        result.Users[0].UserStatus,
+                        result.Users[0].Attributes.ToDictionary(att => att.Name, att => att.Value)) as TUser;
+                }
+            }
+            catch (AmazonCognitoIdentityProviderException e)
             {
-                return _pool.GetUser(result.Users[0].Username,
-                    result.Users[0].UserStatus,
-                    result.Users[0].Attributes.ToDictionary(att => att.Name, att => att.Value)) as TUser;
+                throw new CognitoServiceException("Failed to find the Cognito User by email", e);
             }
 
             return null;

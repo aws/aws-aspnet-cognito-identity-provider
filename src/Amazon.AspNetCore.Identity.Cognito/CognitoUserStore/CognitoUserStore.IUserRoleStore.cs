@@ -13,6 +13,8 @@
  * permissions and limitations under the License.
  */
 
+using Amazon.AspNetCore.Identity.Cognito.Exceptions;
+using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
@@ -39,9 +41,16 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public async Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            // The userId can be the userName, the email or the phone number depending on the User Pool login policy
-            var user = await _pool.FindByIdAsync(userId).ConfigureAwait(false);
-            return user as TUser;
+            try
+            {
+                // The userId can be the userName, the email or the phone number depending on the User Pool login policy
+                var user = await _pool.FindByIdAsync(userId).ConfigureAwait(false);
+                return user as TUser;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                throw new CognitoServiceException("Failed to find the Cognito User by Id", e);
+            }
         }
 
         /// <summary>
@@ -84,6 +93,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+
             return CreateAsync(user, null, cancellationToken);
         }
 
@@ -100,8 +110,15 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public async Task<IdentityResult> CreateAsync(TUser user, IDictionary<string, string> validationData, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            await _pool.AdminSignupAsync(user.UserID, user.Attributes, validationData).ConfigureAwait(false);
-            return IdentityResult.Success;
+            try
+            {
+                await _pool.AdminSignupAsync(user.UserID, user.Attributes, validationData).ConfigureAwait(false);
+                return IdentityResult.Success;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to create the Cognito User", e));
+            }
         }
 
         /// <summary>
@@ -113,13 +130,20 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            await _cognitoClient.AdminDeleteUserAsync(new AdminDeleteUserRequest
+            try
             {
-                Username = user.Username,
-                UserPoolId = _pool.PoolID
-            }, cancellationToken).ConfigureAwait(false);
+                await _cognitoClient.AdminDeleteUserAsync(new AdminDeleteUserRequest
+                {
+                    Username = user.Username,
+                    UserPoolId = _pool.PoolID
+                }, cancellationToken).ConfigureAwait(false);
 
-            return IdentityResult.Success;
+                return IdentityResult.Success;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to delete the Cognito User", e));
+            }
         }
 
         /// <summary>
@@ -163,20 +187,27 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            // Only update user writable attributes.
-            var clientConfig = await _pool.GetUserPoolClientConfiguration().ConfigureAwait(false);
-            var newValues = clientConfig.WriteAttributes
-                .Where(key => user.Attributes.ContainsKey(key))
-                .ToDictionary(key => key, key => user.Attributes[key]);
-
-            await _cognitoClient.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
+            try
             {
-                UserAttributes = CreateAttributeList(newValues),
-                Username = user.Username,
-                UserPoolId = _pool.PoolID
-            }, cancellationToken).ConfigureAwait(false);
+                // Only update user writable attributes.
+                var clientConfig = await _pool.GetUserPoolClientConfiguration().ConfigureAwait(false);
+                var newValues = clientConfig.WriteAttributes
+                    .Where(key => user.Attributes.ContainsKey(key))
+                    .ToDictionary(key => key, key => user.Attributes[key]);
 
-            return IdentityResult.Success;
+                await _cognitoClient.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
+                {
+                    UserAttributes = CreateAttributeList(newValues),
+                    Username = user.Username,
+                    UserPoolId = _pool.PoolID
+                }, cancellationToken).ConfigureAwait(false);
+
+                return IdentityResult.Success;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to update the Cognito User", e));
+            }
         }
 
         /// <summary>
@@ -218,12 +249,19 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return _cognitoClient.AdminAddUserToGroupAsync(new AdminAddUserToGroupRequest
+            try
             {
-                GroupName = roleName,
-                Username = user.Username,
-                UserPoolId = _pool.PoolID
-            }, cancellationToken);
+                return _cognitoClient.AdminAddUserToGroupAsync(new AdminAddUserToGroupRequest
+                {
+                    GroupName = roleName,
+                    Username = user.Username,
+                    UserPoolId = _pool.PoolID
+                }, cancellationToken);
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                throw new CognitoServiceException("Failed to add the Cognito User to a role", e);
+            }
         }
 
         /// <summary>
@@ -240,12 +278,19 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return _cognitoClient.AdminRemoveUserFromGroupAsync(new AdminRemoveUserFromGroupRequest
+            try
             {
-                GroupName = roleName,
-                Username = user.Username,
-                UserPoolId = _pool.PoolID
-            }, cancellationToken);
+                return _cognitoClient.AdminRemoveUserFromGroupAsync(new AdminRemoveUserFromGroupRequest
+                {
+                    GroupName = roleName,
+                    Username = user.Username,
+                    UserPoolId = _pool.PoolID
+                }, cancellationToken);
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                throw new CognitoServiceException("Failed to remove the Cognito User from a role", e);
+            }
         }
 
         /// <summary>
@@ -260,14 +305,22 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            // This calls retrieve ALL the groups
-            var response = await _cognitoClient.AdminListGroupsForUserAsync(new AdminListGroupsForUserRequest
-            {
-                Username = user.Username,
-                UserPoolId = _pool.PoolID
-            }, cancellationToken).ConfigureAwait(false);
 
-            return response.Groups.Select(group => group.GroupName).ToList();
+            try
+            {
+                // This calls retrieve ALL the groups
+                var response = await _cognitoClient.AdminListGroupsForUserAsync(new AdminListGroupsForUserRequest
+                {
+                    Username = user.Username,
+                    UserPoolId = _pool.PoolID
+                }, cancellationToken).ConfigureAwait(false);
+
+                return response.Groups.Select(group => group.GroupName).ToList();
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                throw new CognitoServiceException("Failed to retrieve roles for the Cognito User", e);
+            }
         }
 
         /// <summary>
@@ -302,15 +355,22 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            // This calls retrieve ALL the user for a group
-            var response = await _cognitoClient.ListUsersInGroupAsync(new ListUsersInGroupRequest
+            try
             {
-                GroupName = roleName,
-                UserPoolId = _pool.PoolID
-            }, cancellationToken).ConfigureAwait(false);
+                // This calls retrieve ALL the user for a group
+                var response = await _cognitoClient.ListUsersInGroupAsync(new ListUsersInGroupRequest
+                {
+                    GroupName = roleName,
+                    UserPoolId = _pool.PoolID
+                }, cancellationToken).ConfigureAwait(false);
 
-            return response.Users.Select(user => _pool.GetUser(user.Username, user.UserStatus,
-                user.Attributes.ToDictionary(att => att.Name, att => att.Value))).ToList() as IList<TUser>;
+                return response.Users.Select(user => _pool.GetUser(user.Username, user.UserStatus,
+                    user.Attributes.ToDictionary(att => att.Name, att => att.Value))).ToList() as IList<TUser>;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                throw new CognitoServiceException("Failed to get the Cognito Users in a role", e);
+            }
         }
         #endregion
     }

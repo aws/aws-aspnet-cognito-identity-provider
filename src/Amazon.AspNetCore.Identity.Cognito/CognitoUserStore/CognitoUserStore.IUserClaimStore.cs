@@ -13,6 +13,8 @@
  * permissions and limitations under the License.
  */
 
+using Amazon.AspNetCore.Identity.Cognito.Exceptions;
+using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
@@ -42,14 +44,21 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var details = await _cognitoClient.AdminGetUserAsync(new AdminGetUserRequest
+            try
             {
+                var details = await _cognitoClient.AdminGetUserAsync(new AdminGetUserRequest
+                {
 
-                Username = user.Username,
-                UserPoolId = _pool.PoolID
-            }, cancellationToken).ConfigureAwait(false);
+                    Username = user.Username,
+                    UserPoolId = _pool.PoolID
+                }, cancellationToken).ConfigureAwait(false);
 
-            return details.UserAttributes.Select(att => new Claim(att.Name, att.Value)).ToList();
+                return details.UserAttributes.Select(att => new Claim(att.Name, att.Value)).ToList();
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                throw new CognitoServiceException("Failed to retrieve Cognito User claims", e);
+            }
         }
 
         /// <summary>
@@ -73,12 +82,19 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
             if (claims.Any())
             {
-                await _cognitoClient.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
+                try
                 {
-                    UserAttributes = CreateAttributeList(claims.ToDictionary(claim => claim.Type, claim => claim.Value)),
-                    Username = user.Username,
-                    UserPoolId = _pool.PoolID
-                }, cancellationToken).ConfigureAwait(false);
+                    await _cognitoClient.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
+                    {
+                        UserAttributes = CreateAttributeList(claims.ToDictionary(claim => claim.Type, claim => claim.Value)),
+                        Username = user.Username,
+                        UserPoolId = _pool.PoolID
+                    }, cancellationToken).ConfigureAwait(false);
+                }
+                catch (AmazonCognitoIdentityProviderException e)
+                {
+                    throw new CognitoServiceException("Failed to add a claim to the Cognito User", e);
+                }
             }
         }
 
@@ -123,12 +139,19 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
             if (matchedClaims.Any())
             {
-                await _cognitoClient.AdminDeleteUserAttributesAsync(new AdminDeleteUserAttributesRequest
+                try
                 {
-                    UserAttributeNames = matchedClaims.Select(claim => claim.Type).ToList(),
-                    Username = user.Username,
-                    UserPoolId = _pool.PoolID
-                }, cancellationToken).ConfigureAwait(false);
+                    await _cognitoClient.AdminDeleteUserAttributesAsync(new AdminDeleteUserAttributesRequest
+                    {
+                        UserAttributeNames = matchedClaims.Select(claim => claim.Type).ToList(),
+                        Username = user.Username,
+                        UserPoolId = _pool.PoolID
+                    }, cancellationToken).ConfigureAwait(false);
+                }
+                catch (AmazonCognitoIdentityProviderException e)
+                {
+                    throw new CognitoServiceException("Failed to remove a claim from the Cognito User", e);
+                }
             }
         }
 
