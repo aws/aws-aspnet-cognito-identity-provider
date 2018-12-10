@@ -13,6 +13,7 @@
  * permissions and limitations under the License.
  */
 
+using Amazon.AspNetCore.Identity.Cognito.Exceptions;
 using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
@@ -48,9 +49,17 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 Username = user.Username,
                 UserPoolId = _pool.PoolID
             };
-            var userSettings = await _cognitoClient.AdminGetUserAsync(request, cancellationToken).ConfigureAwait(false);
 
-            return userSettings.MFAOptions.Count > 0;
+            try
+            {
+                var userSettings = await _cognitoClient.AdminGetUserAsync(request, cancellationToken).ConfigureAwait(false);
+
+                return userSettings.MFAOptions.Count > 0;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                throw new CognitoServiceException("Failed to retrieve 2FA settings for the Cognito User", e);
+            }
         }
 
         /// <summary>
@@ -82,7 +91,14 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 }
             };
 
-            await _cognitoClient.AdminSetUserSettingsAsync(request, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await _cognitoClient.AdminSetUserSettingsAsync(request, cancellationToken).ConfigureAwait(false);
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                throw new CognitoServiceException("Failed to set 2FA settings for the Cognito User", e);
+            }
         }
     }
 }

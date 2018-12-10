@@ -13,6 +13,7 @@
  * permissions and limitations under the License.
  */
 
+using Amazon.AspNetCore.Identity.Cognito.Exceptions;
 using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
@@ -31,15 +32,21 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
         private IAmazonCognitoIdentityProvider _cognitoClient;
         private CognitoUserPool _pool;
-        private IdentityErrorDescriber _errorDescribers;
+        private CognitoIdentityErrorDescriber _errorDescribers;
 
         public CognitoUserStore(IAmazonCognitoIdentityProvider cognitoClient, CognitoUserPool pool, IdentityErrorDescriber errors)
         {
             _cognitoClient = cognitoClient ?? throw new ArgumentNullException(nameof(cognitoClient));
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
+            
             // IdentityErrorDescriber provides predefined error strings such as PasswordMismatch() or InvalidUserName(String)
             // This is used when returning an instance of IdentityResult, which can be constructed with an array of errors to be surfaced to the UI.
-            _errorDescribers = errors ?? throw new ArgumentNullException(nameof(errors));
+            if (errors == null)
+                throw new ArgumentNullException(nameof(errors));
+            if (errors is CognitoIdentityErrorDescriber)
+                _errorDescribers = errors as CognitoIdentityErrorDescriber;
+            else
+                throw new ArgumentException("The IdentityErrorDescriber must be of type CognitoIdentityErrorDescriber", nameof(errors));
         }
 
         #region IUserCognitoStore
@@ -82,14 +89,21 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            AuthFlowResponse context =
-                await user.RespondToSmsMfaAuthAsync(new RespondToSmsMfaRequest()
-                {
-                    SessionID = authWorkflowSessionId,
-                    MfaCode = code
-                }).ConfigureAwait(false);
+            try
+            {
+                AuthFlowResponse context =
+                    await user.RespondToSmsMfaAuthAsync(new RespondToSmsMfaRequest()
+                    {
+                        SessionID = authWorkflowSessionId,
+                        MfaCode = code
+                    }).ConfigureAwait(false);
 
-            return context;
+                return context;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                throw new CognitoServiceException("Failed to respond to Cognito two factor challenge.", e);
+            }
         }
 
         /// <summary>
@@ -103,15 +117,48 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public async Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            // We start an auth process as the user needs a valid session id to be able to change it's password.
-            var authResult = await StartValidatePasswordAsync(user, currentPassword, cancellationToken).ConfigureAwait(false);
-            if (authResult.ChallengeName == ChallengeNameType.NEW_PASSWORD_REQUIRED || (user.SessionTokens != null && user.SessionTokens.IsValid()))
+            try
             {
-                await user.ChangePasswordAsync(currentPassword, newPassword).ConfigureAwait(false);
+                // We start an auth process as the user needs a valid session id to be able to change it's password.
+                var authResult = await StartValidatePasswordAsync(user, currentPassword, cancellationToken).ConfigureAwait(false);
+                if (authResult.ChallengeName == ChallengeNameType.NEW_PASSWORD_REQUIRED || (user.SessionTokens != null && user.SessionTokens.IsValid()))
+                {
+                    await user.ChangePasswordAsync(currentPassword, newPassword).ConfigureAwait(false);
+                    return IdentityResult.Success;
+                }
+                else
+                    return IdentityResult.Failed(_errorDescribers.PasswordMismatch());
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to change the Cognito User password", e));
+            }
+        }
+
+        /// <summary>
+        /// Resets the <paramref name="user"/>'s password to the specified <paramref name="newPassword"/> after
+        /// validating the given password reset <paramref name="token"/>.
+        /// </summary>
+        /// <param name="user">The user whose password should be reset.</param>
+        /// <param name="token">The password reset token to verify.</param>
+        /// <param name="newPassword">The new password to set if reset token verification succeeds.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public async Task<IdentityResult> ChangePasswordWithTokenAsync(TUser user, string token, string newPassword, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                await _pool.ConfirmForgotPassword(user.Username, token, newPassword, cancellationToken).ConfigureAwait(false);
                 return IdentityResult.Success;
             }
-            else
-                return IdentityResult.Failed(_errorDescribers.PasswordMismatch());
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to change the Cognito User password", e));
+            }
         }
 
         /// <summary>
@@ -127,12 +174,13 @@ namespace Amazon.AspNetCore.Identity.Cognito
         }
 
         /// <summary>
-        /// Resets the password for the specified <paramref name="user"/>.
+        /// Resets the <paramref name="user"/>'s password and sends the confirmation token to the user 
+        /// via email or sms depending on the user pool policy.
         /// </summary>
         /// <param name="user">The user to reset the password for.</param>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
-        public async Task<IdentityResult> ResetUserPasswordAsync(TUser user, CancellationToken cancellationToken)
+        public async Task<IdentityResult> ResetPasswordAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var request = new AdminResetUserPasswordRequest
@@ -141,9 +189,16 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 UserPoolId = _pool.PoolID
             };
 
-            await _cognitoClient.AdminResetUserPasswordAsync(request, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await _cognitoClient.AdminResetUserPasswordAsync(request, cancellationToken).ConfigureAwait(false);
 
-            return IdentityResult.Success;
+                return IdentityResult.Success;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to reset the Cognito User password", e));
+            }
         }
 
         /// <summary>
@@ -161,8 +216,15 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            await _pool.SignUpAsync(user.UserID, password, user.Attributes, validationData).ConfigureAwait(false);
-            return IdentityResult.Success;
+            try
+            {
+                await _pool.SignUpAsync(user.UserID, password, user.Attributes, validationData).ConfigureAwait(false);
+                return IdentityResult.Success;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to create the Cognito User", e));
+            }
         }
 
         /// <summary>
@@ -186,8 +248,15 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            await user.ConfirmSignUpAsync(confirmationCode, forcedAliasCreation).ConfigureAwait(false);
-            return IdentityResult.Success;
+            try
+            {
+                await user.ConfirmSignUpAsync(confirmationCode, forcedAliasCreation).ConfigureAwait(false);
+                return IdentityResult.Success;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to confirm the Cognito User signup", e));
+            }
         }
 
         /// <summary>
@@ -203,12 +272,19 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            await _cognitoClient.AdminConfirmSignUpAsync(new AdminConfirmSignUpRequest
+            try
             {
-                Username = user.Username,
-                UserPoolId = _pool.PoolID
-            }, cancellationToken).ConfigureAwait(false);
-            return IdentityResult.Success;
+                await _cognitoClient.AdminConfirmSignUpAsync(new AdminConfirmSignUpRequest
+                {
+                    Username = user.Username,
+                    UserPoolId = _pool.PoolID
+                }, cancellationToken).ConfigureAwait(false);
+                return IdentityResult.Success;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to admin confirm the Cognito User signup", e));
+            }
         }
 
         /// <summary>
@@ -230,13 +306,20 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoAttributesConstants.PhoneNumber, CognitoAttributesConstants.Email), nameof(attributeName));
             }
-            
-            await _cognitoClient.GetUserAttributeVerificationCodeAsync(new GetUserAttributeVerificationCodeRequest
+
+            try
             {
-                AccessToken = user.SessionTokens.AccessToken,
-                AttributeName = attributeName
-            }, cancellationToken).ConfigureAwait(false);
-            return IdentityResult.Success;
+                await _cognitoClient.GetUserAttributeVerificationCodeAsync(new GetUserAttributeVerificationCodeRequest
+                {
+                    AccessToken = user.SessionTokens.AccessToken,
+                    AttributeName = attributeName
+                }, cancellationToken).ConfigureAwait(false);
+                return IdentityResult.Success;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to get the Cognito User attribute verification code", e));
+            }
         }
 
         /// <summary>
@@ -260,13 +343,20 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoAttributesConstants.PhoneNumber, CognitoAttributesConstants.Email), nameof(attributeName));
             }
 
-            await _cognitoClient.VerifyUserAttributeAsync(new VerifyUserAttributeRequest
+            try
             {
-                AccessToken = user.SessionTokens.AccessToken,
-                AttributeName = attributeName,
-                Code = code
-            }, cancellationToken).ConfigureAwait(false);
-            return IdentityResult.Success;
+                await _cognitoClient.VerifyUserAttributeAsync(new VerifyUserAttributeRequest
+                {
+                    AccessToken = user.SessionTokens.AccessToken,
+                    AttributeName = attributeName,
+                    Code = code
+                }, cancellationToken).ConfigureAwait(false);
+                return IdentityResult.Success;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to verify the attribute for the Cognito User", e));
+            }
         }
 
         /// <summary>
@@ -283,6 +373,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 throw new ArgumentException("user.Attributes must be initialized.");
             }
+
             var clientConfig = await _pool.GetUserPoolClientConfiguration().ConfigureAwait(false);
             if (!clientConfig.ReadAttributes.Contains(attributeName))
             {
