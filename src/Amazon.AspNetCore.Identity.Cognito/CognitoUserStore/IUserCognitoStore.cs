@@ -48,6 +48,19 @@ namespace Amazon.AspNetCore.Identity.Cognito
         Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Resets the <paramref name="user"/>'s password to the specified <paramref name="newPassword"/> after
+        /// validating the given password reset <paramref name="token"/>.
+        /// </summary>
+        /// <param name="user">The user whose password should be reset.</param>
+        /// <param name="token">The password reset token to verify.</param>
+        /// <param name="newPassword">The new password to set if reset token verification succeeds.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        Task<IdentityResult> ChangePasswordWithTokenAsync(TUser user, string token, string newPassword, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Checks if the password needs to be changed for the specified <paramref name="user"/>.
         /// </summary>
         /// <param name="user">The user to check if the password needs to be changed.</param>
@@ -55,11 +68,12 @@ namespace Amazon.AspNetCore.Identity.Cognito
         Task<bool> IsPasswordChangeRequiredAsync(TUser user, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Resets the password for the specified <paramref name="user"/>.
+        /// Resets the <paramref name="user"/>'s password and sends the confirmation token to the user 
+        /// via email or sms depending on the user pool policy.
         /// </summary>
         /// <param name="user">The user to reset the password for.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if the password was reset, false otherwise.</returns>
-        Task<IdentityResult> ResetUserPasswordAsync(TUser user, CancellationToken cancellationToken);
+        Task<IdentityResult> ResetPasswordAsync(TUser user, CancellationToken cancellationToken);
 
         /// <summary>
         /// Registers the specified <paramref name="user"/> in Cognito with the given password,
