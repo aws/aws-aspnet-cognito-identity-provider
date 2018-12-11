@@ -4,6 +4,19 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <CodeAnalysisRuleSet>../ruleset.xml</CodeAnalysisRuleSet>
     <Version>0.9.0</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Amazon.AspNetCore.Identity.Cognito</PackageId>
+    <Title>ASP.NET Core Identity Provider for Amazon Cognito</Title>
+    <Product>Amazon.AspNetCore.Identity.Cognito</Product>
+    <Description>Simplifies using Amazon Cognito as a membership storage solution for building ASP.NET Core web applications using ASP.NET Core Identity.</Description>
+    <Authors>Amazon Web Services</Authors>
+    <Copyright>2018</Copyright>
+    <PackageTags>AWS;Amazon;aws-sdk-v3;Cognito;Identity</PackageTags>
+    <PackageProjectUrl>https://github.com/aws/aws-aspnet-cognito-identity-provider/</PackageProjectUrl>
+    <PackageLicenseUrl>http://aws.amazon.com/apache2.0/</PackageLicenseUrl>
+    <PackageIconUrl>https://sdk-for-net.amazonwebservices.com/images/AWSLogo128x128.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/aws/aws-aspnet-cognito-identity-provider/</RepositoryUrl>
+    <Company>Amazon Web Services</Company>
   </PropertyGroup>
 
   <ItemGroup>
