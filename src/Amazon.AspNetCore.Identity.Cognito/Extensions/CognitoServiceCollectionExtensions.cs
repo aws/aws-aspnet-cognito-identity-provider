@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -77,6 +78,8 @@ namespace Microsoft.Extensions.DependencyInjection
     internal static class CognitoUserPoolFactory
     {
         private const string MissingConfigurationExceptionMessage = "No IConfiguration object instance was found in the service collection. Could not instanciate a CognitoUserPool object.";
+        private const string UserAgentHeader = "User-Agent";
+        private static string _assemblyFileVersion = "Unknown";
 
         public static CognitoUserPool CreateUserPoolClient(IServiceProvider provider)
         {
@@ -95,9 +98,33 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
             }
 
+            _assemblyFileVersion = GetAssemblyFileVersion();
+
             var cognitoClient = provider.GetService<IAmazonCognitoIdentityProvider>();
+
+            if (cognitoClient is AmazonCognitoIdentityProviderClient eventProvider)
+            {
+                eventProvider.BeforeRequestEvent += ServiceClientBeforeRequestEvent;
+            }
+
             var cognitoPool = new CognitoUserPool(options.UserPoolId, options.UserPoolClientId, cognitoClient, options.UserPoolClientSecret);
             return cognitoPool;
+        }
+
+        private static void ServiceClientBeforeRequestEvent(object sender, Amazon.Runtime.RequestEventArgs e)
+        {
+            Amazon.Runtime.WebServiceRequestEventArgs args = e as Amazon.Runtime.WebServiceRequestEventArgs;
+            if (args == null || !args.Headers.ContainsKey(UserAgentHeader))
+                return;
+
+            args.Headers[UserAgentHeader] = args.Headers[UserAgentHeader] + " CognitoASPNETCoreIdentityProvider/" + _assemblyFileVersion;
+        }
+
+        private static string GetAssemblyFileVersion()
+        {
+            var assembly = typeof(CognitoServiceCollectionExtensions).GetTypeInfo().Assembly;
+            AssemblyFileVersionAttribute attribute = assembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute)) as AssemblyFileVersionAttribute;
+            return attribute == null ? "Unknown" : attribute.Version;
         }
     }
 }
