@@ -79,6 +79,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         private const string MissingConfigurationExceptionMessage = "No IConfiguration object instance was found in the service collection. Could not instanciate a CognitoUserPool object.";
         private const string UserAgentHeader = "User-Agent";
+        private static string _assemblyFileVersion = "Unknown";
 
         public static CognitoUserPool CreateUserPoolClient(IServiceProvider provider)
         {
@@ -97,6 +98,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
             }
 
+            _assemblyFileVersion = GetAssemblyFileVersion();
+
             var cognitoClient = provider.GetService<IAmazonCognitoIdentityProvider>();
 
             if (cognitoClient is AmazonCognitoIdentityProviderClient eventProvider)
@@ -114,7 +117,7 @@ namespace Microsoft.Extensions.DependencyInjection
             if (args == null || !args.Headers.ContainsKey(UserAgentHeader))
                 return;
 
-            args.Headers[UserAgentHeader] = args.Headers[UserAgentHeader] + " CognitoASPNETCoreIdentityProvider/" + GetAssemblyFileVersion();
+            args.Headers[UserAgentHeader] = args.Headers[UserAgentHeader] + " CognitoASPNETCoreIdentityProvider/" + _assemblyFileVersion;
         }
 
         private static string GetAssemblyFileVersion()
