@@ -42,11 +42,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\aws-sdk-net-extensions-cognito\src\Amazon.Extensions.CognitoAuthentication\Amazon.Extensions.CognitoAuthentication.csproj" />
+    <PackageReference Include="Microsoft.NetCore.Analyzers" Version="2.6.2" />
+    <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="2.6.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NetCore.Analyzers" Version="2.6.2" />
-    <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="2.6.2" />
+    <ProjectReference Include="..\..\..\aws-sdk-net-extensions-cognito\src\Amazon.Extensions.CognitoAuthentication\Amazon.Extensions.CognitoAuthentication.csproj" />
   </ItemGroup>
 </Project>
