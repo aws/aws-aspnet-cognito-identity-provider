@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using System;
 
 namespace Amazon.AspNetCore.Identity.Cognito.Test
 {
@@ -30,27 +31,38 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         protected Mock<IHttpContextAccessor> contextAccessorMock;
         protected Mock<CognitoUserClaimsPrincipalFactory<CognitoUser>> claimsFactoryMock;
         protected Mock<IOptions<IdentityOptions>> optionsAccessorMock;
-        protected Mock<ILogger<SignInManager<CognitoUser>>> loggerMock;
+        protected Mock<ILogger<SignInManager<CognitoUser>>> loggerSigninManagerMock;
         protected Mock<IAuthenticationSchemeProvider> schemesMock;
         protected Mock<IAmazonCognitoIdentityProvider> cognitoClientMock;
         protected Mock<CognitoUserPool> cognitoPoolMock;
-        protected Mock<CognitoUserStore<CognitoUser>> storeMock;
         protected Mock<CognitoIdentityErrorDescriber> errorsMock;
-        
+        protected Mock<CognitoUserStore<CognitoUser>> userStoreMock;
+        protected Mock<IPasswordHasher<CognitoUser>> passwordHasherMock;
+        protected Mock<IUserValidator<CognitoUser>> userValidatorsMock;
+        protected Mock<IPasswordValidator<CognitoUser>> passwordValidatorsMock;
+        protected CognitoKeyNormalizer keyNormalizer;
+        protected Mock<IServiceProvider> servicesMock; 
+        protected Mock<ILogger<UserManager<CognitoUser>>> loggerUserManagerMock;
 
         public ManagerTestBase()
         {
             cognitoClientMock = new Mock<IAmazonCognitoIdentityProvider>();
             cognitoPoolMock = new Mock<CognitoUserPool>("region_poolName", "clientID", cognitoClientMock.Object, null);
             errorsMock = new Mock<CognitoIdentityErrorDescriber>();
-            storeMock = new Mock<CognitoUserStore<CognitoUser>>(cognitoClientMock.Object, cognitoPoolMock.Object, errorsMock.Object);
             optionsAccessorMock = new Mock<IOptions<IdentityOptions>>();
             var idOptions = new IdentityOptions();
             idOptions.Lockout.AllowedForNewUsers = false;
             optionsAccessorMock.Setup(o => o.Value).Returns(idOptions);
             contextAccessorMock = new Mock<IHttpContextAccessor>();
-            loggerMock = new Mock<ILogger<SignInManager<CognitoUser>>>();
+            loggerSigninManagerMock = new Mock<ILogger<SignInManager<CognitoUser>>>();
             schemesMock = new Mock<IAuthenticationSchemeProvider>();
+            userStoreMock = new Mock<CognitoUserStore<CognitoUser>>(cognitoClientMock.Object, cognitoPoolMock.Object, errorsMock.Object);
+            passwordHasherMock = new Mock<IPasswordHasher<CognitoUser>>();
+            userValidatorsMock = new Mock<IUserValidator<CognitoUser>>();
+            passwordValidatorsMock = new Mock<IPasswordValidator<CognitoUser>>();
+            keyNormalizer = new CognitoKeyNormalizer();
+            servicesMock = new Mock<IServiceProvider>();
+            loggerUserManagerMock = new Mock<ILogger<UserManager<CognitoUser>>>();
         }
     }
 }

@@ -32,9 +32,9 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
 
         public CognitoSigninManagerTest() : base()
         {
-            userManagerMock = new Mock<CognitoUserManager<CognitoUser>>(storeMock.Object, null, null, null, null, null, null, null, null);
+            userManagerMock = new Mock<CognitoUserManager<CognitoUser>>(userStoreMock.Object, null, null, null, null, null, null, null, null);
             claimsFactoryMock = new Mock<CognitoUserClaimsPrincipalFactory<CognitoUser>>(userManagerMock.Object, optionsAccessorMock.Object);
-            signinManager = new CognitoSignInManager<CognitoUser>(userManagerMock.Object, contextAccessorMock.Object, claimsFactoryMock.Object, optionsAccessorMock.Object, loggerMock.Object, schemesMock.Object);
+            signinManager = new CognitoSignInManager<CognitoUser>(userManagerMock.Object, contextAccessorMock.Object, claimsFactoryMock.Object, optionsAccessorMock.Object, loggerSigninManagerMock.Object, schemesMock.Object);
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
             CognitoUser user = null;
             userManagerMock.Setup(mock => mock.FindByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(user)).Verifiable();
             var output = await signinManager.PasswordSignInAsync("userId", "password", true, false).ConfigureAwait(false);
-            Assert.Equal(output, signinResult);
+            Assert.Equal(signinResult, output);
             userManagerMock.Verify();
         }
         
@@ -62,7 +62,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
 
             var output = await signinManager.PasswordSignInAsync("userId", "password", true, false).ConfigureAwait(false);
 
-            Assert.Equal(output, signinResult);
+            Assert.Equal(signinResult, output);
             userManagerMock.Verify();
         }
 
@@ -90,7 +90,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
 
             var output = await signinManager.PasswordSignInAsync("userId", "password", true, false).ConfigureAwait(false);
 
-            Assert.Equal(output, signinResult);
+            Assert.Equal(signinResult, output);
             userManagerMock.Verify();
             contextAccessorMock.Verify();
         }
@@ -107,7 +107,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
             userManagerMock.Setup(mock => mock.IsPasswordChangeRequiredAsync(It.IsAny<CognitoUser>())).Returns(Task.FromResult(isPasswordChangeRequired)).Verifiable();
 
             var output = await signinManager.PasswordSignInAsync("userId", "password", true, false).ConfigureAwait(false);
-            Assert.Equal(output, signinResult);
+            Assert.Equal(signinResult, output);
             userManagerMock.Verify();
         }
 
@@ -129,7 +129,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
 
             var output = await signinManager.PasswordSignInAsync("userId", "password", true, false).ConfigureAwait(false);
 
-            Assert.Equal(output, signinResult);
+            Assert.Equal(signinResult, output);
             contextAccessorMock.Verify();
         }
 
@@ -154,7 +154,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
 
             var output = await signinManager.RespondToTwoFactorChallengeAsync("2FACODE", true, false).ConfigureAwait(false);
 
-            Assert.Equal(output, SignInResult.Success);
+            Assert.Equal(SignInResult.Success, output);
             contextAccessorMock.Verify();
             userManagerMock.Verify();
         }
@@ -176,7 +176,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
 
             var output = await signinManager.RespondToTwoFactorChallengeAsync("2FACODE", true, false).ConfigureAwait(false);
 
-            Assert.Equal(output, SignInResult.Failed);
+            Assert.Equal(SignInResult.Failed, output);
             contextAccessorMock.Verify();
             userManagerMock.Verify();
         }
@@ -195,7 +195,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
 
             var output = await signinManager.GetTwoFactorAuthenticationUserAsync().ConfigureAwait(false);
 
-            Assert.Equal(output, cognitoUser);
+            Assert.Equal(cognitoUser, output);
             contextAccessorMock.Verify();
             userManagerMock.Verify();
         }
