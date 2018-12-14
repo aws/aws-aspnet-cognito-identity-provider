@@ -29,11 +29,9 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
     {
         private CognitoUserManager<CognitoUser> userManager;
         
-
         public CognitoUserManagerTest() : base()
         {
             
-
             userManager = new CognitoUserManager<CognitoUser>(userStoreMock.Object, 
                 optionsAccessorMock.Object, 
                 passwordHasherMock.Object,
@@ -291,8 +289,6 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         {
             await Assert.ThrowsAsync<NotSupportedException>(() => userManager.ChangeEmailAsync(null, null, null)).ConfigureAwait(false);
         }
-
-
 
         #endregion
     }
