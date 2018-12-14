@@ -28,7 +28,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
     /// Retrieving the user status or changing/reseting the password.
     /// </summary>
     /// <typeparam name="TUser">The type encapsulating a user.</typeparam>
-    interface IUserCognitoStore<TUser> : IDisposable where TUser : class
+    public interface IUserCognitoStore<TUser> : IDisposable where TUser : class
     {
         /// <summary>
         /// Checks if the <param name="user"> can log in with the specified password <paramref name="password"/>.

@@ -51,17 +51,13 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         [Fact]
         public async void Test_GivenAnUserWithWrongPassword_WhenPasswordSignIn_ThenReturnSigninResultFailed()
         {
-            var cognitoUser = new CognitoUser("userId", "clientId", cognitoPoolMock.Object, cognitoClientMock.Object);
             AuthFlowResponse authFlowResponse = null;
             bool isPasswordChangeRequired = false;
             var signinResult = SignInResult.Failed;
-
-            userManagerMock.Setup(mock => mock.FindByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(cognitoUser)).Verifiable();
+            userManagerMock.Setup(mock => mock.FindByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(GetCognitoUser())).Verifiable();
             userManagerMock.Setup(mock => mock.CheckPasswordAsync(It.IsAny<CognitoUser>(), It.IsAny<string>())).Returns(Task.FromResult(authFlowResponse)).Verifiable();
             userManagerMock.Setup(mock => mock.IsPasswordChangeRequiredAsync(It.IsAny<CognitoUser>())).Returns(Task.FromResult(isPasswordChangeRequired)).Verifiable();
-
             var output = await signinManager.PasswordSignInAsync("userId", "password", true, false).ConfigureAwait(false);
-
             Assert.Equal(signinResult, output);
             userManagerMock.Verify();
         }
@@ -69,23 +65,20 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         [Fact]
         public async void Test_GivenAnUserWithNo2FA_WhenPasswordSignIn_ThenReturnSigninResultSuccess()
         {
-            var cognitoUser = new CognitoUser("userId", "clientId", cognitoPoolMock.Object, cognitoClientMock.Object);
+            var cognitoUser = GetCognitoUser();
             var authFlowResponse = new AuthFlowResponse("sessionId", null, null, null, null);
             bool isPasswordChangeRequired = false;
             var signinResult = SignInResult.Success;
 
             userManagerMock.Setup(mock => mock.FindByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(cognitoUser)).Verifiable();
             userManagerMock.Setup(mock => mock.IsPasswordChangeRequiredAsync(It.IsAny<CognitoUser>())).Returns(Task.FromResult(isPasswordChangeRequired)).Verifiable();
-
             userManagerMock.Setup(mock => mock.CheckPasswordAsync(It.IsAny<CognitoUser>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(authFlowResponse))
                 .Callback(() => cognitoUser.SessionTokens = new CognitoUserSession("idToken", "accessToken", "refreshToken", DateTime.Now, DateTime.Now.AddDays(1))).Verifiable();
-
             userManagerMock.Setup(mock => mock.GetClaimsAsync(It.IsAny<CognitoUser>())).Returns(Task.FromResult(new List<Claim>() as IList<Claim>)).Verifiable();
             userManagerMock.Setup(mock => mock.GetRolesAsync(It.IsAny<CognitoUser>())).Returns(Task.FromResult(new List<string>() as IList<string>)).Verifiable();
 
             var context = MockUtils.MockContext(cognitoUser, IdentityConstants.TwoFactorUserIdScheme);
-
             contextAccessorMock.Setup(a => a.HttpContext).Returns(context).Verifiable();
 
             var output = await signinManager.PasswordSignInAsync("userId", "password", true, false).ConfigureAwait(false);
@@ -98,12 +91,10 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         [Fact]
         public async void Test_GivenAnUserWithPasswordChangeRequired_WhenPasswordSignIn_ThenReturnSigninResultPassowrdChangeRequired()
         {
-            var cognitoUser = new CognitoUser("userId", "clientId", cognitoPoolMock.Object, cognitoClientMock.Object);
-            var authFlowResponse = new AuthFlowResponse("sessionId", null, null, null, null);
             bool isPasswordChangeRequired = true;
             var signinResult = CognitoSignInResult.PasswordChangeRequired;
 
-            userManagerMock.Setup(mock => mock.FindByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(cognitoUser)).Verifiable();
+            userManagerMock.Setup(mock => mock.FindByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(GetCognitoUser())).Verifiable();
             userManagerMock.Setup(mock => mock.IsPasswordChangeRequiredAsync(It.IsAny<CognitoUser>())).Returns(Task.FromResult(isPasswordChangeRequired)).Verifiable();
 
             var output = await signinManager.PasswordSignInAsync("userId", "password", true, false).ConfigureAwait(false);
@@ -114,7 +105,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         [Fact]
         public async void Test_GivenAUserWith2FA_WhenPasswordSignIn_ThenReturnSigninResultTwoFactorRequired()
         {
-            var cognitoUser = new CognitoUser("userId", "clientId", cognitoPoolMock.Object, cognitoClientMock.Object);
+            var cognitoUser = GetCognitoUser();
             bool isPasswordChangeRequired = false;
             var signinResult = SignInResult.TwoFactorRequired;
             var authFlowResponse = new AuthFlowResponse("2FASESSIONID", null, ChallengeNameType.SMS_MFA, null, null);
@@ -124,7 +115,6 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
             userManagerMock.Setup(mock => mock.IsPasswordChangeRequiredAsync(It.IsAny<CognitoUser>())).Returns(Task.FromResult(isPasswordChangeRequired));
 
             var context = MockUtils.MockContext(cognitoUser, IdentityConstants.TwoFactorUserIdScheme);
-
             contextAccessorMock.Setup(a => a.HttpContext).Returns(context).Verifiable();
 
             var output = await signinManager.PasswordSignInAsync("userId", "password", true, false).ConfigureAwait(false);
@@ -136,19 +126,16 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         [Fact]
         public async void Test_GivenAUserWith2FA_WhenRespondToTwoFactorChallengeWithCorrectCode_ThenReturnSigninResultSuccess()
         {
-            var cognitoUser = new CognitoUser("userId", "clientId", cognitoPoolMock.Object, cognitoClientMock.Object);
+            var cognitoUser = GetCognitoUser();
             var context = MockUtils.MockContext(cognitoUser, IdentityConstants.TwoFactorUserIdScheme);
-
             contextAccessorMock.Setup(a => a.HttpContext).Returns(context).Verifiable();
 
             var authFlowResponse = new AuthFlowResponse("sessionId", null, null, null, null);
 
             userManagerMock.Setup(mock => mock.FindByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(cognitoUser)).Verifiable();
-
             userManagerMock.Setup(mock => mock.RespondToTwoFactorChallengeAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(authFlowResponse))
                 .Callback(() => cognitoUser.SessionTokens = new CognitoUserSession("idToken", "accessToken", "refreshToken", DateTime.Now, DateTime.Now.AddDays(1))).Verifiable();
-
             userManagerMock.Setup(mock => mock.GetClaimsAsync(It.IsAny<CognitoUser>())).Returns(Task.FromResult(new List<Claim>() as IList<Claim>)).Verifiable();
             userManagerMock.Setup(mock => mock.GetRolesAsync(It.IsAny<CognitoUser>())).Returns(Task.FromResult(new List<string>() as IList<string>)).Verifiable();
 
@@ -162,15 +149,13 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         [Fact]
         public async void Test_GivenAUserWith2FA_WhenRespondToTwoFactorChallengeWithWrongCode_ThenReturnSigninResultFailed()
         {
-            var cognitoUser = new CognitoUser("userId", "clientId", cognitoPoolMock.Object, cognitoClientMock.Object);
+            var cognitoUser = GetCognitoUser();
             var context = MockUtils.MockContext(cognitoUser, IdentityConstants.TwoFactorUserIdScheme);
-
             contextAccessorMock.Setup(a => a.HttpContext).Returns(context).Verifiable();
 
             AuthFlowResponse authFlowResponse = null;
 
             userManagerMock.Setup(mock => mock.FindByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(cognitoUser)).Verifiable();
-
             userManagerMock.Setup(mock => mock.RespondToTwoFactorChallengeAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(authFlowResponse)).Verifiable();
 
@@ -185,12 +170,10 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         [Fact]
         public async void Test_GivenAUserSignedInWith2FAContext_WhenGetTwoFactorAuthenticationUser_ThenTheUserIsRetrieved()
         {
-            var cognitoUser = new CognitoUser("userId", "clientId", cognitoPoolMock.Object, cognitoClientMock.Object);
+            var cognitoUser = GetCognitoUser();
 
             var context = MockUtils.MockContext(cognitoUser, IdentityConstants.TwoFactorUserIdScheme);
-
             contextAccessorMock.Setup(a => a.HttpContext).Returns(context).Verifiable();
-
             userManagerMock.Setup(mock => mock.FindByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(cognitoUser)).Verifiable();
 
             var output = await signinManager.GetTwoFactorAuthenticationUserAsync().ConfigureAwait(false);
@@ -203,7 +186,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         [Fact]
         public async void Test_GivenAUserSignedIn_WhenSignOut_ThenTheUserIsSignedOut()
         {
-            var cognitoUser = new CognitoUser("userId", "clientId", cognitoPoolMock.Object, cognitoClientMock.Object);
+            var cognitoUser = GetCognitoUser();
             var context = MockUtils.MockContext(cognitoUser, IdentityConstants.ApplicationScheme);
 
             contextAccessorMock.Setup(a => a.HttpContext).Returns(context).Verifiable();

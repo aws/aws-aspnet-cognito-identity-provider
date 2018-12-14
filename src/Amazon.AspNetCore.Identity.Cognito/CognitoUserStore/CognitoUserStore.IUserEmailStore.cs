@@ -34,7 +34,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>
         /// The task object containing the results of the asynchronous lookup operation, the user if any associated with the specified normalized email address.
         /// </returns>
-        public async Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
+        public virtual async Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -61,14 +61,14 @@ namespace Amazon.AspNetCore.Identity.Cognito
             return null;
         }
 
-        public async Task<string> GetEmailAsync(TUser user, CancellationToken cancellationToken)
+        public virtual async Task<string> GetEmailAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             return await GetAttributeValueAsync(user, CognitoAttributesConstants.Email, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<bool> GetEmailConfirmedAsync(TUser user, CancellationToken cancellationToken)
+        public virtual async Task<bool> GetEmailConfirmedAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -80,7 +80,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             throw new NotSupportedException("Cognito does not support normalized emails.");
         }
 
-        public Task SetEmailAsync(TUser user, string email, CancellationToken cancellationToken)
+        public virtual Task SetEmailAsync(TUser user, string email, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 

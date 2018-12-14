@@ -36,7 +36,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing a flag indicating whether the specified 
         /// <paramref name="user"/> has two factor authentication enabled or not.
         /// </returns>
-        public async Task<bool> GetTwoFactorEnabledAsync(TUser user, CancellationToken cancellationToken)
+        public virtual async Task<bool> GetTwoFactorEnabledAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null)

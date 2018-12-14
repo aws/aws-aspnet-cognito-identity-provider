@@ -64,5 +64,10 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
             servicesMock = new Mock<IServiceProvider>();
             loggerUserManagerMock = new Mock<ILogger<UserManager<CognitoUser>>>();
         }
+
+        public CognitoUser GetCognitoUser()
+        {
+            return new CognitoUser("userId", "clientId", cognitoPoolMock.Object, cognitoClientMock.Object);
+        }
     }
 }

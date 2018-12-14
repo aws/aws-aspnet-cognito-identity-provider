@@ -54,5 +54,6 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
 
             return context;
         }
+
     }
 }

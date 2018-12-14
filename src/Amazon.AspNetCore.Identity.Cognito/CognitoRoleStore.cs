@@ -40,7 +40,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <param name="role">The role to create in the store.</param>
         /// <returns>A <see cref="Task{TResult}"/> that represents the <see cref="IdentityResult"/> of the asynchronous query.</returns>
-        public async Task<IdentityResult> CreateAsync(TRole role, CancellationToken cancellationToken)
+        public virtual async Task<IdentityResult> CreateAsync(TRole role, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (role == null)
@@ -65,7 +65,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <param name="role">The role to delete from the store.</param>
         /// <returns>A <see cref="Task{TResult}"/> that represents the <see cref="IdentityResult"/> of the asynchronous query.</returns>
-        public async Task<IdentityResult> DeleteAsync(TRole role, CancellationToken cancellationToken)
+        public virtual async Task<IdentityResult> DeleteAsync(TRole role, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (role == null)
@@ -87,7 +87,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <param name="roleName">The role name to look for.</param>
         /// <returns>A <see cref="Task{TResult}"/> that represents the result of the look up.</returns>
-        public async Task<TRole> FindByNameAsync(string roleName, CancellationToken cancellationToken)
+        public virtual async Task<TRole> FindByNameAsync(string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -107,7 +107,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <param name="role">The role to update in the store.</param>
         /// <returns>A <see cref="Task{TResult}"/> that represents the <see cref="IdentityResult"/> of the asynchronous query.</returns>
-        public async Task<IdentityResult> UpdateAsync(TRole role, CancellationToken cancellationToken)
+        public virtual async Task<IdentityResult> UpdateAsync(TRole role, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (role == null)
@@ -132,7 +132,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <param name="role">The role whose name should be returned.</param>
         /// <returns>A <see cref="Task{TResult}"/> that contains the name of the role.</returns>
-        public Task<string> GetRoleNameAsync(TRole role, CancellationToken cancellationToken)
+        public virtual Task<string> GetRoleNameAsync(TRole role, CancellationToken cancellationToken)
         {
             return Task.FromResult(role.Name);
         }

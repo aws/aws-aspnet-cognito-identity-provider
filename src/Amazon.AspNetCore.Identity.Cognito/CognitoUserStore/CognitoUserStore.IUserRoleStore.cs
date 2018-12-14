@@ -38,7 +38,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="userId"/> if it exists.
         /// </returns>
-        public async Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
+        public virtual async Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             try
@@ -61,7 +61,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the userId belonging to the matching the specified <paramref name="userId"/>.
         /// </returns>
-        public Task<string> GetUserIdAsync(TUser user, CancellationToken cancellationToken)
+        public virtual Task<string> GetUserIdAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             return Task.FromResult(user.UserID);
@@ -75,7 +75,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the UserName belonging to the matching the specified <paramref name="userId"/>.
         /// </returns>
-        public Task<string> GetUserNameAsync(TUser user, CancellationToken cancellationToken)
+        public virtual Task<string> GetUserNameAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             return Task.FromResult(user.Username);
@@ -90,7 +90,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken)
+        public virtual Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -107,7 +107,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public async Task<IdentityResult> CreateAsync(TUser user, IDictionary<string, string> validationData, CancellationToken cancellationToken)
+        public virtual async Task<IdentityResult> CreateAsync(TUser user, IDictionary<string, string> validationData, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             try
@@ -126,7 +126,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <param name="user">The user to delete.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
-        public async Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken)
+        public virtual async Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -154,7 +154,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="normalizedUserName"/> if it exists.
         /// </returns>
-        public Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
+        public virtual Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
             return FindByIdAsync(normalizedUserName, cancellationToken);
         }
@@ -179,7 +179,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <param name="user">The user to update attributes for.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
-        public async Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken)
+        public virtual async Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null)
@@ -241,7 +241,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="user">The user to add to the named role.</param>
         /// <param name="roleName">The name of the role to add the user to.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public Task AddToRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
+        public virtual Task AddToRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null)
@@ -270,7 +270,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="user">The user to remove the named role from.</param>
         /// <param name="roleName">The name of the role to remove.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public Task RemoveFromRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
+        public virtual Task RemoveFromRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null)
@@ -298,7 +298,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <param name="user">The user whose role names to retrieve.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a list of role names.</returns>
-        public async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken)
+        public virtual async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null)
@@ -332,7 +332,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing a flag indicating whether the specified <paramref name="user"/> is
         /// a member of the named role.
         /// </returns>
-        public async Task<bool> IsInRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
+        public virtual async Task<bool> IsInRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null)
@@ -351,7 +351,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing a list of users who are in the named role.
         /// </returns>
-        public async Task<IList<TUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
+        public virtual async Task<IList<TUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 

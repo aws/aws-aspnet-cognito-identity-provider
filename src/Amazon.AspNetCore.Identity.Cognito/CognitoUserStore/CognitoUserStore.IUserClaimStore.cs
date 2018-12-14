@@ -36,7 +36,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>
         /// A <see cref="Task{TResult}"/> that represents the result of the asynchronous query, a list of <see cref="Claim"/>s.
         /// </returns>
-        public async Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken)
+        public virtual async Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null)
@@ -67,7 +67,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="user">The user to add the claim to.</param>
         /// <param name="claims">The collection of <see cref="Claim"/>s to add.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public async Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
+        public virtual async Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null)
@@ -118,7 +118,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="user">The user to remove the specified <paramref name="claims"/> from.</param>
         /// <param name="claims">A collection of <see cref="Claim"/>s to remove.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public async Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
+        public virtual async Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null)
