@@ -57,7 +57,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="user">The user try to log in with.</param>
         /// <param name="password">The password supplied for validation.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object linked to that authentication workflow.</returns>
-        public async Task<AuthFlowResponse> StartValidatePasswordAsync(TUser user, string password, CancellationToken cancellationToken)
+        public virtual async Task<AuthFlowResponse> StartValidatePasswordAsync(TUser user, string password, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             try
@@ -85,7 +85,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="code">The 2fa code to check</param>
         /// <param name="authWorkflowSessionId">The ongoing Cognito authentication workflow id.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object linked to that authentication workflow.</returns>
-        public async Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId, CancellationToken cancellationToken)
+        public virtual async Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -114,7 +114,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="newPassword">The new passord for the user.</param>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
-        public async Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword, CancellationToken cancellationToken)
+        public virtual async Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             try
@@ -146,7 +146,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public async Task<IdentityResult> ChangePasswordWithTokenAsync(TUser user, string token, string newPassword, CancellationToken cancellationToken)
+        public virtual async Task<IdentityResult> ChangePasswordWithTokenAsync(TUser user, string token, string newPassword, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -166,7 +166,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <param name="user">The user to check if the password needs to be changed.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if the password needs to be changed, false otherwise.</returns>
-        public Task<bool> IsPasswordChangeRequiredAsync(TUser user, CancellationToken cancellationToken)
+        public virtual Task<bool> IsPasswordChangeRequiredAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             bool IsPasswordChangeRequired = user.Status.Equals(UserStatusForceChangePassword, StringComparison.InvariantCulture) || user.Status.Equals(UserStatusResetRequired, StringComparison.InvariantCulture);
@@ -180,7 +180,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="user">The user to reset the password for.</param>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
-        public async Task<IdentityResult> ResetPasswordAsync(TUser user, CancellationToken cancellationToken)
+        public virtual async Task<IdentityResult> ResetPasswordAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var request = new AdminResetUserPasswordRequest
@@ -212,7 +212,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public async Task<IdentityResult> CreateAsync(TUser user, string password, IDictionary<string, string> validationData, CancellationToken cancellationToken)
+        public virtual async Task<IdentityResult> CreateAsync(TUser user, string password, IDictionary<string, string> validationData, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -244,7 +244,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public async Task<IdentityResult> ConfirmSignUpAsync(TUser user, string confirmationCode, bool forcedAliasCreation, CancellationToken cancellationToken)
+        public virtual async Task<IdentityResult> ConfirmSignUpAsync(TUser user, string confirmationCode, bool forcedAliasCreation, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -268,7 +268,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public async Task<IdentityResult> AdminConfirmSignUpAsync(TUser user, CancellationToken cancellationToken)
+        public virtual async Task<IdentityResult> AdminConfirmSignUpAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -298,7 +298,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public async Task<IdentityResult> GetUserAttributeVerificationCodeAsync(TUser user, string attributeName, CancellationToken cancellationToken)
+        public virtual async Task<IdentityResult> GetUserAttributeVerificationCodeAsync(TUser user, string attributeName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -334,7 +334,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
         /// </returns>
-        public async Task<IdentityResult> VerifyUserAttributeAsync(TUser user, string attributeName, string code, CancellationToken cancellationToken)
+        public virtual async Task<IdentityResult> VerifyUserAttributeAsync(TUser user, string attributeName, string code, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 

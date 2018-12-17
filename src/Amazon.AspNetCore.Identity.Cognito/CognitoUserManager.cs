@@ -61,7 +61,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object
         /// if the specified <paramref name="password" /> matches the one store for the <paramref name="user"/>,
         /// otherwise null.</returns>
-        public new Task<AuthFlowResponse> CheckPasswordAsync(TUser user, string password)
+        public virtual Task<AuthFlowResponse> CheckPasswordAsync(TUser user, string password)
         {
             ThrowIfDisposed();
             if (user == null)
@@ -79,7 +79,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="code">The 2fa code to check</param>
         /// <param name="authWorkflowSessionId">The ongoing Cognito authentication workflow id.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object linked to that authentication workflow.</returns>
-        public Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId)
+        public virtual Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId)
         {
             ThrowIfDisposed();
             if (user == null)
@@ -139,7 +139,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <param name="user">The user to check if the password needs to be changed.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if the password needs to be changed, false otherwise.</returns>
-        public Task<bool> IsPasswordChangeRequiredAsync(TUser user)
+        public virtual Task<bool> IsPasswordChangeRequiredAsync(TUser user)
         {
             ThrowIfDisposed();
             return _userStore.IsPasswordChangeRequiredAsync(user, CancellationToken);

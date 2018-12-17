@@ -23,21 +23,21 @@ namespace Amazon.AspNetCore.Identity.Cognito
 {
     public partial class CognitoUserStore<TUser> : IUserPhoneNumberStore<TUser> where TUser : CognitoUser
     {
-        public async Task<string> GetPhoneNumberAsync(TUser user, CancellationToken cancellationToken)
+        public virtual async Task<string> GetPhoneNumberAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             return await GetAttributeValueAsync(user, CognitoAttributesConstants.PhoneNumber, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<bool> GetPhoneNumberConfirmedAsync(TUser user, CancellationToken cancellationToken)
+        public virtual async Task<bool> GetPhoneNumberConfirmedAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             return String.Equals(await GetAttributeValueAsync(user, CognitoAttributesConstants.PhoneNumberVerified, cancellationToken).ConfigureAwait(false), "true", StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public Task SetPhoneNumberAsync(TUser user, string phoneNumber, CancellationToken cancellationToken)
+        public virtual Task SetPhoneNumberAsync(TUser user, string phoneNumber, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 

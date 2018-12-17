@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Amazon.AspNetCore.Identity.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Amazon.Extensions.CognitoAuthentication", "..\aws-sdk-net-extensions-cognito\src\Amazon.Extensions.CognitoAuthentication\Amazon.Extensions.CognitoAuthentication.csproj", "{EEB5B65E-6838-4AB3-8065-ECF39FEB4073}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amazon.AspNetCore.Identity.Cognito.Test", "test\Amazon.AspNetCore.Identity.Cognito.Test\Amazon.AspNetCore.Identity.Cognito.Test.csproj", "{DA639864-EC7D-44A9-8946-781B11A15D6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{EEB5B65E-6838-4AB3-8065-ECF39FEB4073}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EEB5B65E-6838-4AB3-8065-ECF39FEB4073}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEB5B65E-6838-4AB3-8065-ECF39FEB4073}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA639864-EC7D-44A9-8946-781B11A15D6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA639864-EC7D-44A9-8946-781B11A15D6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA639864-EC7D-44A9-8946-781B11A15D6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA639864-EC7D-44A9-8946-781B11A15D6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

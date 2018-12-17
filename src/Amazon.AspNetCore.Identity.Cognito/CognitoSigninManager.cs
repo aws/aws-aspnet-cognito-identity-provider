@@ -256,7 +256,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             // Responding to the Cognito challenge.
             await _userManager.RespondToTwoFactorChallengeAsync(user, code, twoFactorInfo.CognitoAuthenticationWorkflowId).ConfigureAwait(false);
 
-            if (user.SessionTokens == null && !user.SessionTokens.IsValid())
+            if (user.SessionTokens == null || !user.SessionTokens.IsValid())
             {
                 return SignInResult.Failed;
             }
