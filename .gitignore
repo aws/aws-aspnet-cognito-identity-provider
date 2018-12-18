@@ -20,4 +20,3 @@
 **/*.nuspec
 
 packages
-*.Development.json
