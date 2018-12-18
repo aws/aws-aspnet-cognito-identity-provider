@@ -71,12 +71,12 @@ namespace Samples.Areas.Identity.Pages.Account
                 var user = _pool.GetUser(Input.UserName);
                 user.Attributes.Add(CognitoAttributesConstants.Email, Input.Email);
 
-                var result = await _userManager.CreateAsync(user, Input.Password).ConfigureAwait(false);
+                var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
+                    await _signInManager.SignInAsync(user, isPersistent: false);
 
                     return RedirectToPage("./ConfirmAccount");
                 }

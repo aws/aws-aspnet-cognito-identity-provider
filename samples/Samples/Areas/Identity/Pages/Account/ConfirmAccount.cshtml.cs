@@ -46,13 +46,13 @@ namespace Samples.Areas.Identity.Pages.Account
             {
                 var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value;
 
-                var user = await _userManager.FindByIdAsync(userId).ConfigureAwait(false);
+                var user = await _userManager.FindByIdAsync(userId);
                 if (user == null)
                 {
                     return NotFound($"Unable to load user with ID '{userId}'.");
                 }
 
-                var result = await _userManager.ConfirmSignUpAsync(user, Input.Code, true).ConfigureAwait(false);
+                var result = await _userManager.ConfirmSignUpAsync(user, Input.Code, true);
                 if (!result.Succeeded)
                 {
                     throw new InvalidOperationException($"Error confirming account for user with ID '{userId}':");
