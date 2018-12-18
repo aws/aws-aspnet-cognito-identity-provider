@@ -59,14 +59,7 @@ namespace Samples.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    if (returnUrl != null)
-                    {
-                        return LocalRedirect(returnUrl);
-                    }
-                    else
-                    {
-                        return Page();
-                    }
+                    return returnUrl != null ? LocalRedirect(returnUrl) : Page() as IActionResult;
                 }
             }
 
