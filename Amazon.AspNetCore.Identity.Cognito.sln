@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.27703.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Amazon.AspNetCore.Identity.Cognito", "src\Amazon.AspNetCore.Identity.Cognito\Amazon.AspNetCore.Identity.Cognito.csproj", "{EC93E92B-BE99-4891-BCBA-72121FC88F31}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Amazon.Extensions.CognitoAuthentication", "..\aws-sdk-net-extensions-cognito\src\Amazon.Extensions.CognitoAuthentication\Amazon.Extensions.CognitoAuthentication.csproj", "{EEB5B65E-6838-4AB3-8065-ECF39FEB4073}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amazon.AspNetCore.Identity.Cognito.Test", "test\Amazon.AspNetCore.Identity.Cognito.Test\Amazon.AspNetCore.Identity.Cognito.Test.csproj", "{DA639864-EC7D-44A9-8946-781B11A15D6F}"
 EndProject
 Global
