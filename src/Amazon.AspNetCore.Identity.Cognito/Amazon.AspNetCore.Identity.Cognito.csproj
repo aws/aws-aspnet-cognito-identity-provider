@@ -34,6 +34,7 @@
   </Choose>
 
   <ItemGroup>
+    <PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="1.0.0" />
     <PackageReference Include="AWSSDK.CognitoIdentity" Version="3.3.2.36" />
     <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="3.3.11.26" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.6" />
@@ -44,9 +45,5 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NetCore.Analyzers" Version="2.6.2" />
     <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="2.6.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\aws-sdk-net-extensions-cognito\src\Amazon.Extensions.CognitoAuthentication\Amazon.Extensions.CognitoAuthentication.csproj" />
   </ItemGroup>
 </Project>
