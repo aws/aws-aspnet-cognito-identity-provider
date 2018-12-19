@@ -2,7 +2,10 @@
 
 ## ASP.NET Core Identity Provider for Amazon Cognito
 
-**This software is in development and we do not recommend using this software in production environment.**
+
+[![nuget](https://img.shields.io/nuget/v/Amazon.AspNetCore.Identity.Cognito.svg)](https://www.nuget.org/packages/Amazon.AspNetCore.Identity.Cognito/)
+
+**This software is currently in developer preview.**
 
 ASP.NET Core Identity Provider for [Amazon Cognito](https://aws.amazon.com/cognito/) simplifies using [Amazon Cognito](https://aws.amazon.com/cognito/) as a membership storage solution for building ASP.NET Core web applications using [ASP.NET Core Identity](https://github.com/aspnet/Identity/).
 
@@ -25,14 +28,13 @@ Follow the examples below to see how the library can be integrated into your web
 
 This library extends the ASP.NET Core Identity membership system by using Amazon Cognito as a [Custom Storage Provider for ASP.NET Identity](https://docs.microsoft.com/en-us/aspnet/identity/overview/extensibility/overview-of-custom-storage-providers-for-aspnet-identity).
 
-## Building the library
-While this library is in development, you will need to build it and manually reference it in your ASP.NET Core web application.
+## Referencing the library
 
-Change your ASP.Net Core web application csproj to include the following line:
+Simply add the following NuGet dependencies to your ASP.NET Core application:
 
-```csharp
-<ProjectReference Include="..\..\..\aws-aspnet-cognito-identity-provider\src\Amazon.AspNetCore.Identity.AWSCognito\Amazon.AspNetCore.Identity.AWSCognito.csproj" />
-```
+* [Amazon.AspNetCore.Identity.Cognito](https://www.nuget.org/packages/Amazon.AspNetCore.Identity.Cognito/)
+* [Amazon.Extensions.CognitoAuthentication](https://www.nuget.org/packages/Amazon.Extensions.CognitoAuthentication/)
+
 
 ## Adding Amazon Cognito as an Identity Provider
 
@@ -67,7 +69,7 @@ In order to automatically inject Cognito service and user pool clients make the 
 }
 ```
 
-Alternatively, instead of using the appsettings.json you can directly inject your own instances of Amazon Cognito service and user pool clients to be used when calling AddCognitoIdentity():
+Alternatively, instead of relying on a configuration file, you can inject your own instances of IAmazonCognitoIdentityProvider and CognitoUserPool in your Startup.cs file, or use the newly announced [AWS Systems Manager to store your web application parameters](https://aws.amazon.com/blogs/developer/net-core-configuration-provider-for-aws-systems-manager/).
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
@@ -86,9 +88,9 @@ public void ConfigureServices(IServiceCollection services)
 
 ## Using the CognitoUser class as your web application user class
 
-Once Amazon Cognito is added as the default ASP.NET Core Identity Provider, you will need to make changes to your code to use the newly introduced CognitoUser class instead of the default ApplicationUser class.
+Once Amazon Cognito is added as the default ASP.NET Core Identity Provider, you need to use the newly introduced CognitoUser class instead of the default ApplicationUser class.
 
-These changes will be required in existing RaZor views and controllers. Here is an example with a RaZor view:
+These changes will be required in existing Razor views and controllers. Here is an example with a Razor view:
 
 ```csharp
 @using Microsoft.AspNetCore.Identity
