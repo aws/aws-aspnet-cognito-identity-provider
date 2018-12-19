@@ -28,7 +28,7 @@ This library extends the ASP.NET Core Identity membership system by using Amazon
 ## Building the library
 While this library is in development, you will need to build it and manually reference it in your ASP.NET Core web application.
 
-You can do this by checking out this project at the same level as your ASP.NET Core web application. Your ASP.NET Core web application csproj file can then include the following lines:
+Change your ASP.Net Core web application csproj to include the following line:
 
 ```csharp
 <ProjectReference Include="..\..\..\aws-aspnet-cognito-identity-provider\src\Amazon.AspNetCore.Identity.AWSCognito\Amazon.AspNetCore.Identity.AWSCognito.csproj" />
