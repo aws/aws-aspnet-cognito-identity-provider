@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\aws-sdk-net-extensions-cognito\src\Amazon.Extensions.CognitoAuthentication\Amazon.Extensions.CognitoAuthentication.csproj" />
     <ProjectReference Include="..\..\src\Amazon.AspNetCore.Identity.Cognito\Amazon.AspNetCore.Identity.Cognito.csproj" />
   </ItemGroup>
 
