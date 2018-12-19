@@ -10,7 +10,7 @@ This library is not compatible with older versions of Identity such as the ones 
 
 The library introduces the following dependencies:
 
-* [Amazon.Extensions.CognitoAuthentication](https://github.com/aws/aws-sdk-net-extensions-cognito)
+* [Amazon.Extensions.CognitoAuthentication](https://www.nuget.org/packages/Amazon.Extensions.CognitoAuthentication/)
 * [AWSSDK.CognitoIdentity](https://www.nuget.org/packages/AWSSDK.CognitoIdentity/)
 * [AWSSDK.CognitoIdentityProvider](https://www.nuget.org/packages/AWSSDK.CognitoIdentityProvider/)
 * [AWSSDK.Extensions.NETCore.Setup](https://www.nuget.org/packages/AWSSDK.Extensions.NETCore.Setup/)
@@ -26,15 +26,12 @@ Follow the examples below to see how the library can be integrated into your web
 This library extends the ASP.NET Core Identity membership system by using Amazon Cognito as a [Custom Storage Provider for ASP.NET Identity](https://docs.microsoft.com/en-us/aspnet/identity/overview/extensibility/overview-of-custom-storage-providers-for-aspnet-identity).
 
 ## Building the library
-While this library is in development, you will need to build it manually, along with the following dependency:
+While this library is in development, you will need to build it and manually reference it in your ASP.NET Core web application.
 
-* [Amazon.Extensions.CognitoAuthentication](https://github.com/aws/aws-sdk-net-extensions-cognito)
-
-You can do this by checking out the [Amazon.Extensions.CognitoAuthentication](https://github.com/aws/aws-sdk-net-extensions-cognito) project at the same level as this repository, along with you ASP.NET Core web application. Your ASP.NET Core web application csproj file can then include the following lines:
+You can do this by checking out this project at the same level as your ASP.NET Core web application. Your ASP.NET Core web application csproj file can then include the following lines:
 
 ```csharp
 <ProjectReference Include="..\..\..\aws-aspnet-cognito-identity-provider\src\Amazon.AspNetCore.Identity.AWSCognito\Amazon.AspNetCore.Identity.AWSCognito.csproj" />
-<ProjectReference Include="..\..\..\aws-sdk-net-extensions-cognito\src\Amazon.Extensions.CognitoAuthentication\Amazon.Extensions.CognitoAuthentication.csproj" />
 ```
 
 ## Adding Amazon Cognito as an Identity Provider
