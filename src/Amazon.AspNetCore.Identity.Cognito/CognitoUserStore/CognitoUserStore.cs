@@ -121,10 +121,24 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 // We start an auth process as the user needs a valid session id to be able to change it's password.
                 var authResult = await StartValidatePasswordAsync(user, currentPassword, cancellationToken).ConfigureAwait(false);
-                if (authResult.ChallengeName == ChallengeNameType.NEW_PASSWORD_REQUIRED || (user.SessionTokens != null && user.SessionTokens.IsValid()))
+                if (authResult != null)
                 {
-                    await user.ChangePasswordAsync(currentPassword, newPassword).ConfigureAwait(false);
-                    return IdentityResult.Success;
+                    if (authResult.ChallengeName == ChallengeNameType.NEW_PASSWORD_REQUIRED)
+                    {
+                        await user.RespondToNewPasswordRequiredAsync(new RespondToNewPasswordRequiredRequest()
+                        {
+                            SessionID = authResult.SessionID,
+                            NewPassword = newPassword
+                        }).ConfigureAwait(false);
+                        return IdentityResult.Success;
+                    }
+                    else if (user.SessionTokens != null && user.SessionTokens.IsValid()) // User is logged in, we can change his password
+                    {
+                        await user.ChangePasswordAsync(currentPassword, newPassword).ConfigureAwait(false);
+                        return IdentityResult.Success;
+                    }
+                    else
+                        return IdentityResult.Failed(_errorDescribers.PasswordMismatch());
                 }
                 else
                     return IdentityResult.Failed(_errorDescribers.PasswordMismatch());
