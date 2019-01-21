@@ -183,24 +183,6 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
             userManagerMock.Verify();
         }
 
-        [Fact]
-        public async void Test_GivenAUserSignedIn_WhenSignOut_ThenTheUserIsSignedOut()
-        {
-            var cognitoUser = GetCognitoUser();
-            var context = MockUtils.MockContext(cognitoUser, IdentityConstants.ApplicationScheme);
-
-            contextAccessorMock.Setup(a => a.HttpContext).Returns(context).Verifiable();
-            userManagerMock.Setup(mock => mock.FindByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(cognitoUser)).Verifiable();
-
-            await signinManager.SignOutAsync().ConfigureAwait(false);
-
-            // SessionTokens should be flushed when signing out
-            Assert.Null(cognitoUser.SessionTokens);
-
-            userManagerMock.Verify();
-
-        }
-
         #region ExceptionTests
         [Fact]
         public async void Test_GivenUserIdAndLockoutActivated_WhenPasswordSignIn_ThenThrowsNotSupportedException()
