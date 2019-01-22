@@ -26,10 +26,22 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public static readonly CognitoSignInResult PasswordChangeRequired = new CognitoSignInResult { RequiresPasswordChange = true };
 
         /// <summary>
+        ///  Returns a CognitoSignInResult that represents a required password reset.
+        /// </summary>
+        /// <returns>A CognitoSignInResult that represents a required password reset.</returns>
+        public static readonly CognitoSignInResult PasswordResetRequired = new CognitoSignInResult { RequiresPasswordReset = true };
+
+        /// <summary>
         ///  Returns a flag indication whether changing the password is required.
         /// </summary>
         /// <returns>A flag indication whether changing the password is required.</returns>
         public bool RequiresPasswordChange { get; protected set; }
+
+        /// <summary>
+        ///  Returns a flag indication whether reseting the password is required.
+        /// </summary>
+        /// <returns>A flag indication whether reseting the password is required.</returns>
+        public bool RequiresPasswordReset { get; protected set; }
 
         /// <summary>
         /// Converts the value of the current <see cref="CognitoSignInResult"/> object to its equivalent string representation.
@@ -41,6 +53,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
                    IsNotAllowed ? "NotAllowed" :
                    RequiresTwoFactor ? "RequiresTwoFactor" :
                    RequiresPasswordChange ? "RequiresPasswordChange" :
+                   RequiresPasswordReset ? "RequiresPasswordReset" :
                    Succeeded ? "Succeeded" : "Failed";
         }
     }

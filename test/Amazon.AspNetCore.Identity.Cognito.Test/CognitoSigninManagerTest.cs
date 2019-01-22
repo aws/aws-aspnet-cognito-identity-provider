@@ -103,6 +103,20 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
+        public async void Test_GivenAnUserWithPasswordResetRequired_WhenPasswordSignIn_ThenReturnSigninResultPassowrdResetRequired()
+        {
+            bool isPasswordResetRequired = true;
+            var signinResult = CognitoSignInResult.PasswordResetRequired;
+
+            userManagerMock.Setup(mock => mock.FindByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(GetCognitoUser())).Verifiable();
+            userManagerMock.Setup(mock => mock.IsPasswordResetRequiredAsync(It.IsAny<CognitoUser>())).Returns(Task.FromResult(isPasswordResetRequired)).Verifiable();
+
+            var output = await signinManager.PasswordSignInAsync("userId", "password", true, false).ConfigureAwait(false);
+            Assert.Equal(signinResult, output);
+            userManagerMock.Verify();
+        }
+
+        [Fact]
         public async void Test_GivenAUserWith2FA_WhenPasswordSignIn_ThenReturnSigninResultTwoFactorRequired()
         {
             var cognitoUser = GetCognitoUser();
