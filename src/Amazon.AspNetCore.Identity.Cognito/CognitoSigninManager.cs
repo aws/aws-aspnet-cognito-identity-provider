@@ -139,7 +139,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            // Prechecks if the user password needs to be changed
+            // Prechecks if the user password needs to be changed or reset
             var error = await PreSignInCheck(user).ConfigureAwait(false);
             if (error != null)
             {
@@ -196,6 +196,10 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 return CognitoSignInResult.PasswordChangeRequired;
             }
+            if (await IsPasswordResetRequiredAsync(user).ConfigureAwait(false))
+            {
+                return CognitoSignInResult.PasswordResetRequired;
+            }
             return null;
         }
 
@@ -207,6 +211,16 @@ namespace Amazon.AspNetCore.Identity.Cognito
         protected Task<bool> IsPasswordChangeRequiredAsync(TUser user)
         {
             return _userManager.IsPasswordChangeRequiredAsync(user);
+        }
+
+        /// <summary>
+        /// Checks if the password needs to be reset for the specified <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user to check if the password needs to be reset.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if the password needs to be reset, false otherwise.</returns>
+        protected Task<bool> IsPasswordResetRequiredAsync(TUser user)
+        {
+            return _userManager.IsPasswordResetRequiredAsync(user);
         }
 
         /// <summary>

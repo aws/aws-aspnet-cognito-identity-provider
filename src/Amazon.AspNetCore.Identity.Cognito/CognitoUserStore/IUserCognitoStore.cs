@@ -68,6 +68,13 @@ namespace Amazon.AspNetCore.Identity.Cognito
         Task<bool> IsPasswordChangeRequiredAsync(TUser user, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Checks if the password needs to be reset for the specified <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user to check if the password needs to be reset.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing a boolean set to true if the password needs to be reset, false otherwise.</returns>
+        Task<bool> IsPasswordResetRequiredAsync(TUser user, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Resets the <paramref name="user"/>'s password and sends the confirmation token to the user 
         /// via email or sms depending on the user pool policy.
         /// </summary>
