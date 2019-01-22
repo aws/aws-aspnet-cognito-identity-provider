@@ -44,7 +44,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenCheckPassword_ThenResponseIsNotAltered()
+        public async void Test_GivenAUser_WhenCheckPassword_ThenResponseIsNotAltered()
         {
             var authFlowResponse = new AuthFlowResponse("sessionId", null, null, null, null);
             userStoreMock.Setup(mock => mock.StartValidatePasswordAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(authFlowResponse)).Verifiable();
@@ -54,7 +54,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenRespondToTwoFactorChallenge_ThenResponseIsNotAltered()
+        public async void Test_GivenAUser_WhenRespondToTwoFactorChallenge_ThenResponseIsNotAltered()
         {
             var authFlowResponse = new AuthFlowResponse("sessionId", null, null, null, null);
             userStoreMock.Setup(mock => mock.RespondToTwoFactorChallengeAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(authFlowResponse)).Verifiable();
@@ -64,7 +64,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenSetTwoFactorEnabled_ThenReturnIdentityResultSuccess()
+        public async void Test_GivenAUser_WhenSetTwoFactorEnabled_ThenReturnIdentityResultSuccess()
         {
             var output = await userManager.SetTwoFactorEnabledAsync(GetCognitoUser(), true).ConfigureAwait(false);
             Assert.Equal(IdentityResult.Success, output);
@@ -72,7 +72,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenChangePassword_ThenResponseIsNotAltered()
+        public async void Test_GivenAUser_WhenChangePassword_ThenResponseIsNotAltered()
         {
             userStoreMock.Setup(mock => mock.ChangePasswordAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
             var output = await userManager.ChangePasswordAsync(GetCognitoUser(), "old", "new").ConfigureAwait(false);
@@ -81,7 +81,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenIsPasswordChangeRequired_ThenResponseIsNotAltered()
+        public async void Test_GivenAUser_WhenIsPasswordChangeRequired_ThenResponseIsNotAltered()
         {
             userStoreMock.Setup(mock => mock.IsPasswordChangeRequiredAsync(It.IsAny<CognitoUser>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(true)).Verifiable();
             var output = await userManager.IsPasswordChangeRequiredAsync(GetCognitoUser()).ConfigureAwait(false);
@@ -90,7 +90,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUserAndNewPassword_WhenResetPassword_ThenResponseIsNotAltered()
+        public async void Test_GivenAUserAndNewPassword_WhenResetPassword_ThenResponseIsNotAltered()
         {
             userStoreMock.Setup(mock => mock.ChangePasswordWithTokenAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
             var output = await userManager.ResetPasswordAsync(GetCognitoUser(), "token", "newPassword").ConfigureAwait(false);
@@ -99,7 +99,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenSendEmailOrPhoneConfirmationToken_ThenResponseIsNotAltered()
+        public async void Test_GivenAUser_WhenSendEmailOrPhoneConfirmationToken_ThenResponseIsNotAltered()
         {
             var cognitoUser = GetCognitoUser();
             userStoreMock.Setup(mock => mock.GetUserAttributeVerificationCodeAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
@@ -111,7 +111,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenCreate_ThenResponseIsNotAltered()
+        public async void Test_GivenAUser_WhenCreate_ThenResponseIsNotAltered()
         {
             var cognitoUser = GetCognitoUser();
             userStoreMock.Setup(mock => mock.CreateAsync(It.IsAny<CognitoUser>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
@@ -125,7 +125,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenResetPassword_ThenResponseIsNotAltered()
+        public async void Test_GivenAUser_WhenResetPassword_ThenResponseIsNotAltered()
         {
             userStoreMock.Setup(mock => mock.ResetPasswordAsync(It.IsAny<CognitoUser>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
             var output = await userManager.ResetPasswordAsync(GetCognitoUser()).ConfigureAwait(false);
@@ -134,7 +134,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenConfirmEmailOrPhoneNumber_ThenResponseIsNotAltered()
+        public async void Test_GivenAUser_WhenConfirmEmailOrPhoneNumber_ThenResponseIsNotAltered()
         {
             var cognitoUser = GetCognitoUser();
             userStoreMock.Setup(mock => mock.VerifyUserAttributeAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
@@ -146,7 +146,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenConfirmSignUp_ThenResponseIsNotAltered()
+        public async void Test_GivenAUser_WhenConfirmSignUp_ThenResponseIsNotAltered()
         {
             userStoreMock.Setup(mock => mock.ConfirmSignUpAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
             var output = await userManager.ConfirmSignUpAsync(GetCognitoUser(), "code", true).ConfigureAwait(false);
@@ -155,7 +155,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenAdminConfirmSignUp_ThenResponseIsNotAltered()
+        public async void Test_GivenAUser_WhenAdminConfirmSignUp_ThenResponseIsNotAltered()
         {
             userStoreMock.Setup(mock => mock.AdminConfirmSignUpAsync(It.IsAny<CognitoUser>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
             var output = await userManager.AdminConfirmSignUpAsync(GetCognitoUser()).ConfigureAwait(false);
@@ -164,7 +164,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenSetPhoneNumber_ThenResponseIsNotAltered()
+        public async void Test_GivenAUser_WhenSetPhoneNumber_ThenResponseIsNotAltered()
         {
             userStoreMock.Setup(mock => mock.SetPhoneNumberAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(0)).Verifiable();
             userStoreMock.Setup(mock => mock.UpdateAsync(It.IsAny<CognitoUser>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
@@ -174,7 +174,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenSetEmail_ThenResponseIsNotAltered()
+        public async void Test_GivenAUser_WhenSetEmail_ThenResponseIsNotAltered()
         {
             userStoreMock.Setup(mock => mock.SetEmailAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(0)).Verifiable();
             userStoreMock.Setup(mock => mock.UpdateAsync(It.IsAny<CognitoUser>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
@@ -184,7 +184,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenUpdateUser_ThenResponseIsNotAltered()
+        public async void Test_GivennUser_WhenUpdateUser_ThenResponseIsNotAltered()
         {
             userStoreMock.Setup(mock => mock.UpdateAsync(It.IsAny<CognitoUser>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
             var output = await userManager.UpdateAsync(GetCognitoUser()).ConfigureAwait(false);
@@ -193,7 +193,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenAddClaims_ThenResponseIsNotAltered()
+        public async void Test_GivenAUser_WhenAddClaims_ThenResponseIsNotAltered()
         {
             userStoreMock.Setup(mock => mock.AddClaimsAsync(It.IsAny<CognitoUser>(), It.IsAny<IEnumerable<Claim>>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
             var output = await userManager.AddClaimsAsync(GetCognitoUser(), new List<Claim>()).ConfigureAwait(false);
@@ -202,7 +202,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUser_WhenRemoveClaims_ThenResponseIsNotAltered()
+        public async void Test_GivenAUser_WhenRemoveClaims_ThenResponseIsNotAltered()
         {
             userStoreMock.Setup(mock => mock.RemoveClaimsAsync(It.IsAny<CognitoUser>(), It.IsAny<IEnumerable<Claim>>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
             var output = await userManager.RemoveClaimsAsync(GetCognitoUser(), new List<Claim>()).ConfigureAwait(false);
@@ -255,7 +255,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUserAndNullListOfClaim_WhenAddClaims_ThenThrowsArgumentNullException()
+        public async void Test_GivenAUserAndNullListOfClaim_WhenAddClaims_ThenThrowsArgumentNullException()
         {
             await Assert.ThrowsAsync<ArgumentNullException>(() => userManager.AddClaimsAsync(GetCognitoUser(), null)).ConfigureAwait(false);
         }
@@ -267,7 +267,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUserAndNullListOfClaim_WhenRemoveClaims_ThenThrowsArgumentNullException()
+        public async void Test_GivenAUserAndNullListOfClaim_WhenRemoveClaims_ThenThrowsArgumentNullException()
         {
             await Assert.ThrowsAsync<ArgumentNullException>(() => userManager.RemoveClaimsAsync(GetCognitoUser(), null)).ConfigureAwait(false);
         }

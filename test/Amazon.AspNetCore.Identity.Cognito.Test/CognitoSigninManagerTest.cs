@@ -49,7 +49,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
         
         [Fact]
-        public async void Test_GivenAnUserWithWrongPassword_WhenPasswordSignIn_ThenReturnSigninResultFailed()
+        public async void Test_GivenAUserWithWrongPassword_WhenPasswordSignIn_ThenReturnSigninResultFailed()
         {
             AuthFlowResponse authFlowResponse = null;
             bool isPasswordChangeRequired = false;
@@ -63,7 +63,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUserWithNo2FA_WhenPasswordSignIn_ThenReturnSigninResultSuccess()
+        public async void Test_GivenAUserWithNo2FA_WhenPasswordSignIn_ThenReturnSigninResultSuccess()
         {
             var cognitoUser = GetCognitoUser();
             var authFlowResponse = new AuthFlowResponse("sessionId", null, null, null, null);
@@ -89,7 +89,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUserWithPasswordChangeRequired_WhenPasswordSignIn_ThenReturnSigninResultPassowrdChangeRequired()
+        public async void Test_GivenAUserWithPasswordChangeRequired_WhenPasswordSignIn_ThenReturnSigninResultPassowrdChangeRequired()
         {
             bool isPasswordChangeRequired = true;
             var signinResult = CognitoSignInResult.PasswordChangeRequired;
@@ -103,7 +103,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
-        public async void Test_GivenAnUserWithPasswordResetRequired_WhenPasswordSignIn_ThenReturnSigninResultPassowrdResetRequired()
+        public async void Test_GivenAUserWithPasswordResetRequired_WhenPasswordSignIn_ThenReturnSigninResultPassowrdResetRequired()
         {
             bool isPasswordResetRequired = true;
             var signinResult = CognitoSignInResult.PasswordResetRequired;
