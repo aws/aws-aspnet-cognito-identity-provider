@@ -62,8 +62,8 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
             claimToAttributesMapping.ToList().ForEach(claim => MapClaimTypesToCognito(claims, claim.Key, claim.Value));
 
-            var userNameClaimType = _identityOptions.ClaimsIdentity.UserNameClaimType;
-            claims.Add(new Claim(userNameClaimType, user.Username));
+            claims.Add(new Claim(_identityOptions.ClaimsIdentity.UserNameClaimType, user.Username));
+            claims.Add(new Claim(_identityOptions.ClaimsIdentity.UserIdClaimType, user.Username));
 
             var roles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
             var roleClaimType = _identityOptions.ClaimsIdentity.RoleClaimType;

@@ -200,28 +200,6 @@ namespace Amazon.AspNetCore.Identity.Cognito
         }
 
         /// <summary>
-        /// Signs the current user out of Cognito in addition of signin the user out of the application.
-        /// </summary>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public override async Task SignOutAsync()
-        {
-            // Retrieve the current signed in CognitoUser and log him out first
-            var result = await Context.AuthenticateAsync(IdentityConstants.ApplicationScheme).ConfigureAwait(false);
-            if (result?.Principal != null)
-            {
-                var user = await _userManager.FindByIdAsync(result.Principal.FindFirstValue(ClaimTypes.Name)).ConfigureAwait(false);
-                if (user != null)
-                {
-                    user.SignOut();
-                }
-            }
-           
-            await Context.SignOutAsync(IdentityConstants.ApplicationScheme).ConfigureAwait(false);
-            await Context.SignOutAsync(IdentityConstants.ExternalScheme).ConfigureAwait(false);
-            await Context.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme).ConfigureAwait(false);
-        }
-
-        /// <summary>
         /// Checks if the password needs to be changed for the specified <paramref name="user"/>.
         /// </summary>
         /// <param name="user">The user to check if the password needs to be changed.</param>
