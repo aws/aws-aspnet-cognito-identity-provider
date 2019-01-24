@@ -406,8 +406,15 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 throw new NotAuthorizedException(string.Format("Reading attribute {0} is not allowed by the user pool client configuration.", attributeName));
             }
 
-            // This throws a KeyNotFoundException if the attribute name does not exist in the dictionnary.
-            return user.Attributes[attributeName];
+            // There is an edge case where an attribute might be there in the pool configuration, but not on the user profile
+            if (user.Attributes.ContainsKey(attributeName))
+            {
+                return user.Attributes[attributeName];
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>
