@@ -96,6 +96,14 @@ namespace Amazon.AspNetCore.Identity.Cognito
         Task<IdentityResult> CreateAsync(TUser user, string password, IDictionary<string, string> validationData, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Queries Cognito and returns all the users in the pool.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing a IEnumerable of CognitoUser.
+        /// </returns>
+        Task<IEnumerable<CognitoUser>> GetUsersAsync(CancellationToken cancellationToken);
+
+        /// <summary>
         /// Registers the specified <paramref name="user"/> in Cognito with the given password,
         /// as an asynchronous operation. Also submits the validation data to the pre sign-up lambda trigger.
         /// </summary>

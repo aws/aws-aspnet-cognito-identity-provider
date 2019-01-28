@@ -20,6 +20,7 @@ using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -225,6 +226,31 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to reset the Cognito User password", e));
             }
+        }
+
+        /// <summary>
+        /// Queries Cognito and returns all the users in the pool.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing a IEnumerable of CognitoUser.
+        /// </returns>
+        public virtual async Task<IEnumerable<CognitoUser>> GetUsersAsync(CancellationToken cancellationToken)
+        {
+            // This API is not paginated.
+            var response = await _cognitoClient.ListUsersAsync(new ListUsersRequest
+            {
+                UserPoolId = _pool.PoolID
+            }, cancellationToken).ConfigureAwait(false);
+
+            var result = new List<CognitoUser>();
+            foreach (var user in response.Users)
+            {
+                result.Add(new CognitoUser(user.Username, _pool.ClientID, _pool, _cognitoClient, null,
+                user.UserStatus.Value, user.Username,
+                user.Attributes.ToDictionary(attribute => attribute.Name, attribute => attribute.Value)));
+            }
+
+            return result;
         }
 
         /// <summary>
