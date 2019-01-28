@@ -529,8 +529,6 @@ namespace Amazon.AspNetCore.Identity.Cognito
             return _userStore.GetUsersAsync(CancellationToken);
         }
 
-
-
         /// <summary>
         /// Adds the specified <paramref name="claims"/> to the <paramref name="user"/>.
         /// </summary>
