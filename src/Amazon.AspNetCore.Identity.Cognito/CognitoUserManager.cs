@@ -507,6 +507,31 @@ namespace Amazon.AspNetCore.Identity.Cognito
         }
 
         /// <summary>
+        ///  Not supported: Returns an IQueryable of users if the store is an IQueryableUserStore
+        /// </summary>
+        public override IQueryable<TUser> Users
+        {
+            get
+            {
+                throw new NotSupportedException("This property is not supported. Use GetUsersAsync() instead.");
+            }
+        }
+
+        /// <summary>
+        /// Queries Cognito and returns all the users in the pool.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing a IEnumerable of CognitoUser.
+        /// </returns>
+        public virtual Task<IEnumerable<CognitoUser>> GetUsersAsync()
+        {
+            ThrowIfDisposed();
+            return _userStore.GetUsersAsync(CancellationToken);
+        }
+
+
+
+        /// <summary>
         /// Adds the specified <paramref name="claims"/> to the <paramref name="user"/>.
         /// </summary>
         /// <param name="user">The user to add the claim to.</param>

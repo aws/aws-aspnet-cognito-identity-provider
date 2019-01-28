@@ -210,6 +210,24 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
             userStoreMock.Verify();
         }
 
+        [Fact]
+        public async void Test_GivenAListOfUsers_WhenGetUsers_ThenResponseIsNotAltered()
+        {
+            var user1 = new CognitoUser("userId1", "clientId", cognitoPoolMock.Object, cognitoClientMock.Object);
+            var user2 = new CognitoUser("userId2", "clientId", cognitoPoolMock.Object, cognitoClientMock.Object);
+            var user3 = new CognitoUser("userId3", "clientId", cognitoPoolMock.Object, cognitoClientMock.Object);
+            IEnumerable<CognitoUser> users = new List<CognitoUser>()
+            {
+                user1,
+                user2,
+                user3
+            };
+            userStoreMock.Setup(mock => mock.GetUsersAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(users)).Verifiable();
+            var output = await userManager.GetUsersAsync().ConfigureAwait(false);
+            Assert.Equal(users, output);
+            userStoreMock.Verify();
+        }
+
         #region ExceptionTests
 
         [Fact]
@@ -288,6 +306,12 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         public async void Test_GivenAUser_WhenChangeEmail_ThenThrowsANotSupportedException()
         {
             await Assert.ThrowsAsync<NotSupportedException>(() => userManager.ChangeEmailAsync(null, null, null)).ConfigureAwait(false);
+        }
+
+        [Fact]
+        public void Test_GivenAListOfUsers_WhenCallingUsersProperty_ThenThrowsANotSupportedException()
+        {
+            Assert.Throws<NotSupportedException>(() => userManager.Users);
         }
 
         #endregion
