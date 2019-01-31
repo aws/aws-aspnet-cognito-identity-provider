@@ -163,11 +163,37 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// A <see cref="Task{TResult}"/> that represents the result of the asynchronous query, a list of <typeparamref name="TUser"/> who
         /// contain the specified claim.
         /// </returns>
-        public Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken)
+        public async Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            throw new NotSupportedException("Cognito does not support retrieving the list of users with specific claims.");
+            if (claim == null)
+            {
+                throw new ArgumentNullException(nameof(claim));
+            }
+
+            if (CognitoAttributesConstants.FilterableAttributes.Contains(claim.Type))
+            {
+                try
+                {
+                    var response = await _cognitoClient.ListUsersAsync(new ListUsersRequest
+                    {
+                        Filter = claim.Type + "=\"" + claim.Value + "\"",
+                        UserPoolId = _pool.PoolID
+                    }, cancellationToken).ConfigureAwait(false);
+
+                    return response.Users.Select(user => _pool.GetUser(user.Username, user.UserStatus,
+                        user.Attributes.ToDictionary(att => att.Name, att => att.Value))).ToList() as IList<TUser>;
+                }
+                catch (AmazonCognitoIdentityProviderException e)
+                {
+                    throw new CognitoServiceException("Failed to get the list of users for a specific claim", e);
+                }
+            }
+            else
+            {
+                throw new NotSupportedException(String.Format("Retrieving the list of users with the claim type {0} is not supported", claim.Type));
+            }
         }
     }
 }

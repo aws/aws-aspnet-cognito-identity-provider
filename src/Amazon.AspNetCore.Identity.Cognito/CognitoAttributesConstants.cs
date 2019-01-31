@@ -25,6 +25,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public const string BirthDate = "birthdate";
         public const string Email = "email";
         public const string EmailVerified = "email_verified";
+        public const string Enabled = "status";
         public const string FamilyName = "family_name";
         public const string Gender = "gender";
         public const string GivenName = "given_name";
@@ -37,8 +38,15 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public const string Picture = "picture";
         public const string PreferredUsername = "preferred_username";
         public const string Profile = "profile";
-        public const string ZoneInfo = "zoneinfo";
+        public const string Sub = "sub";
         public const string UpdatedAt = "updated_at";
+        public const string UserName = "username ";
+        public const string UserStatus = "cognito:user_status";
         public const string Website = "website";
+        public const string ZoneInfo = "zoneinfo";
+
+        // List of attributes filterable through the ListUsers API.
+        public static readonly string[] FilterableAttributes = { Email, Enabled, GivenName,
+            FamilyName, PhoneNumber, PreferredUsername, Name, Sub, UserName, UserStatus };
     }
 }
