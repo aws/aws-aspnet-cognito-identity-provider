@@ -164,6 +164,15 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         }
 
         [Fact]
+        public async void Test_GivenAUser_WhenResendSignupConfirmationCode_ThenResponseIsNotAltered()
+        {
+            userStoreMock.Setup(mock => mock.ResendSignupConfirmationCodeAsync(It.IsAny<CognitoUser>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
+            var output = await userManager.ResendSignupConfirmationCodeAsync(GetCognitoUser()).ConfigureAwait(false);
+            Assert.Equal(IdentityResult.Success, output);
+            userStoreMock.Verify();
+        }
+
+        [Fact]
         public async void Test_GivenAUser_WhenSetPhoneNumber_ThenResponseIsNotAltered()
         {
             userStoreMock.Setup(mock => mock.SetPhoneNumberAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(0)).Verifiable();

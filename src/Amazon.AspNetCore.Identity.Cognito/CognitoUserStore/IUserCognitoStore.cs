@@ -138,9 +138,21 @@ namespace Amazon.AspNetCore.Identity.Cognito
         Task<IdentityResult> AdminConfirmSignUpAsync(TUser user, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Resends the account signup confirmation code for the specified <paramref name="user"/>
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to resend the account signup confirmation code for.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        Task<IdentityResult> ResendSignupConfirmationCodeAsync(TUser user, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Generates and sends a verification code for the specified <paramref name="user"/>, 
         /// and the specified <paramref name="attributeName"/>,
         /// as an asynchronous operation.
+        /// This operation requires a logged in user.
         /// </summary>
         /// <param name="user">The user to send the verification code to.</param>
         /// <param name="attributeName">The attribute to verify.</param>

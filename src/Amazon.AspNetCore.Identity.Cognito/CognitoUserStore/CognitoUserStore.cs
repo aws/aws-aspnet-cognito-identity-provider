@@ -314,9 +314,34 @@ namespace Amazon.AspNetCore.Identity.Cognito
         }
 
         /// <summary>
+        /// Resends the account signup confirmation code for the specified <paramref name="user"/>
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to resend the account signup confirmation code for.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public virtual async Task<IdentityResult> ResendSignupConfirmationCodeAsync(TUser user, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                await user.ResendConfirmationCodeAsync().ConfigureAwait(false);
+                return IdentityResult.Success;
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to resend the Cognito User signup confirmation code", e));
+            }
+        }
+
+        /// <summary>
         /// Generates and sends a verification code for the specified <paramref name="user"/>, 
         /// and the specified <paramref name="attributeName"/>,
         /// as an asynchronous operation.
+        /// This operation requires a logged in user.
         /// </summary>
         /// <param name="user">The user to send the verification code to.</param>
         /// <param name="attributeName">The attribute to verify.</param>
