@@ -351,6 +351,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
         /// <summary>
         /// Confirms the email of an user by validating that an email confirmation token is valid for the specified <paramref name="user"/>.
+        /// This operation requires a logged in user.
         /// </summary>
         /// <param name="user">The user to validate the token against.</param>
         /// <param name="confirmationCode">The email confirmation code to validate.</param>
@@ -367,6 +368,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
         /// <summary>
         /// Confirms the phone number of an user by validating that an email confirmation token is valid for the specified <paramref name="user"/>.
+        /// This operation requires a logged in user.
         /// </summary>
         /// <param name="user">The user to validate the token against.</param>
         /// <param name="confirmationCode">The phone number confirmation code to validate.</param>
@@ -431,6 +433,26 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 throw new ArgumentNullException(nameof(user));
             }
             return _userStore.AdminConfirmSignUpAsync(user, CancellationToken);
+        }
+
+        /// <summary>
+        /// Resends the account signup confirmation code for the specified <paramref name="user"/>
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to resend the account signup confirmation code for.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        public virtual Task<IdentityResult> ResendSignupConfirmationCodeAsync(TUser user)
+        {
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return _userStore.ResendSignupConfirmationCodeAsync(user, CancellationToken);
         }
 
         /// <summary>
