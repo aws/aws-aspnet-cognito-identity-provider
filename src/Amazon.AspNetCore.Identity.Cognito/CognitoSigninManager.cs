@@ -129,7 +129,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>The task object representing the asynchronous operation.</returns>
         public override Task SignInAsync(TUser user, bool isPersistent, string authenticationMethod = null)
         {
-            // Populating the tokens to be retrieve when calling Context.GetTokenAsync(OpenIdConnectParameterNames.AccessToken).
+            // Populating the tokens to be retrieved when calling Context.GetTokenAsync(OpenIdConnectParameterNames.AccessToken).
             var authenticationProperties = new AuthenticationProperties
             {
                 IsPersistent = isPersistent,
