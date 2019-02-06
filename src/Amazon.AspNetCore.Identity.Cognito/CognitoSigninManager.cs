@@ -339,7 +339,6 @@ namespace Amazon.AspNetCore.Identity.Cognito
         private async Task<TwoFactorAuthenticationInfo> RetrieveTwoFactorInfoAsync()
         {
             var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorUserIdScheme).ConfigureAwait(false);
-
             if (result?.Principal != null)
             {
                 return new TwoFactorAuthenticationInfo
