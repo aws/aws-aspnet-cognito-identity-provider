@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -117,6 +118,46 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 await SignInAsync(user, isPersistent).ConfigureAwait(false);
 
             return attempt;
+        }
+
+        /// <summary>
+        /// Signs in the specified <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user to sign-in.</param>
+        /// <param name="isPersistent">Flag indicating whether the sign-in cookie should persist after the browser is closed.</param>
+        /// <param name="authenticationMethod">Name of the method used to authenticate the user.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        public override Task SignInAsync(TUser user, bool isPersistent, string authenticationMethod = null)
+        {
+            // Populating the tokens to be retrieve when calling Context.GetTokenAsync(OpenIdConnectParameterNames.AccessToken).
+            var authenticationProperties = new AuthenticationProperties
+            {
+                IsPersistent = isPersistent,
+                AllowRefresh = true,
+                ExpiresUtc = user.SessionTokens?.ExpirationTime,
+                IssuedUtc = user.SessionTokens?.IssuedTime
+            };
+
+            authenticationProperties.StoreTokens(new List<AuthenticationToken>()
+            {
+                new AuthenticationToken()
+                {
+                    Name = OpenIdConnectParameterNames.AccessToken,
+                    Value = user.SessionTokens?.AccessToken
+                },
+                new AuthenticationToken()
+                {
+                    Name = OpenIdConnectParameterNames.RefreshToken,
+                    Value = user.SessionTokens?.RefreshToken
+                },
+                new AuthenticationToken()
+                {
+                    Name = OpenIdConnectParameterNames.IdToken,
+                    Value = user.SessionTokens?.IdToken
+                }
+            });
+
+            return SignInAsync(user, authenticationProperties, authenticationMethod);
         }
 
         /// <summary>
@@ -298,6 +339,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         private async Task<TwoFactorAuthenticationInfo> RetrieveTwoFactorInfoAsync()
         {
             var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorUserIdScheme).ConfigureAwait(false);
+
             if (result?.Principal != null)
             {
                 return new TwoFactorAuthenticationInfo
