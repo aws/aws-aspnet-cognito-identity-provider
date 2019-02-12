@@ -14,9 +14,12 @@
  */
 
 using Amazon.Extensions.CognitoAuthentication;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +32,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
     {
         // This specific type is needed to accomodate all the interfaces it implements.
         private readonly CognitoUserStore<TUser> _userStore;
+        private IHttpContextAccessor _httpContextAccessor;
 
         public CognitoUserManager(IUserStore<TUser> store, 
             IOptions<IdentityOptions> optionsAccessor, 
@@ -38,7 +42,8 @@ namespace Amazon.AspNetCore.Identity.Cognito
             CognitoKeyNormalizer keyNormalizer, 
             IdentityErrorDescriber errors, 
             IServiceProvider services, 
-            ILogger<UserManager<TUser>> logger) : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger)
+            ILogger<UserManager<TUser>> logger,
+            IHttpContextAccessor httpContextAccessor) : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger)
         {
 
             var userStore = store as CognitoUserStore<TUser>;
@@ -49,6 +54,104 @@ namespace Amazon.AspNetCore.Identity.Cognito
             else
             {
                 _userStore = userStore;
+            }
+
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentException(nameof(httpContextAccessor));
+        }
+
+        /// <summary>
+        /// Gets the user, if any, associated with the normalized value of the specified email address.
+        /// </summary>
+        /// <param name="email">The email address to return the user for.</param>
+        /// <returns>
+        /// The task object containing the results of the asynchronous lookup operation, the user, if any, associated with a normalized value of the specified email address.
+        /// </returns>
+        public override async Task<TUser> FindByEmailAsync(string email)
+        {
+            ThrowIfDisposed();
+            if (email == null)
+            {
+                throw new ArgumentNullException(nameof(email));
+            }
+
+            var user = await _userStore.FindByEmailAsync(NormalizeKey(email), CancellationToken).ConfigureAwait(false);
+            if (user != null)
+            {
+                await PopulateTokens(user, ClaimTypes.Email, email).ConfigureAwait(false);
+            }
+            return user;
+        }
+
+        /// <summary>
+        /// Finds and returns a user, if any, who has the specified <paramref name="userId"/>.
+        /// </summary>
+        /// <param name="userId">The user ID to search for.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="userId"/> if it exists.
+        /// </returns>
+        public override async Task<TUser> FindByIdAsync(string userId)
+        {
+            ThrowIfDisposed();
+            if (userId == null)
+            {
+                throw new ArgumentNullException(nameof(userId));
+            }
+            var user = await _userStore.FindByIdAsync(userId, CancellationToken).ConfigureAwait(false);
+            if (user != null)
+            {
+                await PopulateTokens(user, ClaimTypes.Name, userId).ConfigureAwait(false);
+            }
+            return user;
+        }
+
+        /// <summary>
+        /// Finds and returns a user, if any, who has the specified user name.
+        /// </summary>
+        /// <param name="userName">The user name to search for.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="userName"/> if it exists.
+        /// </returns>
+        public override async Task<TUser> FindByNameAsync(string userName)
+        {
+            ThrowIfDisposed();
+            if (userName == null)
+            {
+                throw new ArgumentNullException(nameof(userName));
+            }
+            userName = NormalizeKey(userName);
+            var user = await _userStore.FindByNameAsync(userName, CancellationToken).ConfigureAwait(false);
+            if (user != null)
+            {
+                await PopulateTokens(user, ClaimTypes.Name, userName).ConfigureAwait(false);
+            }
+            return user;
+        }
+
+        /// <summary>
+        /// Populates the user SessionToken object if he satisfies the claimType and claimValue parameters
+        /// </summary>
+        /// <param name="user">The user to populate tokens for.</param>
+        /// <param name="claimType">The claim type to check.</param>
+        /// <param name="claimValue">The claim value to check.</param>
+        private async Task PopulateTokens(TUser user, string claimType, string claimValue)
+        {
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var result = await _httpContextAccessor.HttpContext.AuthenticateAsync(IdentityConstants.ApplicationScheme).ConfigureAwait(false);
+
+            if (result?.Principal?.Claims != null)
+            {
+                if (result.Principal.Claims.Any(claim => claim.Type == claimType && claim.Value == claimValue))
+                {
+                    var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.AccessToken).ConfigureAwait(false);
+                    var refreshToken = await _httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.RefreshToken).ConfigureAwait(false);
+                    var idToken = await _httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.IdToken).ConfigureAwait(false);
+
+                    user.SessionTokens = new CognitoUserSession(idToken, accessToken, refreshToken, result.Properties.IssuedUtc.Value.DateTime, result.Properties.ExpiresUtc.Value.DateTime);
+                }
             }
         }
 
