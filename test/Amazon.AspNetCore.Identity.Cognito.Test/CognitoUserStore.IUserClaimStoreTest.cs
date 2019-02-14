@@ -114,7 +114,8 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         [Fact]
         public async void Test_GivenAClaim_WhenGetUsersForClaim_ThenThrowsANotSupportedException()
         {
-            await Assert.ThrowsAsync<NotSupportedException>(() => _store.GetUsersForClaimAsync(null, CancellationToken.None)).ConfigureAwait(false);
+            await Assert.ThrowsAsync<NotSupportedException>(() => _store.GetUsersForClaimAsync(new Claim("test", "test"), CancellationToken.None)).ConfigureAwait(false);
         }
+
     }
 }
