@@ -40,7 +40,8 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
                 keyNormalizer, 
                 errorsMock.Object, 
                 servicesMock.Object, 
-                loggerUserManagerMock.Object);
+                loggerUserManagerMock.Object,
+                contextAccessorMock.Object);
         }
 
         [Fact]
