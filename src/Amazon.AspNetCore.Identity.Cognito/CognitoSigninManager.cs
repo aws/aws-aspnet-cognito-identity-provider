@@ -362,5 +362,19 @@ namespace Amazon.AspNetCore.Identity.Cognito
         }
 
         #endregion
+
+        /// <summary>
+        /// Validates the security stamp for the specified <paramref name="user"/>. Will always return false
+        /// if the userManager does not support security stamps.
+        /// </summary>
+        /// <param name="user">The user whose stamp should be validated.</param>
+        /// <param name="securityStamp">The expected security stamp value.</param>
+        /// <returns>True if the stamp matches the persisted value, otherwise it will return false.</returns>
+        public override async Task<bool> ValidateSecurityStampAsync(TUser user, string securityStamp)
+            => user != null &&
+            // Only validate the security stamp if the store supports it
+            (!UserManager.SupportsUserSecurityStamp || securityStamp == await UserManager.GetSecurityStampAsync(user).ConfigureAwait(false));
+        // Preventing the cookies from expiring every 30 minutes. This fix was only added to Identity 2.2.
+        // https://github.com/aspnet/Identity/pull/1941
     }
 }
