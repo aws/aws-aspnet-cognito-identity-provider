@@ -140,19 +140,24 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            var result = await _httpContextAccessor.HttpContext.AuthenticateAsync(IdentityConstants.ApplicationScheme).ConfigureAwait(false);
 
-            if (result?.Principal?.Claims != null)
+            // First check if the current user is authenticated before calling AuthenticateAsync() or the call may hang.
+            if (_httpContextAccessor.HttpContext.User?.Identity?.IsAuthenticated == true)
             {
-                if (result.Principal.Claims.Any(claim => claim.Type == claimType && claim.Value == claimValue))
-                {
-                    var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.AccessToken).ConfigureAwait(false);
-                    var refreshToken = await _httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.RefreshToken).ConfigureAwait(false);
-                    var idToken = await _httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.IdToken).ConfigureAwait(false);
+                var result = await _httpContextAccessor.HttpContext.AuthenticateAsync(IdentityConstants.ApplicationScheme).ConfigureAwait(false);
 
-                    user.SessionTokens = new CognitoUserSession(idToken, accessToken, refreshToken, result.Properties.IssuedUtc.Value.DateTime, result.Properties.ExpiresUtc.Value.DateTime);
+                if (result?.Principal?.Claims != null)
+                {
+                    if (result.Principal.Claims.Any(claim => claim.Type == claimType && claim.Value == claimValue))
+                    {
+                        var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.AccessToken).ConfigureAwait(false);
+                        var refreshToken = await _httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.RefreshToken).ConfigureAwait(false);
+                        var idToken = await _httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.IdToken).ConfigureAwait(false);
+
+                        user.SessionTokens = new CognitoUserSession(idToken, accessToken, refreshToken, result.Properties.IssuedUtc.Value.DateTime, result.Properties.ExpiresUtc.Value.DateTime);
+                    }
                 }
-            }
+            }           
         }
 
         /// <summary>
