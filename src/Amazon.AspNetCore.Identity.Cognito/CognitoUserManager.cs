@@ -531,13 +531,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <summary>
         ///  Not supported: Returns an IQueryable of users if the store is an IQueryableUserStore
         /// </summary>
-        public override IQueryable<TUser> Users
-        {
-            get
-            {
-                throw new NotSupportedException("This property is not supported. Use GetUsersAsync() instead.");
-            }
-        }
+        public override IQueryable<TUser> Users => throw new NotSupportedException("This property is not supported. Use GetUsersAsync() instead.");
 
         /// <summary>
         /// Queries Cognito and returns the users in the pool. Optional filters can be applied on the users to retrieve based on their attributes.
