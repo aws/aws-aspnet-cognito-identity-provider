@@ -65,14 +65,14 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await GetAttributeValueAsync(user, CognitoAttributesConstants.Email, cancellationToken).ConfigureAwait(false);
+            return await GetAttributeValueAsync(user, CognitoAttribute.Email.AttributeName, cancellationToken).ConfigureAwait(false);
         }
 
         public virtual async Task<bool> GetEmailConfirmedAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return String.Equals(await GetAttributeValueAsync(user, CognitoAttributesConstants.EmailVerified, cancellationToken).ConfigureAwait(false), "true", StringComparison.InvariantCultureIgnoreCase);
+            return String.Equals(await GetAttributeValueAsync(user, CognitoAttribute.EmailVerified.AttributeName, cancellationToken).ConfigureAwait(false), "true", StringComparison.InvariantCultureIgnoreCase);
         }
 
         public Task<string> GetNormalizedEmailAsync(TUser user, CancellationToken cancellationToken)
@@ -84,7 +84,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return SetAttributeValueAsync(user, CognitoAttributesConstants.Email, email, cancellationToken);
+            return SetAttributeValueAsync(user, CognitoAttribute.Email.AttributeName, email, cancellationToken);
         }
 
         public Task SetEmailConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken)

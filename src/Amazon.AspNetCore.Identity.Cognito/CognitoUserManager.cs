@@ -331,7 +331,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             ThrowIfDisposed();
 
-            return _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttributesConstants.Email, CancellationToken);
+            return _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttribute.Email.AttributeName, CancellationToken);
         }
 
         /// <summary>
@@ -346,7 +346,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             ThrowIfDisposed();
 
-            return _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttributesConstants.PhoneNumber, CancellationToken);
+            return _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttribute.PhoneNumber.AttributeName, CancellationToken);
         }
 
         /// <summary>
@@ -363,7 +363,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             ThrowIfDisposed();
 
-            return _userStore.VerifyUserAttributeAsync(user, CognitoAttributesConstants.Email, confirmationCode, CancellationToken);
+            return _userStore.VerifyUserAttributeAsync(user, CognitoAttribute.Email.AttributeName, confirmationCode, CancellationToken);
         }
 
         /// <summary>
@@ -380,7 +380,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             ThrowIfDisposed();
 
-            return _userStore.VerifyUserAttributeAsync(user, CognitoAttributesConstants.PhoneNumber, confirmationCode, CancellationToken);
+            return _userStore.VerifyUserAttributeAsync(user, CognitoAttribute.PhoneNumber.AttributeName, confirmationCode, CancellationToken);
         }
 
         /// <summary>
@@ -565,10 +565,10 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing a IEnumerable of CognitoUser.
         /// </returns>
-        public virtual Task<IEnumerable<CognitoUser>> GetUsersAsync(string filterName = "", string filterType = "", string filterValue = "")
+        public virtual Task<IEnumerable<CognitoUser>> GetUsersAsync(CognitoAttribute filterAttribute = null, CognitoAttributeFilterType filterType = null, string filterValue = "")
         {
             ThrowIfDisposed();
-            return _userStore.GetUsersAsync(filterName, filterType, filterValue, CancellationToken);
+            return _userStore.GetUsersAsync(filterAttribute, filterType, filterValue, CancellationToken);
         }
 
         /// <summary>

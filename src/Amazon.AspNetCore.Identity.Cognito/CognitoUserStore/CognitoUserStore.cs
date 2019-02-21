@@ -254,13 +254,13 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing a IEnumerable of CognitoUser.
         /// </returns>
-        public virtual async Task<IEnumerable<CognitoUser>> GetUsersAsync(string attributeFilterName, string attributeFilterType, string attributeFilterValue, CancellationToken cancellationToken)
+        public virtual async Task<IEnumerable<CognitoUser>> GetUsersAsync(CognitoAttribute attributeFilterName, CognitoAttributeFilterType attributeFilterType, string attributeFilterValue, CancellationToken cancellationToken)
         {
 
             var filter =  "";
-            if (!string.IsNullOrWhiteSpace(attributeFilterName))
+            if (!string.IsNullOrWhiteSpace(attributeFilterName?.AttributeName))
             {
-                filter = (attributeFilterName + attributeFilterType + "\"" + attributeFilterValue + "\"").Trim();
+                filter = (attributeFilterName.ToString() + attributeFilterType.ToString() + "\"" + attributeFilterValue + "\"").Trim();
             }
 
             var request = new ListUsersRequest
@@ -422,9 +422,9 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if(attributeName != CognitoAttributesConstants.PhoneNumber && attributeName != CognitoAttributesConstants.Email)
+            if(attributeName != CognitoAttribute.PhoneNumber.AttributeName && attributeName != CognitoAttribute.Email.AttributeName)
             {
-                throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoAttributesConstants.PhoneNumber, CognitoAttributesConstants.Email), nameof(attributeName));
+                throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoAttribute.PhoneNumber, CognitoAttribute.Email), nameof(attributeName));
             }
 
             try
@@ -458,9 +458,9 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (attributeName != CognitoAttributesConstants.PhoneNumber && attributeName != CognitoAttributesConstants.Email)
+            if (attributeName != CognitoAttribute.PhoneNumber.AttributeName && attributeName != CognitoAttribute.Email.AttributeName)
             {
-                throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoAttributesConstants.PhoneNumber, CognitoAttributesConstants.Email), nameof(attributeName));
+                throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoAttribute.PhoneNumber, CognitoAttribute.Email), nameof(attributeName));
             }
 
             try

@@ -121,7 +121,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing a IEnumerable of CognitoUser.
         /// </returns>
-        Task<IEnumerable<CognitoUser>> GetUsersAsync(string attributeFilterName, string attributeFilterType, string attributeFilterValue, CancellationToken cancellationToken);
+        Task<IEnumerable<CognitoUser>> GetUsersAsync(CognitoAttribute attributeFilterName, CognitoAttributeFilterType attributeFilterType, string attributeFilterValue, CancellationToken cancellationToken);
 
         /// <summary>
         /// Registers the specified <paramref name="user"/> in Cognito with the given password,

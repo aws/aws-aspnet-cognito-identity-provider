@@ -29,16 +29,16 @@ namespace Amazon.AspNetCore.Identity.Cognito
         private readonly CognitoUserManager<TUser> _userManager;
         private readonly IdentityOptions _identityOptions;
 
-        private readonly Dictionary<string, string> claimToAttributesMapping = new Dictionary<string, string>()
+        private readonly Dictionary<string, CognitoAttribute> claimToAttributesMapping = new Dictionary<string, CognitoAttribute>()
         {
-            { ClaimTypes.Email, CognitoAttributesConstants.Email },
-            { ClaimTypes.DateOfBirth, CognitoAttributesConstants.BirthDate },
-            { ClaimTypes.Surname, CognitoAttributesConstants.FamilyName },
-            { ClaimTypes.Gender, CognitoAttributesConstants.Gender },
-            { ClaimTypes.GivenName, CognitoAttributesConstants.GivenName },
-            { ClaimTypes.Name, CognitoAttributesConstants.Name },
-            { ClaimTypes.MobilePhone, CognitoAttributesConstants.PhoneNumber },
-            { ClaimTypes.Webpage, CognitoAttributesConstants.Website }
+            { ClaimTypes.Email, CognitoAttribute.Email },
+            { ClaimTypes.DateOfBirth, CognitoAttribute.BirthDate },
+            { ClaimTypes.Surname, CognitoAttribute.FamilyName },
+            { ClaimTypes.Gender, CognitoAttribute.Gender },
+            { ClaimTypes.GivenName, CognitoAttribute.GivenName },
+            { ClaimTypes.Name, CognitoAttribute.Name },
+            { ClaimTypes.MobilePhone, CognitoAttribute.PhoneNumber },
+            { ClaimTypes.Webpage, CognitoAttribute.Website }
         };
 
         public CognitoUserClaimsPrincipalFactory(UserManager<TUser> userManager, IOptions<IdentityOptions> optionsAccessor)
@@ -60,7 +60,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             var claims = await _userManager.GetClaimsAsync(user).ConfigureAwait(false) as List<Claim>;
 
-            claimToAttributesMapping.ToList().ForEach(claim => MapClaimTypesToCognito(claims, claim.Key, claim.Value));
+            claimToAttributesMapping.ToList().ForEach(claim => MapClaimTypesToCognito(claims, claim.Key, claim.Value.AttributeName));
 
             claims.Add(new Claim(_identityOptions.ClaimsIdentity.UserNameClaimType, user.Username));
             claims.Add(new Claim(_identityOptions.ClaimsIdentity.UserIdClaimType, user.Username));

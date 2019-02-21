@@ -85,7 +85,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 {
                     new MFAOptionType()
                     {
-                        AttributeName = CognitoAttributesConstants.PhoneNumber,
+                        AttributeName = CognitoAttribute.PhoneNumber.AttributeName,
                         DeliveryMedium = enabled ? DeliveryMediumType.SMS : null // Undocumented SDK behavior: sending null disables SMS 2FA
                     }
                 }

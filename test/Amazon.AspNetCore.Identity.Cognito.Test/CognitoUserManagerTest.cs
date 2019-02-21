@@ -231,7 +231,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
                 user2,
                 user3
             };
-            userStoreMock.Setup(mock => mock.GetUsersAsync("", "", "", It.IsAny<CancellationToken>())).Returns(Task.FromResult(users)).Verifiable();
+            userStoreMock.Setup(mock => mock.GetUsersAsync(null, null, "", It.IsAny<CancellationToken>())).Returns(Task.FromResult(users)).Verifiable();
             var output = await userManager.GetUsersAsync().ConfigureAwait(false);
             Assert.Equal(users, output);
             userStoreMock.Verify();
