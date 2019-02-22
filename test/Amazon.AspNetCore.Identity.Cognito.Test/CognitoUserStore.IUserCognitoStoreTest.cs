@@ -99,7 +99,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         {
             _cognitoClientMock.Setup(mock => mock.GetUserAttributeVerificationCodeAsync(It.IsAny<GetUserAttributeVerificationCodeRequest>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(new GetUserAttributeVerificationCodeResponse())).Verifiable();
             _userMock.Object.SessionTokens = new CognitoUserSession(null, null, null, DateTime.Now, DateTime.MaxValue);
-            var output = await _store.GetUserAttributeVerificationCodeAsync(_userMock.Object, CognitoAttributesConstants.PhoneNumber, CancellationToken.None).ConfigureAwait(false);
+            var output = await _store.GetUserAttributeVerificationCodeAsync(_userMock.Object, CognitoAttribute.PhoneNumber.AttributeName, CancellationToken.None).ConfigureAwait(false);
             Assert.Equal(IdentityResult.Success, output);
             _cognitoClientMock.Verify();
         }
@@ -109,7 +109,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         {
             _cognitoClientMock.Setup(mock => mock.VerifyUserAttributeAsync(It.IsAny<VerifyUserAttributeRequest>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(new VerifyUserAttributeResponse())).Verifiable();
             _userMock.Object.SessionTokens = new CognitoUserSession(null, null, null, DateTime.Now, DateTime.MaxValue);
-            var output = await _store.VerifyUserAttributeAsync(_userMock.Object, CognitoAttributesConstants.PhoneNumber, "code", CancellationToken.None).ConfigureAwait(false);
+            var output = await _store.VerifyUserAttributeAsync(_userMock.Object, CognitoAttribute.PhoneNumber.AttributeName, "code", CancellationToken.None).ConfigureAwait(false);
             Assert.Equal(IdentityResult.Success, output);
             _cognitoClientMock.Verify();
         }
