@@ -50,7 +50,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public static readonly string[] FilterableAttributes = { Email.AttributeName, Enabled.AttributeName, GivenName.AttributeName,
             FamilyName.AttributeName, PhoneNumber.AttributeName, PreferredUsername.AttributeName, Name.AttributeName, Sub.AttributeName, UserName.AttributeName, UserStatus.AttributeName };
 
-        public string AttributeName { get; private set; }
+        public string AttributeName { get; }
 
         public CognitoAttribute(string attributeName)
         {
