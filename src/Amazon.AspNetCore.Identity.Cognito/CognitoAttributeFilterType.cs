@@ -20,7 +20,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public static readonly CognitoAttributeFilterType IsEqualTo = new CognitoAttributeFilterType("=");
         public static readonly CognitoAttributeFilterType StartsWith = new CognitoAttributeFilterType("^=");
 
-        private string FilterType { get; set; }
+        private readonly string FilterType;
 
         private CognitoAttributeFilterType(string filterType)
         {
