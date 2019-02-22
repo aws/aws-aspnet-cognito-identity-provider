@@ -20,6 +20,7 @@ using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -228,6 +229,74 @@ namespace Amazon.AspNetCore.Identity.Cognito
         }
 
         /// <summary>
+        /// Queries Cognito and returns the users in the pool. Optional filters can be applied on the users to retrieve based on their attributes.
+        /// Providing an empty attributeFilterName parameter returns all the users in the pool.
+        /// </summary>
+        /// <param name="attributeFilterName"> The attribute name to filter your search on. You can only search for the following standard attributes:
+        ///     username (case-sensitive)
+        ///     email
+        ///     phone_number
+        ///     name
+        ///     given_name
+        ///     family_name
+        ///     preferred_username
+        ///     cognito:user_status (called Status in the Console) (case-insensitive)
+        ///     status (called Enabled in the Console) (case-sensitive)
+        ///     sub
+        ///     Custom attributes are not searchable.
+        ///     For more information, see Searching for Users Using the ListUsers API and Examples
+        ///     of Using the ListUsers API in the Amazon Cognito Developer Guide.</param>
+        /// <param name="attributeFilterType"> The type of filter to apply:
+        ///     For an exact match, use =
+        ///     For a prefix ("starts with") match, use ^=
+        /// </param>
+        /// <param name="attributeFilterValue"> The filter value for the specified attribute.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing a IEnumerable of CognitoUser.
+        /// </returns>
+        public virtual async Task<IEnumerable<CognitoUser>> GetUsersAsync(CognitoAttribute attributeFilterName, CognitoAttributeFilterType attributeFilterType, string attributeFilterValue, CancellationToken cancellationToken)
+        {
+
+            var filter =  "";
+            if (!string.IsNullOrWhiteSpace(attributeFilterName?.AttributeName))
+            {
+                filter = (attributeFilterName.ToString() + attributeFilterType.ToString() + "\"" + attributeFilterValue + "\"").Trim();
+            }
+
+            var request = new ListUsersRequest
+            {
+                UserPoolId = _pool.PoolID,
+                Filter = filter
+            };
+
+            ListUsersResponse response = null;
+
+            var result = new List<CognitoUser>();
+            do
+            {
+                request.PaginationToken = response?.PaginationToken;
+                try
+                {
+                    response = await _cognitoClient.ListUsersAsync(request, cancellationToken).ConfigureAwait(false);
+                }
+                catch (AmazonCognitoIdentityProviderException e)
+                {
+                    throw new CognitoServiceException("Failed to retrieve the list of users from Cognito.", e);
+                }
+
+                foreach (var user in response.Users)
+                {
+                    result.Add(new CognitoUser(user.Username, _pool.ClientID, _pool, _cognitoClient, null,
+                    user.UserStatus.Value, user.Username,
+                    user.Attributes.ToDictionary(attribute => attribute.Name, attribute => attribute.Value)));
+                }
+
+            } while (!string.IsNullOrEmpty(response.PaginationToken));
+
+            return result;
+        }
+
+        /// <summary>
         /// Registers the specified <paramref name="user"/> in Cognito with the given password,
         /// as an asynchronous operation. Also submits the validation data to the pre sign-up lambda trigger.
         /// </summary>
@@ -353,9 +422,9 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if(attributeName != CognitoAttributesConstants.PhoneNumber && attributeName != CognitoAttributesConstants.Email)
+            if(attributeName != CognitoAttribute.PhoneNumber.AttributeName && attributeName != CognitoAttribute.Email.AttributeName)
             {
-                throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoAttributesConstants.PhoneNumber, CognitoAttributesConstants.Email), nameof(attributeName));
+                throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoAttribute.PhoneNumber, CognitoAttribute.Email), nameof(attributeName));
             }
 
             try
@@ -389,9 +458,9 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (attributeName != CognitoAttributesConstants.PhoneNumber && attributeName != CognitoAttributesConstants.Email)
+            if (attributeName != CognitoAttribute.PhoneNumber.AttributeName && attributeName != CognitoAttribute.Email.AttributeName)
             {
-                throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoAttributesConstants.PhoneNumber, CognitoAttributesConstants.Email), nameof(attributeName));
+                throw new ArgumentException(string.Format("Invalid attribute name, only {0} and {1} can be verified", CognitoAttribute.PhoneNumber, CognitoAttribute.Email), nameof(attributeName));
             }
 
             try

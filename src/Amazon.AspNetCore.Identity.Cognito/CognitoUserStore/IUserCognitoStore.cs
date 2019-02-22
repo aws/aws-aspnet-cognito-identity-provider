@@ -96,6 +96,34 @@ namespace Amazon.AspNetCore.Identity.Cognito
         Task<IdentityResult> CreateAsync(TUser user, string password, IDictionary<string, string> validationData, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Queries Cognito and returns the users in the pool. Optional filters can be applied on the users to retrieve based on their attributes.
+        /// Providing an empty attributeFilterName parameter returns all the users in the pool.
+        /// </summary>
+        /// <param name="attributeFilterName"> The attribute name to filter your search on. You can only search for the following standard attributes:
+        ///     username (case-sensitive)
+        ///     email
+        ///     phone_number
+        ///     name
+        ///     given_name
+        ///     family_name
+        ///     preferred_username
+        ///     cognito:user_status (called Status in the Console) (case-insensitive)
+        ///     status (called Enabled in the Console) (case-sensitive)
+        ///     sub
+        ///     Custom attributes are not searchable.
+        ///     For more information, see Searching for Users Using the ListUsers API and Examples
+        ///     of Using the ListUsers API in the Amazon Cognito Developer Guide.</param>
+        /// <param name="attributeFilterType"> The type of filter to apply:
+        ///     For an exact match, use =
+        ///     For a prefix ("starts with") match, use ^=
+        /// </param>
+        /// <param name="attributeFilterValue"> The filter value for the specified attribute.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing a IEnumerable of CognitoUser.
+        /// </returns>
+        Task<IEnumerable<CognitoUser>> GetUsersAsync(CognitoAttribute attributeFilterName, CognitoAttributeFilterType attributeFilterType, string attributeFilterValue, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Registers the specified <paramref name="user"/> in Cognito with the given password,
         /// as an asynchronous operation. Also submits the validation data to the pre sign-up lambda trigger.
         /// </summary>

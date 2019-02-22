@@ -172,7 +172,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 throw new ArgumentNullException(nameof(claim));
             }
 
-            if (CognitoAttributesConstants.FilterableAttributes.Contains(claim.Type))
+            if (CognitoAttribute.FilterableAttributes.Contains(claim.Type))
             {
                 try
                 {

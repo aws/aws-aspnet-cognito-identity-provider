@@ -439,7 +439,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             ThrowIfDisposed();
 
-            return _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttributesConstants.Email, CancellationToken);
+            return _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttribute.Email.AttributeName, CancellationToken);
         }
 
         /// <summary>
@@ -454,7 +454,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             ThrowIfDisposed();
 
-            return _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttributesConstants.PhoneNumber, CancellationToken);
+            return _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttribute.PhoneNumber.AttributeName, CancellationToken);
         }
 
         /// <summary>
@@ -471,7 +471,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             ThrowIfDisposed();
 
-            return _userStore.VerifyUserAttributeAsync(user, CognitoAttributesConstants.Email, confirmationCode, CancellationToken);
+            return _userStore.VerifyUserAttributeAsync(user, CognitoAttribute.Email.AttributeName, confirmationCode, CancellationToken);
         }
 
         /// <summary>
@@ -488,7 +488,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             ThrowIfDisposed();
 
-            return _userStore.VerifyUserAttributeAsync(user, CognitoAttributesConstants.PhoneNumber, confirmationCode, CancellationToken);
+            return _userStore.VerifyUserAttributeAsync(user, CognitoAttribute.PhoneNumber.AttributeName, confirmationCode, CancellationToken);
         }
 
         /// <summary>
@@ -634,6 +634,43 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 throw new ArgumentNullException(nameof(user));
             }
             return _userStore.UpdateAsync(user, CancellationToken);
+        }
+
+        /// <summary>
+        ///  Not supported: Returns an IQueryable of users if the store is an IQueryableUserStore
+        /// </summary>
+        public override IQueryable<TUser> Users => throw new NotSupportedException("This property is not supported. Use GetUsersAsync() instead.");
+
+        /// <summary>
+        /// Queries Cognito and returns the users in the pool. Optional filters can be applied on the users to retrieve based on their attributes.
+        /// Providing an empty attributeFilterName parameter returns all the users in the pool.
+        /// </summary>
+        /// <param name="attributeFilterName"> The attribute name to filter your search on. You can only search for the following standard attributes:
+        ///     username (case-sensitive)
+        ///     email
+        ///     phone_number
+        ///     name
+        ///     given_name
+        ///     family_name
+        ///     preferred_username
+        ///     cognito:user_status (called Status in the Console) (case-insensitive)
+        ///     status (called Enabled in the Console) (case-sensitive)
+        ///     sub
+        ///     Custom attributes are not searchable.
+        ///     For more information, see Searching for Users Using the ListUsers API and Examples
+        ///     of Using the ListUsers API in the Amazon Cognito Developer Guide.</param>
+        /// <param name="attributeFilterType"> The type of filter to apply:
+        ///     For an exact match, use =
+        ///     For a prefix ("starts with") match, use ^=
+        /// </param>
+        /// <param name="attributeFilterValue"> The filter value for the specified attribute.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing a IEnumerable of CognitoUser.
+        /// </returns>
+        public virtual Task<IEnumerable<CognitoUser>> GetUsersAsync(CognitoAttribute filterAttribute = null, CognitoAttributeFilterType filterType = null, string filterValue = "")
+        {
+            ThrowIfDisposed();
+            return _userStore.GetUsersAsync(filterAttribute, filterType, filterValue, CancellationToken);
         }
 
         /// <summary>
