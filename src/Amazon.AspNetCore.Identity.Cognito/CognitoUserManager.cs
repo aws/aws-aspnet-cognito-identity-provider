@@ -142,7 +142,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             }
 
             // First check if the current user is authenticated before calling AuthenticateAsync() or the call may hang.
-            if (_httpContextAccessor.HttpContext.User?.Identity?.IsAuthenticated == true)
+            if (_httpContextAccessor?.HttpContext?.User?.Identity?.IsAuthenticated == true)
             {
                 var result = await _httpContextAccessor.HttpContext.AuthenticateAsync(IdentityConstants.ApplicationScheme).ConfigureAwait(false);
 
