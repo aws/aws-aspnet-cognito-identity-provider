@@ -83,11 +83,19 @@ namespace Samples.Areas.Identity.Pages.Account
                 }
                 else if (result.IsCognitoSignInResult())
                 {
-                    if (result is CognitoSignInResult cognitoResult && cognitoResult.RequiresPasswordChange)
+                    if (result is CognitoSignInResult cognitoResult)
                     {
-                        _logger.LogWarning("User password needs to be changed");
-                        return RedirectToPage("./ChangePassword");
-                    }
+                        if (cognitoResult.RequiresPasswordChange)
+                        {
+                            _logger.LogWarning("User password needs to be changed");
+                            return RedirectToPage("./ChangePassword");
+                        }
+                        else if (cognitoResult.RequiresPasswordReset)
+                        {
+                            _logger.LogWarning("User password needs to be reset");
+                            return RedirectToPage("./ResetPassword");
+                        }
+                    } 
 
                 }
 

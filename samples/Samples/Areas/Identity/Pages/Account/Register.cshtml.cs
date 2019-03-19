@@ -69,7 +69,7 @@ namespace Samples.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = _pool.GetUser(Input.UserName);
-                user.Attributes.Add(CognitoAttributesConstants.Email, Input.Email);
+                user.Attributes.Add(CognitoAttribute.Email.AttributeName, Input.Email);
 
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)

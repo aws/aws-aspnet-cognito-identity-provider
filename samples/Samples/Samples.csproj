@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Amazon.AspNetCore.Identity.Cognito" Version="0.9.0.2" />
+    <PackageReference Include="Amazon.AspNetCore.Identity.Cognito" Version="0.9.0.11" />
     <PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" PrivateAssets="All" />
