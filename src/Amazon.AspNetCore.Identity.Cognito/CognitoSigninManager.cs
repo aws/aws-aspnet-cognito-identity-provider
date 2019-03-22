@@ -138,6 +138,18 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 IssuedUtc = user.SessionTokens?.IssuedTime
             };
 
+            AddUserTokensToAuthenticationProperties(user, authenticationProperties);
+
+            return SignInAsync(user, authenticationProperties, authenticationMethod);
+        }
+
+        /// <summary>
+        /// Adds a user tokens to the authentication properties
+        /// </summary>
+        /// <param name="user">The user to update tokens for</param>
+        /// <param name="authenticationProperties">The authentication properties to update</param>
+        private void AddUserTokensToAuthenticationProperties(TUser user, AuthenticationProperties authenticationProperties)
+        {
             authenticationProperties.StoreTokens(new List<AuthenticationToken>()
             {
                 new AuthenticationToken()
@@ -156,8 +168,33 @@ namespace Amazon.AspNetCore.Identity.Cognito
                     Value = user.SessionTokens?.IdToken
                 }
             });
+        }
 
-            return SignInAsync(user, authenticationProperties, authenticationMethod);
+        /// <summary>
+        /// Regenerates the user's application cookie, whilst preserving the existing
+        /// AuthenticationProperties like rememberMe, as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user whose sign-in cookie should be refreshed.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        public override async Task RefreshSignInAsync(TUser user)
+        {
+            var result = await user.StartWithRefreshTokenAuthAsync(
+                new InitiateRefreshTokenAuthRequest()
+                {
+                    AuthFlowType = AuthFlowType.REFRESH_TOKEN
+                }
+                ).ConfigureAwait(false);
+
+            var auth = await Context.AuthenticateAsync(IdentityConstants.ApplicationScheme);
+            var authenticationMethod = auth?.Principal?.FindFirstValue(ClaimTypes.AuthenticationMethod);
+            var properties = auth?.Properties;
+            if (properties != null)
+            {
+                AddUserTokensToAuthenticationProperties(user, properties);
+                properties.ExpiresUtc = user.SessionTokens?.ExpirationTime;
+                properties.IssuedUtc = user.SessionTokens?.IssuedTime;
+            }
+            await SignInAsync(user, properties, authenticationMethod);
         }
 
         /// <summary>
@@ -376,5 +413,6 @@ namespace Amazon.AspNetCore.Identity.Cognito
             (!UserManager.SupportsUserSecurityStamp || securityStamp == await UserManager.GetSecurityStampAsync(user).ConfigureAwait(false));
         // Preventing the cookies from expiring every 30 minutes. This fix was only added to Identity 2.2.
         // https://github.com/aspnet/Identity/pull/1941
+
     }
 }
