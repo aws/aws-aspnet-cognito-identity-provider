@@ -139,7 +139,7 @@ Once the CognitoUser added to the pool, a confirmation token is sent either to t
 Task<IdentityResult> AdminConfirmSignUpAsync(TUser user);
 ```
 
-Please note that this does not confirm the medium used to receive the confirmation token (phone number or email).
+**Note: this does not confirm the medium used to receive the confirmation token (phone number or email).**
 
 ## Resend the CognitoUser sign up confirmation token
 
