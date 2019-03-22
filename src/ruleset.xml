@@ -6,8 +6,8 @@
     -->
     <Rule Id="CA2208" Action="None" />
 
-    <!-- Raise missing .ConfigureAwait() to a compile time error. -->
-    <Rule Id="CA2007" Action="Error" />
+    <!-- Raise missing .ConfigureAwait() to a compile time info. -->
+    <Rule Id="CA2007" Action="Info" />
 
     <!-- Raise missing Dispose(bool) to a compile time error. -->
     <Rule Id="CA1063" Action="Error" />

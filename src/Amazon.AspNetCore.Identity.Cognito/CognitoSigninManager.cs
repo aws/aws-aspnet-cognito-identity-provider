@@ -185,15 +185,16 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 }
                 ).ConfigureAwait(false);
 
-            var auth = await Context.AuthenticateAsync(IdentityConstants.ApplicationScheme).ConfigureAwait(false);
+            var auth = await Context.AuthenticateAsync(IdentityConstants.ApplicationScheme);
             var authenticationMethod = auth?.Principal?.FindFirstValue(ClaimTypes.AuthenticationMethod);
-            if (auth?.Properties != null)
+            var properties = auth?.Properties;
+            if (properties != null)
             {
-                AddUserTokensToAuthenticationProperties(user, auth.Properties);
-                auth.Properties.ExpiresUtc = user.SessionTokens?.ExpirationTime;
-                auth.Properties.IssuedUtc = user.SessionTokens?.IssuedTime;
+                AddUserTokensToAuthenticationProperties(user, properties);
+                properties.ExpiresUtc = user.SessionTokens?.ExpirationTime;
+                properties.IssuedUtc = user.SessionTokens?.IssuedTime;
             }
-            await SignInAsync(user, auth?.Properties, authenticationMethod).ConfigureAwait(false);
+            await SignInAsync(user, properties, authenticationMethod).ConfigureAwait(false);
         }
 
         /// <summary>
