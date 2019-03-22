@@ -194,7 +194,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 properties.ExpiresUtc = user.SessionTokens?.ExpirationTime;
                 properties.IssuedUtc = user.SessionTokens?.IssuedTime;
             }
-            await SignInAsync(user, properties, authenticationMethod).ConfigureAwait(false);
+            await SignInAsync(user, properties, authenticationMethod);
         }
 
         /// <summary>
