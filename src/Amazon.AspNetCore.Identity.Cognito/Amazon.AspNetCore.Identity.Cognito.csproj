@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <CodeAnalysisRuleSet>../ruleset.xml</CodeAnalysisRuleSet>
-    <Version>0.9.0.13</Version>
+    <Version>0.9.0.14</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Amazon.AspNetCore.Identity.Cognito</PackageId>
     <Title>ASP.NET Core Identity Provider for Amazon Cognito</Title>
@@ -13,13 +13,13 @@
     <Copyright>2018</Copyright>
     <PackageTags>AWS;Amazon;aws-sdk-v3;Cognito;Identity</PackageTags>
     <PackageProjectUrl>https://github.com/aws/aws-aspnet-cognito-identity-provider/</PackageProjectUrl>
-    <PackageLicenseUrl>http://aws.amazon.com/apache2.0/</PackageLicenseUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIconUrl>https://sdk-for-net.amazonwebservices.com/images/AWSLogo128x128.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/aws/aws-aspnet-cognito-identity-provider/</RepositoryUrl>
     <Company>Amazon Web Services</Company>
     <SignAssembly>true</SignAssembly>
-    <AssemblyVersion>0.9.0.13</AssemblyVersion>
-    <FileVersion>0.9.0.13</FileVersion>
+    <AssemblyVersion>0.9.0.14</AssemblyVersion>
+    <FileVersion>0.9.0.14</FileVersion>
   </PropertyGroup>
 
     <Choose>
@@ -36,10 +36,10 @@
   </Choose>
 
   <ItemGroup>
-    <PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="1.0.0" />
-    <PackageReference Include="AWSSDK.CognitoIdentity" Version="3.3.2.36" />
-    <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="3.3.11.26" />
-    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.6" />
+    <PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="1.0.1" />
+    <PackageReference Include="AWSSDK.CognitoIdentity" Version="[3.3.100, 3.4)" />
+    <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="[3.3.100, 3.4)" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="[3.3.100.1, 3.4)" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.1.6" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="5.4.0" />
@@ -52,5 +52,9 @@
     <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="2.6.2">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
