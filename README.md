@@ -2,10 +2,7 @@
 
 ## ASP.NET Core Identity Provider for Amazon Cognito
 
-
 [![nuget](https://img.shields.io/nuget/v/Amazon.AspNetCore.Identity.Cognito.svg)](https://www.nuget.org/packages/Amazon.AspNetCore.Identity.Cognito/)
-
-**This software is currently in developer preview.**
 
 ASP.NET Core Identity Provider for [Amazon Cognito](https://aws.amazon.com/cognito/) simplifies using [Amazon Cognito](https://aws.amazon.com/cognito/) as a membership storage solution for building ASP.NET Core web applications using [ASP.NET Core Identity](https://github.com/aspnet/Identity/).
 
