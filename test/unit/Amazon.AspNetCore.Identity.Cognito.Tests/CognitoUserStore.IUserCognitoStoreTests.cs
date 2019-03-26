@@ -24,9 +24,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Amazon.AspNetCore.Identity.Cognito.Test
+namespace Amazon.AspNetCore.Identity.Cognito.Tests
 {
-    public partial class CognitoUserStoreTest
+    public partial class CognitoUserStoreTests
     {
         private Mock<IAmazonCognitoIdentityProvider> _cognitoClientMock;
         private Mock<CognitoUserPool> _cognitoPoolMock;
@@ -34,7 +34,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Test
         private Mock<CognitoUser> _userMock;
         private CognitoUserStore<CognitoUser> _store;
 
-        public CognitoUserStoreTest()
+        public CognitoUserStoreTests()
         {
             _cognitoClientMock = new Mock<IAmazonCognitoIdentityProvider>();
             _cognitoPoolMock = new Mock<CognitoUserPool>("region_poolName", "clientID", _cognitoClientMock.Object, null);

@@ -20,9 +20,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Amazon.AspNetCore.Identity.Cognito.Test
+namespace Amazon.AspNetCore.Identity.Cognito.Tests
 {
-    public partial class CognitoUserStoreTest
+    public partial class CognitoUserStoreTests
     {
         [Fact]
         public async void Test_GivenAUser_WhenGetTwoFactorEnabledWithAnMFAOption_ThenTheResponseIsTrue()

@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Amazon.AspNetCore.Identity.Cognito\Amazon.AspNetCore.Identity.Cognito.csproj" />
+    <ProjectReference Include="..\..\..\src\Amazon.AspNetCore.Identity.Cognito\Amazon.AspNetCore.Identity.Cognito.csproj" />
   </ItemGroup>
 
 </Project>

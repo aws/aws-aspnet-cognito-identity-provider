@@ -22,9 +22,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Amazon.AspNetCore.Identity.Cognito.Test
+namespace Amazon.AspNetCore.Identity.Cognito.Tests
 {
-    public partial class CognitoUserStoreTest
+    public partial class CognitoUserStoreTests
     {
         private AdminGetUserResponse GET_USER_RESPONSE = new AdminGetUserResponse
         {

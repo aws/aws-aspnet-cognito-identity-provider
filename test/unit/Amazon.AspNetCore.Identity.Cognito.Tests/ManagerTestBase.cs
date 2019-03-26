@@ -24,7 +24,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using System;
 
-namespace Amazon.AspNetCore.Identity.Cognito.Test
+namespace Amazon.AspNetCore.Identity.Cognito.Tests
 {
     public class ManagerTestBase
     {
