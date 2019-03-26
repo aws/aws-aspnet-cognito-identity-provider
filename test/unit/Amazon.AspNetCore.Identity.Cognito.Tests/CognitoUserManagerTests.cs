@@ -23,13 +23,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Amazon.AspNetCore.Identity.Cognito.Test
+namespace Amazon.AspNetCore.Identity.Cognito.Tests
 {
-    public class CognitoUserManagerTest : ManagerTestBase
+    public class CognitoUserManagerTests : ManagerTestBase
     {
         private CognitoUserManager<CognitoUser> userManager;
         
-        public CognitoUserManagerTest() : base()
+        public CognitoUserManagerTests() : base()
         {
             
             userManager = new CognitoUserManager<CognitoUser>(userStoreMock.Object, 

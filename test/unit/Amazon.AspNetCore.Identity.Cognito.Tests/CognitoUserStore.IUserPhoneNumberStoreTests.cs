@@ -17,9 +17,9 @@ using System;
 using System.Threading;
 using Xunit;
 
-namespace Amazon.AspNetCore.Identity.Cognito.Test
+namespace Amazon.AspNetCore.Identity.Cognito.Tests
 {
-    public partial class CognitoUserStoreTest
+    public partial class CognitoUserStoreTests
     {
         [Fact]
         public async void Test_GivenAUser_WhenSetPhoneNumberConfirmed_ThenThrowsANotSupportedException()

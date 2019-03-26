@@ -23,14 +23,14 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Amazon.AspNetCore.Identity.Cognito.Test
+namespace Amazon.AspNetCore.Identity.Cognito.Tests
 {
-    public class CognitoSigninManagerTest : ManagerTestBase
+    public class CognitoSigninManagerTests : ManagerTestBase
     {
         private CognitoSignInManager<CognitoUser> signinManager;
         private Mock<CognitoUserManager<CognitoUser>> userManagerMock;
 
-        public CognitoSigninManagerTest() : base()
+        public CognitoSigninManagerTests() : base()
         {
             userManagerMock = new Mock<CognitoUserManager<CognitoUser>>(userStoreMock.Object, null, null, null, null, null, null, null, null, contextAccessorMock.Object);
             claimsFactoryMock = new Mock<CognitoUserClaimsPrincipalFactory<CognitoUser>>(userManagerMock.Object, optionsAccessorMock.Object);
