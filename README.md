@@ -116,6 +116,10 @@ These two classes expose additional methods designed to support Amazon Cognito f
 public async Task<IdentityResult> CreateAsync(TUser user, string password, IDictionary<string, string> validationData)
 ```
 
+# Explore the documentation and sample application
+
+Feel free to explore the [documentation folder](https://github.com/aws/aws-aspnet-cognito-identity-provider/tree/master/docs) and the [sample application](https://github.com/aws/aws-aspnet-cognito-identity-provider/tree/master/samples). These two resources provide additionnal examples on how to use the library with your ASP.NET Core web application.
+
 # Getting Help
 
 We use the [GitHub issues](https://github.com/aws/aws-aspnet-cognito-identity-provider/issues) for tracking bugs and feature requests and have limited bandwidth to address them.
