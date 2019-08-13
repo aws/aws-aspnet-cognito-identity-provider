@@ -63,7 +63,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 errors.Add(errorDescriber.PasswordRequiresDigit());
             }
 
-            var passwordContainsASymbol = password.IndexOfAny(CognitoSymbols) > 0;
+            var passwordContainsASymbol = password.IndexOfAny(CognitoSymbols) >= 0;
             if (!passwordContainsASymbol && passwordPolicy.RequireSymbols)
             {
                 errors.Add(errorDescriber.PasswordRequiresNonAlphanumeric());
