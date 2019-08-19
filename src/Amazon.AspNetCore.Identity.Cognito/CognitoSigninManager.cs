@@ -37,12 +37,14 @@ namespace Amazon.AspNetCore.Identity.Cognito
         private const string Cognito2FAAuthWorkflowKey = "Cognito2FAAuthWorkflowId";
         private const string Cognito2FAProviderKey = "Amazon Cognito 2FA";
 
+#if NETCOREAPP_3_0
         public CognitoSignInManager(UserManager<TUser> userManager,
-            IHttpContextAccessor contextAccessor,
-            IUserClaimsPrincipalFactory<TUser> claimsFactory,
-            IOptions<IdentityOptions> optionsAccessor,
-            ILogger<SignInManager<TUser>> logger,
-            IAuthenticationSchemeProvider schemes) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes)
+        IHttpContextAccessor contextAccessor,
+        IUserClaimsPrincipalFactory<TUser> claimsFactory,
+        IOptions<IdentityOptions> optionsAccessor,
+        ILogger<SignInManager<TUser>> logger,
+        IAuthenticationSchemeProvider schemes,
+        IUserConfirmation<TUser> confirmation) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation)
         {
 
             if (userManager == null)
@@ -62,6 +64,34 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
         }
+#endif
+#if NETSTANDARD_2_0
+        public CognitoSignInManager(UserManager<TUser> userManager,
+        IHttpContextAccessor contextAccessor,
+        IUserClaimsPrincipalFactory<TUser> claimsFactory,
+        IOptions<IdentityOptions> optionsAccessor,
+        ILogger<SignInManager<TUser>> logger,
+        IAuthenticationSchemeProvider schemes) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes)
+        {
+
+            if (userManager == null)
+                throw new ArgumentNullException(nameof(userManager));
+            if (claimsFactory == null)
+                throw new ArgumentNullException(nameof(claimsFactory));
+
+            if (userManager is CognitoUserManager<TUser>)
+                _userManager = userManager as CognitoUserManager<TUser>;
+            else
+                throw new ArgumentException("The userManager must be of type CognitoUserManager<TUser>", nameof(userManager));
+
+            if (claimsFactory is CognitoUserClaimsPrincipalFactory<TUser>)
+                _claimsFactory = claimsFactory as CognitoUserClaimsPrincipalFactory<TUser>;
+            else
+                throw new ArgumentException("The claimsFactory must be of type CognitoUserClaimsPrincipalFactory<TUser>", nameof(claimsFactory));
+
+            _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
+        }
+#endif
 
         /// <summary>
         /// Attempts to sign in the specified <paramref name="userId"/> and <paramref name="password"/> combination

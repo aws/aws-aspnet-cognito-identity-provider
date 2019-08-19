@@ -1,7 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.0</TargetFrameworks>
     <CodeAnalysisRuleSet>../ruleset.xml</CodeAnalysisRuleSet>
     <Version>1.0.2</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -22,26 +21,26 @@
     <FileVersion>1.0.2</FileVersion>
   </PropertyGroup>
 
-    <Choose>
-    <When Condition=" '$(AWSKeyFile)' == '' ">
-      <PropertyGroup>
-        <AssemblyOriginatorKeyFile>..\..\public.snk</AssemblyOriginatorKeyFile>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <AssemblyOriginatorKeyFile>$(AWSKeyFile)</AssemblyOriginatorKeyFile>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+      <DefineConstants>NETSTANDARD_2_0</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+      <DefineConstants>NETCOREAPP_3_0</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.1.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="1.0.3" />
     <PackageReference Include="AWSSDK.CognitoIdentity" Version="[3.3.100, 3.4)" />
     <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="[3.3.100, 3.4)" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="[3.3.100.1, 3.4)" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.1.6" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="5.4.0" />
   </ItemGroup>
 
@@ -57,4 +56,17 @@
   <ItemGroup>
     <None Include="../../LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
+
+  <Choose>
+    <When Condition=" '$(AWSKeyFile)' == '' ">
+      <PropertyGroup>
+        <AssemblyOriginatorKeyFile>..\..\public.snk</AssemblyOriginatorKeyFile>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <AssemblyOriginatorKeyFile>$(AWSKeyFile)</AssemblyOriginatorKeyFile>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
 </Project>
