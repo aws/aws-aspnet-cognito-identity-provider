@@ -18,12 +18,13 @@ using Microsoft.AspNetCore.Identity;
 namespace Amazon.AspNetCore.Identity.Cognito
 {
     /// <summary>
-    /// Implements ILookupNormalizer by returning the key without changes as Cogito is case sensitive.
+    /// Implements ILookupNormalizer by returning the key without changes as Cognito is case sensitive.
     /// For instance, a group named 'Test' is not the same as a group named 'test' in Cognito.
     /// The same is applicable to usernames.
     /// </summary>
     public class CognitoKeyNormalizer : ILookupNormalizer
     {
+#if NETSTANDARD_2_0
         /// <summary>
         /// Normalizes the key to be be used by Cognito.
         /// </summary>
@@ -34,5 +35,30 @@ namespace Amazon.AspNetCore.Identity.Cognito
             // Cognito does not handle normalization, returning the key as is.
             return key;
         }
+#endif
+
+#if NETCOREAPP_3_0
+        /// <summary>
+        /// Returns a normalized representation of the specified <paramref name="name"/>.
+        /// </summary>
+        /// <param name="name">The key to normalize.</param>
+        /// <returns>A normalized representation of the specified <paramref name="name"/>.</returns>
+        public string NormalizeName(string name)
+        {
+            // Cognito does not handle normalization, returning the name as is.
+            return name;
+        }
+
+        /// <summary>
+        /// Returns a normalized representation of the specified <paramref name="email"/>.
+        /// </summary>
+        /// <param name="email">The email to normalize.</param>
+        /// <returns>A normalized representation of the specified <paramref name="email"/>.</returns>
+        public string NormalizeEmail(string email)
+        {
+            // Cognito does not handle normalization, returning the email as is.
+            return email;
+        }
+#endif
     }
 }

@@ -73,8 +73,13 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 throw new ArgumentNullException(nameof(email));
             }
-
-            var user = await _userStore.FindByEmailAsync(NormalizeKey(email), CancellationToken).ConfigureAwait(false);
+#if NETCOREAPP_3_0
+            email = NormalizeEmail(email);
+#endif
+#if NETSTANDARD_2_0
+            email = NormalizeKey(email);
+#endif
+            var user = await _userStore.FindByEmailAsync(email, CancellationToken).ConfigureAwait(false);
             if (user != null)
             {
                 await PopulateTokens(user, ClaimTypes.Email, email).ConfigureAwait(false);
@@ -118,7 +123,12 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 throw new ArgumentNullException(nameof(userName));
             }
+#if NETCOREAPP_3_0
+            userName = NormalizeName(userName);
+#endif
+#if NETSTANDARD_2_0
             userName = NormalizeKey(userName);
+#endif
             var user = await _userStore.FindByNameAsync(userName, CancellationToken).ConfigureAwait(false);
             if (user != null)
             {
