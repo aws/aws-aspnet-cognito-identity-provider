@@ -3,9 +3,11 @@
 # Authentication using the ASP.NET Core Identity Provider for Amazon Cognito
 
 
-## Attributes to roles mapping
+## Cognito groups to roles mapping
 
 In this library, the Cognito User Pool groups are mapped to the Roles of the currently logged-in user [after each log in.](https://github.com/aws/aws-aspnet-cognito-identity-provider/blob/master/src/Amazon.AspNetCore.Identity.Cognito/CognitoUserClaimsPrincipalFactory.cs#L71)
+
+If you add an user to a group in Cognito, it will be showing up as a role in the Identity Provider for Amazon Cognito.
 
 ## The CognitoRole class
 
