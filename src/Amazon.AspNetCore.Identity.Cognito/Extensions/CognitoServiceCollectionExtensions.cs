@@ -41,11 +41,24 @@ namespace Microsoft.Extensions.DependencyInjection
             if (identityOptions != null)
             {
                 services.Configure(identityOptions);
+                services.AddIdentity<CognitoUser, CognitoRole>()
+                    .AddDefaultTokenProviders()
+                    .AddPasswordValidator<CognitoPasswordValidator>();
             }
-
-            services.AddIdentity<CognitoUser, CognitoRole>()
-                .AddDefaultTokenProviders()
-                .AddPasswordValidator<CognitoPasswordValidator>();
+            else
+            {
+                services.AddIdentity<CognitoUser, CognitoRole>()
+                    .AddDefaultTokenProviders()
+                    .AddPasswordValidator<CognitoPasswordValidator>();
+                var passwordValidators = services.Where(s => s.ServiceType.Equals(typeof(IPasswordValidator<CognitoUser>)));
+                foreach (var validator in passwordValidators.ToArray())
+                {
+                    if (Equals(validator.ImplementationType, typeof(PasswordValidator<CognitoUser>)))
+                    {
+                        services.Remove(validator);
+                    }
+                }
+            }
 
             // Overrides the managers/stores with Cognito specific ones.
             services.AddScoped<UserManager<TUser>, CognitoUserManager<TUser>>();
