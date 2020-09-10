@@ -12,8 +12,4 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" PrivateAssets="All" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Areas\Identity\Services\" />
-  </ItemGroup>
-
 </Project>
