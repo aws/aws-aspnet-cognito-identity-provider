@@ -35,6 +35,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         private readonly IHttpContextAccessor _contextAccessor;
 
         private const string Cognito2FAAuthWorkflowKey = "Cognito2FAAuthWorkflowId";
+        private const string Cognito2FAChallengeNameType = "Cognito2FAChallengeNameType";
         private const string Cognito2FAProviderKey = "Amazon Cognito 2FA";
 
 #if NETCOREAPP_3_0
@@ -262,7 +263,8 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 signinResult = SignInResult.Failed;
             }
-            else if (checkPasswordResult.ChallengeName == ChallengeNameType.SMS_MFA)
+            else if (checkPasswordResult.ChallengeName == ChallengeNameType.SMS_MFA ||
+                checkPasswordResult.ChallengeName == ChallengeNameType.SOFTWARE_TOKEN_MFA)
             {
                 signinResult = SignInResult.TwoFactorRequired;
 
@@ -270,8 +272,9 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 userPrincipal.AddIdentity(new ClaimsIdentity(new List<Claim>() {
                     new Claim(ClaimTypes.Name, user.UserID),
                     new Claim(Cognito2FAAuthWorkflowKey, checkPasswordResult.SessionID),
-                    new Claim(ClaimTypes.AuthenticationMethod, Cognito2FAProviderKey)
-                }));
+                    new Claim(ClaimTypes.AuthenticationMethod, Cognito2FAProviderKey),
+                    new Claim(Cognito2FAChallengeNameType, checkPasswordResult.ChallengeName),
+                }, IdentityConstants.ApplicationScheme));
 
                 // This signs in the user in the context of 2FA only. 
                 await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, userPrincipal).ConfigureAwait(false);
@@ -354,7 +357,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             }
 
             // Responding to the Cognito challenge.
-            await _userManager.RespondToTwoFactorChallengeAsync(user, code, twoFactorInfo.CognitoAuthenticationWorkflowId).ConfigureAwait(false);
+            await _userManager.RespondToTwoFactorChallengeAsync(user, code, twoFactorInfo.ChallengeNameType, twoFactorInfo.CognitoAuthenticationWorkflowId).ConfigureAwait(false);
 
             if (user.SessionTokens == null || !user.SessionTokens.IsValid())
             {
@@ -412,7 +415,8 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 {
                     UserId = result.Principal.FindFirstValue(ClaimTypes.Name),
                     LoginProvider = result.Principal.FindFirstValue(ClaimTypes.AuthenticationMethod),
-                    CognitoAuthenticationWorkflowId = result.Principal.FindFirstValue(Cognito2FAAuthWorkflowKey)
+                    CognitoAuthenticationWorkflowId = result.Principal.FindFirstValue(Cognito2FAAuthWorkflowKey),
+                    ChallengeNameType = result.Principal.FindFirstValue(Cognito2FAChallengeNameType)
                 };
             }
             return null;
@@ -426,6 +430,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             public string UserId { get; set; }
             public string LoginProvider { get; set; }
             public string CognitoAuthenticationWorkflowId { get; set; }
+            public ChallengeNameType ChallengeNameType { get; set; }
         }
 
         #endregion

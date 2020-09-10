@@ -39,7 +39,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         {
             _cognitoClient = cognitoClient ?? throw new ArgumentNullException(nameof(cognitoClient));
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
-            
+
             // IdentityErrorDescriber provides predefined error strings such as PasswordMismatch() or InvalidUserName(String)
             // This is used when returning an instance of IdentityResult, which can be constructed with an array of errors to be surfaced to the UI.
             if (errors == null)
@@ -88,15 +88,29 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object linked to that authentication workflow.</returns>
         public virtual async Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId, CancellationToken cancellationToken)
         {
+            return await RespondToTwoFactorChallengeAsync(user, code, ChallengeNameType.SMS_MFA, authWorkflowSessionId, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Checks if the <param name="user"> can log in with the specified 2fa code challenge <paramref name="code"/>.
+        /// </summary>
+        /// <param name="user">The user try to log in with.</param>
+        /// <param name="code">The 2fa code to check</param>
+        /// <param name="challengeNameType">The ongoing Cognito authentication challenge name type.</param>
+        /// <param name="authWorkflowSessionId">The ongoing Cognito authentication workflow id.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object linked to that authentication workflow.</returns>
+        public virtual async Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, ChallengeNameType challengeNameType, string authWorkflowSessionId, CancellationToken cancellationToken)
+        {
             cancellationToken.ThrowIfCancellationRequested();
 
             try
             {
                 AuthFlowResponse context =
-                    await user.RespondToSmsMfaAuthAsync(new RespondToSmsMfaRequest()
+                    await user.RespondToMfaAuthAsync(new RespondToMfaRequest()
                     {
                         SessionID = authWorkflowSessionId,
-                        MfaCode = code
+                        MfaCode = code,
+                        ChallengeNameType = challengeNameType
                     }).ConfigureAwait(false);
 
                 return context;
