@@ -144,7 +144,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Tests
             var context = MockUtils.MockContext(cognitoUser, IdentityConstants.TwoFactorUserIdScheme);
             contextAccessorMock.Setup(a => a.HttpContext).Returns(context).Verifiable();
 
-            var authFlowResponse = new AuthFlowResponse("sessionId", null, null, null, null);
+            var authFlowResponse = new AuthFlowResponse("sessionId", null, ChallengeNameType.SMS_MFA, null, null);
 
             userManagerMock.Setup(mock => mock.FindByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(cognitoUser)).Verifiable();
             userManagerMock.Setup(mock => mock.RespondToTwoFactorChallengeAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<string>()))

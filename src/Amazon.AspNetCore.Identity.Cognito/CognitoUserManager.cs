@@ -198,7 +198,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="code">The 2fa code to check</param>
         /// <param name="authWorkflowSessionId">The ongoing Cognito authentication workflow id.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object linked to that authentication workflow.</returns>
-        public virtual Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync2(TUser user, string code, string authWorkflowSessionId)
+        public virtual Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId)
         {
             return RespondToTwoFactorChallengeAsync(user, code, ChallengeNameType.SMS_MFA, authWorkflowSessionId);
         }
