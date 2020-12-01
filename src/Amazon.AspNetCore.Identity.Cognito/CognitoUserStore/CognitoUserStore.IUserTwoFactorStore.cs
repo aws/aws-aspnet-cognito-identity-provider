@@ -54,7 +54,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 var userSettings = await _cognitoClient.AdminGetUserAsync(request, cancellationToken).ConfigureAwait(false);
 
-                return userSettings.MFAOptions.Count > 0;
+                return !string.IsNullOrWhiteSpace(userSettings.PreferredMfaSetting) && userSettings.UserMFASettingList.Count > 0;
             }
             catch (AmazonCognitoIdentityProviderException e)
             {
@@ -72,28 +72,30 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public virtual async Task SetTwoFactorEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var request = new AdminSetUserSettingsRequest
+            // TODO: Pass in parameter to enable setting up software token and/or sms
+
+            var request = new AdminSetUserMFAPreferenceRequest
             {
                 Username = user.Username,
                 UserPoolId = _pool.PoolID,
-                MFAOptions = new List<MFAOptionType>()
+                SoftwareTokenMfaSettings = new SoftwareTokenMfaSettingsType
                 {
-                    new MFAOptionType()
-                    {
-                        AttributeName = CognitoAttribute.PhoneNumber.AttributeName,
-                        DeliveryMedium = enabled ? DeliveryMediumType.SMS : null // Undocumented SDK behavior: sending null disables SMS 2FA
-                    }
+                    PreferredMfa = enabled,
+                    Enabled = enabled
                 }
             };
 
             try
             {
-                await _cognitoClient.AdminSetUserSettingsAsync(request, cancellationToken).ConfigureAwait(false);
+                var result = await _cognitoClient.AdminSetUserMFAPreferenceAsync(request, cancellationToken)
+                    .ConfigureAwait(false);
+
             }
             catch (AmazonCognitoIdentityProviderException e)
             {

@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Amazon.AspNetCore.Identity.Cognito.Exceptions;
 
 namespace Amazon.AspNetCore.Identity.Cognito
 {
@@ -35,6 +36,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         private readonly IHttpContextAccessor _contextAccessor;
 
         private const string Cognito2FAAuthWorkflowKey = "Cognito2FAAuthWorkflowId";
+        private const string ChallengeTypeKey = "ChallengeType";
         private const string Cognito2FAProviderKey = "Amazon Cognito 2FA";
 
 #if NETCOREAPP_3_0
@@ -262,7 +264,8 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 signinResult = SignInResult.Failed;
             }
-            else if (checkPasswordResult.ChallengeName == ChallengeNameType.SMS_MFA)
+            else if (checkPasswordResult.ChallengeName == ChallengeNameType.SMS_MFA
+            || checkPasswordResult.ChallengeName == ChallengeNameType.SOFTWARE_TOKEN_MFA)
             {
                 signinResult = SignInResult.TwoFactorRequired;
 
@@ -270,7 +273,9 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 userPrincipal.AddIdentity(new ClaimsIdentity(new List<Claim>() {
                     new Claim(ClaimTypes.Name, user.UserID),
                     new Claim(Cognito2FAAuthWorkflowKey, checkPasswordResult.SessionID),
-                    new Claim(ClaimTypes.AuthenticationMethod, Cognito2FAProviderKey)
+                    new Claim(ClaimTypes.AuthenticationMethod, Cognito2FAProviderKey),
+                    new Claim(ChallengeTypeKey, checkPasswordResult.ChallengeName.Value),
+                    
                 }));
 
                 // This signs in the user in the context of 2FA only. 
@@ -343,7 +348,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         public async Task<SignInResult> RespondToTwoFactorChallengeAsync(string code, bool isPersistent, bool rememberClient)
         {
             var twoFactorInfo = await RetrieveTwoFactorInfoAsync().ConfigureAwait(false);
-            if (twoFactorInfo == null ||  string.IsNullOrWhiteSpace(twoFactorInfo.UserId))
+            if (twoFactorInfo == null || string.IsNullOrWhiteSpace(twoFactorInfo.UserId))
             {
                 return SignInResult.Failed;
             }
@@ -354,31 +359,36 @@ namespace Amazon.AspNetCore.Identity.Cognito
             }
 
             // Responding to the Cognito challenge.
-            await _userManager.RespondToTwoFactorChallengeAsync(user, code, twoFactorInfo.CognitoAuthenticationWorkflowId).ConfigureAwait(false);
+            try
+            {
+                await _userManager.RespondToTwoFactorChallengeAsync(user, code, twoFactorInfo.CognitoAuthenticationWorkflowId, twoFactorInfo.ChallengeType).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                return SignInResult.Failed;
+            }
 
             if (user.SessionTokens == null || !user.SessionTokens.IsValid())
             {
                 return SignInResult.Failed;
             }
-            else
+
+            // Cleanup external cookie
+            if (twoFactorInfo.LoginProvider != null)
             {
-                // Cleanup external cookie
-                if (twoFactorInfo.LoginProvider != null)
-                {
-                    await Context.SignOutAsync(IdentityConstants.ExternalScheme).ConfigureAwait(false);
-                }
-                // Cleanup two factor user id cookie
-                await Context.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme).ConfigureAwait(false);
-
-                if (rememberClient)
-                {
-                    await RememberTwoFactorClientAsync(user).ConfigureAwait(false);
-                }
-
-                // This creates the ClaimPrincipal and signs in the user in the IdentityConstants.ApplicationScheme
-                await SignInAsync(user, isPersistent, twoFactorInfo.LoginProvider).ConfigureAwait(false);
-                return SignInResult.Success;
+                await Context.SignOutAsync(IdentityConstants.ExternalScheme).ConfigureAwait(false);
             }
+            // Cleanup two factor user id cookie
+            await Context.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme).ConfigureAwait(false);
+
+            if (rememberClient)
+            {
+                await RememberTwoFactorClientAsync(user).ConfigureAwait(false);
+            }
+
+            // This creates the ClaimPrincipal and signs in the user in the IdentityConstants.ApplicationScheme
+            await SignInAsync(user, isPersistent, twoFactorInfo.LoginProvider).ConfigureAwait(false);
+            return SignInResult.Success;
         }
 
         /// <summary>
@@ -412,20 +422,11 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 {
                     UserId = result.Principal.FindFirstValue(ClaimTypes.Name),
                     LoginProvider = result.Principal.FindFirstValue(ClaimTypes.AuthenticationMethod),
-                    CognitoAuthenticationWorkflowId = result.Principal.FindFirstValue(Cognito2FAAuthWorkflowKey)
+                    CognitoAuthenticationWorkflowId = result.Principal.FindFirstValue(Cognito2FAAuthWorkflowKey),
+                    ChallengeType = result.Principal.FindFirstValue(ChallengeTypeKey)
                 };
             }
             return null;
-        }
-
-        /// <summary>
-        /// Utility class to model information related to the ongoing authentication workflow.
-        /// </summary>
-        internal class TwoFactorAuthenticationInfo
-        {
-            public string UserId { get; set; }
-            public string LoginProvider { get; set; }
-            public string CognitoAuthenticationWorkflowId { get; set; }
         }
 
         #endregion
@@ -444,5 +445,17 @@ namespace Amazon.AspNetCore.Identity.Cognito
         // Preventing the cookies from expiring every 30 minutes. This fix was only added to Identity 2.2.
         // https://github.com/aspnet/Identity/pull/1941
 
+    }
+
+    /// <summary>
+    /// Utility class to model information related to the ongoing authentication workflow.
+    /// </summary>
+    internal class TwoFactorAuthenticationInfo
+    {
+        public string UserId { get; set; }
+        public string LoginProvider { get; set; }
+        public string CognitoAuthenticationWorkflowId { get; set; }
+
+        public string ChallengeType { get; set; }
     }
 }

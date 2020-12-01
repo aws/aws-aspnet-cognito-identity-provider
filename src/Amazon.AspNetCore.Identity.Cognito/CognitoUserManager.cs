@@ -24,7 +24,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
+using Amazon.CognitoIdentityProvider;
 
 namespace Amazon.AspNetCore.Identity.Cognito
 {
@@ -170,6 +172,17 @@ namespace Amazon.AspNetCore.Identity.Cognito
             }           
         }
 
+        public override Task<bool> VerifyTwoFactorTokenAsync(TUser user, string tokenProvider, string token)
+        {
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            return _userStore.VerifyTwoFactorTokenAsync(user,tokenProvider, token);
+        }
+
         /// <summary>
         /// Returns an AuthFlowResponse representing an authentication workflow for the specified <paramref name="password"/>
         /// and the specified <paramref name="user"/>.
@@ -197,7 +210,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="code">The 2fa code to check</param>
         /// <param name="authWorkflowSessionId">The ongoing Cognito authentication workflow id.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object linked to that authentication workflow.</returns>
-        public virtual Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId)
+        public virtual Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId, string challengeType)
         {
             ThrowIfDisposed();
             if (user == null)
@@ -205,7 +218,20 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return _userStore.RespondToTwoFactorChallengeAsync(user, code, authWorkflowSessionId, CancellationToken);
+            return _userStore.RespondToTwoFactorChallengeAsync(user, code, authWorkflowSessionId, challengeType, CancellationToken);
+        }
+
+        public override async Task<string> GetAuthenticatorKeyAsync(TUser user)
+        {
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var key = await _userStore.GetAuthenticatorKeyAsync(user, CancellationToken.None).ConfigureAwait(false);
+
+            return key;
         }
 
         /// <summary>
@@ -450,6 +476,13 @@ namespace Amazon.AspNetCore.Identity.Cognito
             ThrowIfDisposed();
 
             return _userStore.GetUserAttributeVerificationCodeAsync(user, CognitoAttribute.Email.AttributeName, CancellationToken);
+        }
+
+        public virtual Task ForgotPasswordAsync(TUser user)
+        {
+            ThrowIfDisposed();
+
+            return _userStore.ForgotPasswordAsync(user);
         }
 
         /// <summary>

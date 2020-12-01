@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Amazon.AspNetCore.Identity.Cognito.Extensions;
 
 namespace Amazon.AspNetCore.Identity.Cognito
 {
@@ -78,15 +79,40 @@ namespace Amazon.AspNetCore.Identity.Cognito
             }
         }
 
-
         /// <summary>
         /// Checks if the <param name="user"> can log in with the specified 2fa code challenge <paramref name="code"/>.
         /// </summary>
         /// <param name="user">The user try to log in with.</param>
         /// <param name="code">The 2fa code to check</param>
         /// <param name="authWorkflowSessionId">The ongoing Cognito authentication workflow id.</param>
+        /// <param name="challengeType"></param>
+        /// <param name="cancellationToken">See <see cref="ChallengeNameType"/></param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object linked to that authentication workflow.</returns>
-        public virtual async Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId, CancellationToken cancellationToken)
+        public virtual Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId, string challengeType, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                if (challengeType == ChallengeNameType.SMS_MFA)
+                {
+                    return RespondToTwoFactorSMSChallengeAsync(user, code, authWorkflowSessionId, cancellationToken);
+                }
+                if (challengeType == ChallengeNameType.SOFTWARE_TOKEN_MFA)
+                {
+                    return RespondToTwoFactorSoftwareTokenChallengeAsync(user, code, authWorkflowSessionId, cancellationToken);
+                }
+
+                throw new NotSupportedException($"Unable to respond to Cognito two factor challenge type {challengeType}");
+
+            }
+            catch (AmazonCognitoIdentityProviderException e)
+            {
+                throw new CognitoServiceException("Failed to respond to Cognito two factor challenge.", e);
+            }
+        }
+
+        private async Task<AuthFlowResponse> RespondToTwoFactorSMSChallengeAsync(TUser user, string code, string authWorkflowSessionId, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -101,9 +127,49 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
                 return context;
             }
+            catch (Exception e)
+            {
+                throw new CognitoServiceException("Failed to respond to Cognito two factor SMS challenge.", e);
+            }
+        }
+        private async Task<AuthFlowResponse> RespondToTwoFactorSoftwareTokenChallengeAsync(TUser user, string code, string authWorkflowSessionId, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                /* Amazon Cognito Authentication Extension Library doesn't currently support responding to challenges for Software Token as the MFA (only SMS or Custom)
+                // So we need to hook in to some methods via reflection
+                // https://github.com/aws/aws-sdk-net-extensions-cognito  */
+
+                var challengeRequest = new RespondToAuthChallengeRequest
+                {
+                    ChallengeResponses = new Dictionary<string, string>
+                    {
+                        { "SOFTWARE_TOKEN_MFA_CODE", code},
+                        { "USERNAME", user.Username }
+                    },
+                    Session = authWorkflowSessionId,
+                    ClientId = user.ClientID,
+                    ChallengeName = ChallengeNameType.SOFTWARE_TOKEN_MFA
+                };
+
+                var secretHash = user.GetSecretHash();
+
+                if (!string.IsNullOrEmpty(secretHash))
+                {
+                    challengeRequest.ChallengeResponses.Add("SECRET_HASH", secretHash);
+                }
+
+                var challengeResponse = await _cognitoClient.RespondToAuthChallengeAsync(challengeRequest, cancellationToken).ConfigureAwait(false);
+
+                user.UpdateSessionIfAuthenticationComplete(challengeResponse.ChallengeName, challengeResponse.AuthenticationResult);
+
+                return new AuthFlowResponse(challengeResponse.Session, challengeResponse.AuthenticationResult, challengeResponse.ChallengeName, challengeResponse.ChallengeParameters, new Dictionary<string, string>(challengeResponse.ResponseMetadata.Metadata));
+            }
             catch (AmazonCognitoIdentityProviderException e)
             {
-                throw new CognitoServiceException("Failed to respond to Cognito two factor challenge.", e);
+                throw new CognitoServiceException("Failed to respond to Cognito two factor software token challenge.", e);
             }
         }
 
@@ -429,17 +495,28 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
             try
             {
-                await _cognitoClient.GetUserAttributeVerificationCodeAsync(new GetUserAttributeVerificationCodeRequest
+                var response = await _cognitoClient.GetUserAttributeVerificationCodeAsync(new GetUserAttributeVerificationCodeRequest
                 {
                     AccessToken = user.SessionTokens.AccessToken,
                     AttributeName = attributeName
                 }, cancellationToken).ConfigureAwait(false);
+
                 return IdentityResult.Success;
             }
             catch (AmazonCognitoIdentityProviderException e)
             {
                 return IdentityResult.Failed(_errorDescribers.CognitoServiceError("Failed to get the Cognito User attribute verification code", e));
             }
+        }
+
+        public virtual async Task ForgotPasswordAsync(TUser user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            await user.ForgotPasswordAsync().ConfigureAwait(false);
         }
 
         /// <summary>
