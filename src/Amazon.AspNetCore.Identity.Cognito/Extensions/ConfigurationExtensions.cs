@@ -55,22 +55,20 @@ namespace Microsoft.Extensions.Configuration
                 return options;
 
             options.UserPoolClientId = GetConfigurationValue(section, ConfigurationClientIdKey);
-            options.UserPoolClientSecret = GetConfigurationValue(section, ConfigurationClientSecretKey);
+            options.UserPoolClientSecret = GetConfigurationValue(section, ConfigurationClientSecretKey, true);
             options.UserPoolId = GetConfigurationValue(section, ConfigurationUserPoolIdKey);
             
             return options;
         }
 
-        private static string GetConfigurationValue(IConfiguration section, string configurationKey)
+        private static string GetConfigurationValue(IConfiguration section, string configurationKey, bool isOptional = false)
         {
-            if (!string.IsNullOrEmpty(section[configurationKey]))
+            if (!string.IsNullOrEmpty(section[configurationKey]) || isOptional)
             {
                 return section[configurationKey];
             }
-            else
-            {
-                throw new CognitoConfigurationException(string.Format(MissingKeyExceptionMessage, configurationKey));
-            }
+
+            throw new CognitoConfigurationException(string.Format(MissingKeyExceptionMessage, configurationKey));
         }
     }
 }
