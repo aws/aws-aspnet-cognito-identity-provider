@@ -2,14 +2,13 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp3.0</TargetFrameworks>
     <CodeAnalysisRuleSet>../ruleset.xml</CodeAnalysisRuleSet>
-    <Version>2.0.3</Version>
+    <Version>2.1.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Amazon.AspNetCore.Identity.Cognito</PackageId>
     <Title>ASP.NET Core Identity Provider for Amazon Cognito</Title>
     <Product>Amazon.AspNetCore.Identity.Cognito</Product>
     <Description>Simplifies using Amazon Cognito as a membership storage solution for building ASP.NET Core web applications using ASP.NET Core Identity.</Description>
     <Authors>Amazon Web Services</Authors>
-    <Copyright>2018</Copyright>
     <PackageTags>AWS;Amazon;aws-sdk-v3;Cognito;Identity</PackageTags>
     <PackageProjectUrl>https://github.com/aws/aws-aspnet-cognito-identity-provider/</PackageProjectUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -17,8 +16,8 @@
     <RepositoryUrl>https://github.com/aws/aws-aspnet-cognito-identity-provider/</RepositoryUrl>
     <Company>Amazon Web Services</Company>
     <SignAssembly>true</SignAssembly>
-    <AssemblyVersion>2.0.3</AssemblyVersion>
-    <FileVersion>2.0.3</FileVersion>
+    <AssemblyVersion>2.1.0</AssemblyVersion>
+    <FileVersion>2.1.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
@@ -37,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="2.0.3" />
+    <PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="2.1.0" />
     <PackageReference Include="AWSSDK.CognitoIdentity" Version="3.5.1.8" />
     <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="3.5.1.6" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.101" />
