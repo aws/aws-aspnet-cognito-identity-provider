@@ -144,10 +144,10 @@ namespace Amazon.AspNetCore.Identity.Cognito.Tests
             var context = MockUtils.MockContext(cognitoUser, IdentityConstants.TwoFactorUserIdScheme);
             contextAccessorMock.Setup(a => a.HttpContext).Returns(context).Verifiable();
 
-            var authFlowResponse = new AuthFlowResponse("sessionId", null, null, null, null);
+            var authFlowResponse = new AuthFlowResponse("sessionId", null, ChallengeNameType.SMS_MFA, null, null);
 
             userManagerMock.Setup(mock => mock.FindByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(cognitoUser)).Verifiable();
-            userManagerMock.Setup(mock => mock.RespondToTwoFactorChallengeAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<string>()))
+            userManagerMock.Setup(mock => mock.RespondToTwoFactorChallengeAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<ChallengeNameType>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(authFlowResponse))
                 .Callback(() => cognitoUser.SessionTokens = new CognitoUserSession("idToken", "accessToken", "refreshToken", DateTime.Now, DateTime.Now.AddDays(1))).Verifiable();
             userManagerMock.Setup(mock => mock.GetClaimsAsync(It.IsAny<CognitoUser>())).Returns(Task.FromResult(new List<Claim>() as IList<Claim>)).Verifiable();
@@ -170,7 +170,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Tests
             AuthFlowResponse authFlowResponse = null;
 
             userManagerMock.Setup(mock => mock.FindByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(cognitoUser)).Verifiable();
-            userManagerMock.Setup(mock => mock.RespondToTwoFactorChallengeAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<string>()))
+            userManagerMock.Setup(mock => mock.RespondToTwoFactorChallengeAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<ChallengeNameType>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(authFlowResponse)).Verifiable();
 
             var output = await signinManager.RespondToTwoFactorChallengeAsync("2FACODE", true, false).ConfigureAwait(false);

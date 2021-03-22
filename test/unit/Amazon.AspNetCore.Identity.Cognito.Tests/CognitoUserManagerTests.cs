@@ -13,6 +13,7 @@
  * permissions and limitations under the License.
  */
 
+using Amazon.CognitoIdentityProvider;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
 using Moq;
@@ -57,8 +58,8 @@ namespace Amazon.AspNetCore.Identity.Cognito.Tests
         [Fact]
         public async void Test_GivenAUser_WhenRespondToTwoFactorChallenge_ThenResponseIsNotAltered()
         {
-            var authFlowResponse = new AuthFlowResponse("sessionId", null, null, null, null);
-            userStoreMock.Setup(mock => mock.RespondToTwoFactorChallengeAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(authFlowResponse)).Verifiable();
+            var authFlowResponse = new AuthFlowResponse("sessionId", null, ChallengeNameType.SMS_MFA, null, null);
+            userStoreMock.Setup(mock => mock.RespondToTwoFactorChallengeAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), It.IsAny<ChallengeNameType>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(authFlowResponse)).Verifiable();
             var output = await userManager.RespondToTwoFactorChallengeAsync(GetCognitoUser(), "2FACODE", "SessionId").ConfigureAwait(false);
             Assert.Equal(authFlowResponse, output);
             userStoreMock.Verify();

@@ -13,6 +13,7 @@
  * permissions and limitations under the License.
  */
 
+using Amazon.CognitoIdentityProvider;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -199,13 +200,26 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object linked to that authentication workflow.</returns>
         public virtual Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, string authWorkflowSessionId)
         {
+            return RespondToTwoFactorChallengeAsync(user, code, ChallengeNameType.SMS_MFA, authWorkflowSessionId);
+        }
+
+        /// <summary>
+        /// Checks if the <param name="user"> can log in with the specified 2fa code challenge <paramref name="code"/>.
+        /// </summary>
+        /// <param name="user">The user try to log in with.</param>
+        /// <param name="code">The 2fa code to check</param>
+        /// <param name="challengeNameType">The ongoing Cognito challenge name type.</param>
+        /// <param name="authWorkflowSessionId">The ongoing Cognito authentication workflow id.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object linked to that authentication workflow.</returns>
+        public virtual Task<AuthFlowResponse> RespondToTwoFactorChallengeAsync(TUser user, string code, ChallengeNameType challengeNameType,  string authWorkflowSessionId)
+        {
             ThrowIfDisposed();
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return _userStore.RespondToTwoFactorChallengeAsync(user, code, authWorkflowSessionId, CancellationToken);
+            return _userStore.RespondToTwoFactorChallengeAsync(user, code, challengeNameType, authWorkflowSessionId, CancellationToken);
         }
 
         /// <summary>
