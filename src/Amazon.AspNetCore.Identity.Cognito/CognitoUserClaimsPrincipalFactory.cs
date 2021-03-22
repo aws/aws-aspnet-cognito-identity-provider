@@ -70,7 +70,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             // Roles are claims with a specific schema uri
             roles.ToList().ForEach(role => claims.Add(new Claim(roleClaimType, role)));
 
-            var claimsIdentity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
+            var claimsIdentity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme, _identityOptions.ClaimsIdentity.UserNameClaimType, roleClaimType);
             return new ClaimsPrincipal(claimsIdentity);
         }
 
