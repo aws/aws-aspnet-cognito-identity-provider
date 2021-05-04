@@ -55,7 +55,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 }
 ```
 
-In order to automatically inject Cognito service and user pool clients make the following changes to your appsettings.json:
+Next the user pool and user pool client need to be configured as part of the IConfiguration of the ASP.NET Core application. For a development user pool edit either the `appsettings.Development.json` file or the projects [secrets.json](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets) file. Below is an example of the JSON snippet to go into the file.
 
 ```csharp
 "AWS": {
@@ -66,7 +66,12 @@ In order to automatically inject Cognito service and user pool clients make the 
 }
 ```
 
-Alternatively, instead of relying on a configuration file, you can inject your own instances of IAmazonCognitoIdentityProvider and CognitoUserPool in your Startup.cs file, or use the newly announced [AWS Systems Manager to store your web application parameters](https://aws.amazon.com/blogs/developer/net-core-configuration-provider-for-aws-systems-manager/).
+**Note:** If using `appsettings.Development.json` or some other file in your project structure be careful checking in secrets to source control.
+
+For a production user pool it is recommend to configure the same settings as above either through IConfiguration's [environment variable support](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/#environment-variables) or with the AWS System Manager's parameter store which can be integrated with IConfiguration using the [Amazon.Extensions.Configuration.SystemsManager](https://aws.amazon.com/blogs/developer/net-core-configuration-provider-for-aws-systems-manager/) NuGet package.
+
+
+Alternatively, instead of relying on a configuration file, you can inject your own instances of IAmazonCognitoIdentityProvider and CognitoUserPool in your Startup.cs file.
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
