@@ -31,6 +31,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Tests
         protected Mock<IHttpContextAccessor> contextAccessorMock;
         protected Mock<CognitoUserClaimsPrincipalFactory<CognitoUser>> claimsFactoryMock;
         protected Mock<IOptions<IdentityOptions>> optionsAccessorMock;
+        protected Mock<IUserConfirmation<CognitoUser>> userConfirmationMock;
         protected Mock<ILogger<SignInManager<CognitoUser>>> loggerSigninManagerMock;
         protected Mock<IAuthenticationSchemeProvider> schemesMock;
         protected Mock<IAmazonCognitoIdentityProvider> cognitoClientMock;
@@ -54,6 +55,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Tests
             idOptions.Lockout.AllowedForNewUsers = false;
             optionsAccessorMock.Setup(o => o.Value).Returns(idOptions);
             contextAccessorMock = new Mock<IHttpContextAccessor>();
+            userConfirmationMock = new Mock<IUserConfirmation<CognitoUser>>();
             loggerSigninManagerMock = new Mock<ILogger<SignInManager<CognitoUser>>>();
             schemesMock = new Mock<IAuthenticationSchemeProvider>();
             userStoreMock = new Mock<CognitoUserStore<CognitoUser>>(cognitoClientMock.Object, cognitoPoolMock.Object, errorsMock.Object);

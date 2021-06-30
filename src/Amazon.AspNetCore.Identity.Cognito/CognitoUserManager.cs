@@ -74,7 +74,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 throw new ArgumentNullException(nameof(email));
             }
-#if NETCOREAPP_3_0
+#if NETCOREAPP_3_1
             email = NormalizeEmail(email);
 #endif
 #if NETSTANDARD_2_0
@@ -124,7 +124,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 throw new ArgumentNullException(nameof(userName));
             }
-#if NETCOREAPP_3_0
+#if NETCOREAPP_3_1
             userName = NormalizeName(userName);
 #endif
 #if NETSTANDARD_2_0

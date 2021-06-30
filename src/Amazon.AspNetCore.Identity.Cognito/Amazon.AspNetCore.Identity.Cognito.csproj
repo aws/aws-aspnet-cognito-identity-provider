@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <CodeAnalysisRuleSet>../ruleset.xml</CodeAnalysisRuleSet>
     <Version>2.2.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -23,15 +23,15 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
       <DefineConstants>NETSTANDARD_2_0</DefineConstants>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-      <DefineConstants>NETCOREAPP_3_0</DefineConstants>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+      <DefineConstants>NETCOREAPP_3_1</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 

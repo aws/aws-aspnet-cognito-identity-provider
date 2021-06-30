@@ -38,7 +38,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         private const string Cognito2FAChallengeNameType = "Cognito2FAChallengeNameType";
         private const string Cognito2FAProviderKey = "Amazon Cognito 2FA";
 
-#if NETCOREAPP_3_0
+#if NETCOREAPP_3_1
         public CognitoSignInManager(UserManager<TUser> userManager,
         IHttpContextAccessor contextAccessor,
         IUserClaimsPrincipalFactory<TUser> claimsFactory,

@@ -37,7 +37,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         }
 #endif
 
-#if NETCOREAPP_3_0
+#if NETCOREAPP_3_1
         /// <summary>
         /// Returns a normalized representation of the specified <paramref name="name"/>.
         /// </summary>
