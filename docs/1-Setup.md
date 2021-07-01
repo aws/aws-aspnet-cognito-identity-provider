@@ -59,9 +59,9 @@ In order to automatically inject Cognito service and user pool clients make the 
 ```csharp
 "AWS": {
     "Region": "<your region id goes here>",
+    "UserPoolId": "<your user pool id goes here>",
     "UserPoolClientId": "<your user pool client id goes here>",
-    "UserPoolClientSecret": "<your user pool client secret goes here>",
-    "UserPoolId": "<your user pool id goes here>"
+    "UserPoolClientSecret": "<your user pool client secret goes here>"
 }
 ```
 
