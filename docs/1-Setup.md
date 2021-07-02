@@ -12,7 +12,7 @@ You can find more information on the AWS SDK for .NET on the [AWS Guide for .NET
 
 You can *quickly try the library out* by cloning and exploring the [sample web application from the GitHub repository](https://github.com/aws/aws-aspnet-cognito-identity-provider/tree/master/samples).
 
-Just make the necessary changes to the following properties to the *appsettings.json* file to use the web application with your Cognito User Pool:
+Just make the necessary changes to the following properties to the *appsettings.Development.json* file to use the web application with your Cognito User Pool:
 
 ```csharp
 "AWS": {
@@ -54,7 +54,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 }
 ```
 
-In order to automatically inject Cognito service and user pool clients make the following changes to your appsettings.json:
+In order to automatically inject Cognito service and user pool clients make the following changes to your appsettings.Development.json:
 
 ```csharp
 "AWS": {
