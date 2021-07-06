@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31402.337
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.csproj", "{A10F1615-4246-43EF-9619-0544E5B07AD7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples", "Samples\Samples.csproj", "{A10F1615-4246-43EF-9619-0544E5B07AD7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Amazon.AspNetCore.Identity.Cognito", "..\src\Amazon.AspNetCore.Identity.Cognito\Amazon.AspNetCore.Identity.Cognito.csproj", "{31459A93-5EE7-410D-B671-51AF02B7B85D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{A10F1615-4246-43EF-9619-0544E5B07AD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A10F1615-4246-43EF-9619-0544E5B07AD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A10F1615-4246-43EF-9619-0544E5B07AD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31459A93-5EE7-410D-B671-51AF02B7B85D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31459A93-5EE7-410D-B671-51AF02B7B85D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31459A93-5EE7-410D-B671-51AF02B7B85D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31459A93-5EE7-410D-B671-51AF02B7B85D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

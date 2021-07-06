@@ -31,8 +31,6 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li><a asp-page="/Index">Home</a></li>
-                    <li><a asp-page="/About">About</a></li>
-                    <li><a asp-page="/Contact">Contact</a></li>
                 </ul>
                 <partial name="_LoginPartial" />
             </div>
@@ -45,7 +43,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; 2018 - Samples</p>
+            <p>&copy; @DateTime.UtcNow.Year - Amazon Cognito ASP.NET Core Web Application Sample</p>
         </footer>
     </div>
 

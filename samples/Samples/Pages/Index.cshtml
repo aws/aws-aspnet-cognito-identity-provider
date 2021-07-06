@@ -4,93 +4,30 @@
     ViewData["Title"] = "Home page";
 }
 
-<div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="6000">
-    <ol class="carousel-indicators">
-        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-        <li data-target="#myCarousel" data-slide-to="1"></li>
-        <li data-target="#myCarousel" data-slide-to="2"></li>
-    </ol>
-    <div class="carousel-inner" role="listbox">
-        <div class="item active">
-            <img src="~/images/banner1.svg" alt="ASP.NET" class="img-responsive" />
-            <div class="carousel-caption" role="option">
-                <p>
-                    Learn how to build ASP.NET apps that can run anywhere.
-                    <a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkID=525028&clcid=0x409">
-                        Learn More
-                    </a>
-                </p>
-            </div>
-        </div>
-        <div class="item">
-            <img src="~/images/banner2.svg" alt="Visual Studio" class="img-responsive" />
-            <div class="carousel-caption" role="option">
-                <p>
-                    There are powerful new features in Visual Studio for building modern web apps.
-                    <a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkID=525030&clcid=0x409">
-                        Learn More
-                    </a>
-                </p>
-            </div>
-        </div>
-        <div class="item">
-            <img src="~/images/banner3.svg" alt="Microsoft Azure" class="img-responsive" />
-            <div class="carousel-caption" role="option">
-                <p>
-                    Learn how Microsoft's Azure cloud platform allows you to build, deploy, and scale web apps.
-                    <a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkID=525027&clcid=0x409">
-                        Learn More
-                    </a>
-                </p>
-            </div>
-        </div>
-    </div>
-    <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
-        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-    </a>
-    <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
-        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-    </a>
-</div>
+<h1>Amazon Cognito ASP.NET Core Web Application Sample</h1>
+
+This sample application demonstrates how to integrate Amazon Cognito as an identity provider for an ASP.NET Core Web Application. The sample adds the <a href="https://www.nuget.org/packages/Amazon.AspNetCore.Identity.Cognito/" target="_blank">Amazon.AspNetCore.Identity.Cognito</a>
+NuGet package as the registered identity service provider for the ASP.NET Core application. The sample also adds sample login pages that demonstrate how to customize the ASP.NET Core login process to use Amazon Cognito.
 
 <div class="row">
-    <div class="col-md-3">
-        <h2>Application uses</h2>
+    <div class="col-md-6">
+        <h2>Amazon Cognito ASP.NET Core Identity Provider</h2>
         <ul>
-            <li>Sample pages using ASP.NET Core Razor Pages</li>
-            <li>Theming using <a href="https://go.microsoft.com/fwlink/?LinkID=398939">Bootstrap</a></li>
+            <li><a href="https://github.com/aws/aws-aspnet-cognito-identity-provider/blob/master/docs/1-Setup.md">Setup</a></li>
+            <li><a href="https://github.com/aws/aws-aspnet-cognito-identity-provider/blob/master/docs/2-Signing%20In.md">Signing in using the CognitoSigninManager</a></li>
+            <li><a href="https://github.com/aws/aws-aspnet-cognito-identity-provider/blob/master/docs/3-User%20Management.md">Users management</a></li>
+            <li><a href="https://github.com/aws/aws-aspnet-cognito-identity-provider/blob/master/docs/4-User%20Management%20-%20Email%20and%20Phone%20number.md">Users management - emails and phone numbers</a></li>
+            <li><a href="https://github.com/aws/aws-aspnet-cognito-identity-provider/blob/master/docs/5-User%20Management%20-%20Change%20and%20reset%20passwords.md">User Password management</a></li>
+            <li><a href="https://github.com/aws/aws-aspnet-cognito-identity-provider/blob/master/docs/6-User%20Claims.md">Authentication using Claims</a></li>
+            <li><a href="https://github.com/aws/aws-aspnet-cognito-identity-provider/blob/master/docs/7-User%20Roles.md">Authentication using Roles</a></li>
         </ul>
     </div>
-    <div class="col-md-3">
-        <h2>How to</h2>
+    <div class="col-md-6">
+        <h2>Amazon Cognito service documentation</h2>
         <ul>
-            <li><a href="https://go.microsoft.com/fwlink/?linkid=852130">Working with Razor Pages.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699315">Manage User Secrets using Secret Manager.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699316">Use logging to log a message.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699317">Add packages using NuGet.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699319">Target development, staging or production environment.</a></li>
+            <li><a href="https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-identity-pools.html">Amazon Cognito User Pool Developer Guide</a></li>
+            <li><a href="https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/Welcome.html">Amazon Cognito User Pool API Reference.</a></li>
         </ul>
     </div>
-    <div class="col-md-3">
-        <h2>Overview</h2>
-        <ul>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=518008">Conceptual overview of what is ASP.NET Core</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699320">Fundamentals of ASP.NET Core such as Startup and middleware.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=398602">Working with Data</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=398603">Security</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=699321">Client side development</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=699322">Develop on different platforms</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=699323">Read more on the documentation site</a></li>
-        </ul>
-    </div>
-    <div class="col-md-3">
-        <h2>Run &amp; Deploy</h2>
-        <ul>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=517851">Run your app</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=517853">Run tools such as EF migrations and more</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=398609">Publish to Microsoft Azure App Service</a></li>
-        </ul>
-    </div>
+
 </div>
