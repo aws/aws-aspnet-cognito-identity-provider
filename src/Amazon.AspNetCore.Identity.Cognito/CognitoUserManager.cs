@@ -139,7 +139,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         }
 
         /// <summary>
-        /// Populates the user SessionToken object if he satisfies the claimType and claimValue parameters
+        /// Populates the user SessionToken object if they satisfy the claimType and claimValue parameters
         /// </summary>
         /// <param name="user">The user to populate tokens for.</param>
         /// <param name="claimType">The claim type to check.</param>
@@ -517,7 +517,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
         /// <summary>
         /// Confirms the specified <paramref name="user"/> account with the specified
-        /// <paramref name="confirmationCode"/> he was sent by email or sms,
+        /// <paramref name="confirmationCode"/> they were sent by email or sms,
         /// as an asynchronous operation.
         /// When a new user is confirmed, the user's attribute through which the 
         /// confirmation code was sent (email address or phone number) is marked as verified. 
