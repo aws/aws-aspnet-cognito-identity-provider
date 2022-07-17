@@ -165,7 +165,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
                         var refreshToken = await _httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.RefreshToken).ConfigureAwait(false);
                         var idToken = await _httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.IdToken).ConfigureAwait(false);
 
-                        user.SessionTokens = new CognitoUserSession(idToken, accessToken, refreshToken, result.Properties.IssuedUtc.Value.DateTime, result.Properties.ExpiresUtc.Value.DateTime);
+                        user.SessionTokens = new CognitoUserSession(idToken, accessToken, refreshToken, result.Properties.IssuedUtc.Value.UtcDateTime, result.Properties.ExpiresUtc.Value.UtcDateTime);
                     }
                 }
             }           
