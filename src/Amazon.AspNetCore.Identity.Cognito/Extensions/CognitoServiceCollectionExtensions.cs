@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License").
@@ -30,7 +30,12 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddCognitoIdentity(this IServiceCollection services, Action<IdentityOptions> identityOptions = null, string prefix = null)
         {
-            services.InjectCognitoUser<CognitoUser>(identityOptions);
+            return services.AddCognitoIdentity<CognitoUser>();
+        }
+
+        public static IServiceCollection AddCognitoIdentity<TUser>(this IServiceCollection services, Action<IdentityOptions> identityOptions = null, string prefix = null) where TUser: CognitoUser
+        {
+            services.InjectCognitoUser<TUser>(identityOptions);
             services.TryAddAWSService<IAmazonCognitoIdentityProvider>();
             services.TryAddCognitoUserPool();
             return services;
@@ -41,19 +46,19 @@ namespace Microsoft.Extensions.DependencyInjection
             if (identityOptions != null)
             {
                 services.Configure(identityOptions);
-                services.AddIdentity<CognitoUser, CognitoRole>()
+                services.AddIdentity<TUser, CognitoRole>()
                     .AddDefaultTokenProviders()
                     .AddPasswordValidator<CognitoPasswordValidator<TUser>>();
             }
             else
             {
-                services.AddIdentity<CognitoUser, CognitoRole>()
+                services.AddIdentity<TUser, CognitoRole>()
                     .AddDefaultTokenProviders()
                     .AddPasswordValidator<CognitoPasswordValidator<TUser>>();
-                var passwordValidators = services.Where(s => s.ServiceType.Equals(typeof(IPasswordValidator<CognitoUser>)));
+                var passwordValidators = services.Where(s => s.ServiceType.Equals(typeof(IPasswordValidator<TUser>)));
                 foreach (var validator in passwordValidators.ToArray())
                 {
-                    if (Equals(validator.ImplementationType, typeof(PasswordValidator<CognitoUser>)))
+                    if (Equals(validator.ImplementationType, typeof(PasswordValidator<TUser>)))
                     {
                         services.Remove(validator);
                     }
