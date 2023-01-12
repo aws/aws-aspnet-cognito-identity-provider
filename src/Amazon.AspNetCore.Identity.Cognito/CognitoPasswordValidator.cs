@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace Amazon.AspNetCore.Identity.Cognito
 {
-    public class CognitoPasswordValidator : IPasswordValidator<CognitoUser>
+    public class CognitoPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser: CognitoUser
     {
         // This is the list of what is considered to be a special characters by Cognito
         // See: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-policies.html
@@ -35,7 +35,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="password">The password supplied for validation</param>
         /// <returns>The task object representing the asynchronous operation, containing the <see cref="IdentityResult"/>
         /// of the operation.
-        public async Task<IdentityResult> ValidateAsync(UserManager<CognitoUser> manager, CognitoUser user, string password)
+        public async Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password)
         {
             // Retrieve the password policy set by the user's user pool
             var passwordPolicy = await user.UserPool.GetPasswordPolicyTypeAsync().ConfigureAwait(false);

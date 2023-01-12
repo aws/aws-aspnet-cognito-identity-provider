@@ -43,13 +43,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.Configure(identityOptions);
                 services.AddIdentity<CognitoUser, CognitoRole>()
                     .AddDefaultTokenProviders()
-                    .AddPasswordValidator<CognitoPasswordValidator>();
+                    .AddPasswordValidator<CognitoPasswordValidator<TUser>>();
             }
             else
             {
                 services.AddIdentity<CognitoUser, CognitoRole>()
                     .AddDefaultTokenProviders()
-                    .AddPasswordValidator<CognitoPasswordValidator>();
+                    .AddPasswordValidator<CognitoPasswordValidator<TUser>>();
                 var passwordValidators = services.Where(s => s.ServiceType.Equals(typeof(IPasswordValidator<CognitoUser>)));
                 foreach (var validator in passwordValidators.ToArray())
                 {
