@@ -37,7 +37,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Tests
         public CognitoUserStoreTests()
         {
             _cognitoClientMock = new Mock<IAmazonCognitoIdentityProvider>();
-            _cognitoPoolMock = new Mock<CognitoUserPool>("region_poolName", "clientID", _cognitoClientMock.Object, null);
+            _cognitoPoolMock = new Mock<CognitoUserPool>("region_poolName", "clientID", _cognitoClientMock.Object, null) { CallBase = true };
             _errorsMock = new Mock<CognitoIdentityErrorDescriber>();
             _userMock = new Mock<CognitoUser>("userID", "clientID", _cognitoPoolMock.Object, _cognitoClientMock.Object, null, null, null, null);
             _store = new CognitoUserStore<CognitoUser>(_cognitoClientMock.Object, _cognitoPoolMock.Object, _errorsMock.Object);
