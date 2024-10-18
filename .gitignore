@@ -20,3 +20,7 @@
 **/*.nuspec
 
 packages
+
+# JetBrains Rider
+.idea/
+*.sln.iml
