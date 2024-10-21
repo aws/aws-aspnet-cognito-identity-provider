@@ -1,0 +1,15 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      dotnet: 8.x
+  build:
+    commands:
+      - dotnet test test/unit/Amazon.AspNetCore.Identity.Cognito.Tests/Amazon.AspNetCore.Identity.Cognito.Tests.csproj -c Release --logger trx --results-directory ./testresults
+reports:
+    aws-ssm-data-protection-provider-for-aspnet-tests:
+        file-format: VisualStudioTrx
+        files:
+            - '**/*'
+        base-directory: './testresults'
