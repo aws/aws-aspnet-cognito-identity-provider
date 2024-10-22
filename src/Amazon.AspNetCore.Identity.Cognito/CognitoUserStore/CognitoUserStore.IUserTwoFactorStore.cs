@@ -54,7 +54,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 var userSettings = await _cognitoClient.AdminGetUserAsync(request, cancellationToken).ConfigureAwait(false);
 
-                return userSettings.MFAOptions.Count > 0;
+                return userSettings.MFAOptions?.Count > 0;
             }
             catch (AmazonCognitoIdentityProviderException e)
             {

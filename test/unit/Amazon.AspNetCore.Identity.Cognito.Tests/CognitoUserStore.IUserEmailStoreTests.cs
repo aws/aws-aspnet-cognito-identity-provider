@@ -26,7 +26,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Tests
     public partial class CognitoUserStoreTests
     {
         [Fact]
-        public async void Test_GivenAnEmail_WhenFindByEmail_ThenTheUserIsRetrieved()
+        public async Task Test_GivenAnEmail_WhenFindByEmail_ThenTheUserIsRetrieved()
         {
             var username = "UserName";
             var status = "CONFIRMED";
@@ -43,28 +43,28 @@ namespace Amazon.AspNetCore.Identity.Cognito.Tests
                 }
             };
             _cognitoClientMock.Setup(mock => mock.ListUsersAsync(It.IsAny<ListUsersRequest>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(response)).Verifiable();
-            var user = await _store.FindByEmailAsync("user@domain.tld", CancellationToken.None).ConfigureAwait(false);
+            var user = await _store.FindByEmailAsync("user@domain.tld", CancellationToken.None);
             Assert.Equal(username, user.Username);
             Assert.Equal(status, user.Status);
             _cognitoClientMock.Verify();
         }
 
         [Fact]
-        public async void Test_GivenAUser_WhenGetNormalizedEmail_ThenThrowsANotSupportedException()
+        public async Task Test_GivenAUser_WhenGetNormalizedEmail_ThenThrowsANotSupportedException()
         {
-            await Assert.ThrowsAsync<NotSupportedException>(() => _store.GetNormalizedEmailAsync(_userMock.Object, CancellationToken.None)).ConfigureAwait(false);
+            await Assert.ThrowsAsync<NotSupportedException>(() => _store.GetNormalizedEmailAsync(_userMock.Object, CancellationToken.None));
         }
 
         [Fact]
-        public async void Test_GivenAUser_WhenSetEmailConfirmed_ThenThrowsANotSupportedException()
+        public async Task Test_GivenAUser_WhenSetEmailConfirmed_ThenThrowsANotSupportedException()
         {
-            await Assert.ThrowsAsync<NotSupportedException>(() => _store.SetEmailConfirmedAsync(_userMock.Object, true, CancellationToken.None)).ConfigureAwait(false);
+            await Assert.ThrowsAsync<NotSupportedException>(() => _store.SetEmailConfirmedAsync(_userMock.Object, true, CancellationToken.None));
         }
 
         [Fact]
-        public async void Test_GivenAUser_WhenSetNormalizedEmail_ThenThrowsANotSupportedException()
+        public async Task Test_GivenAUser_WhenSetNormalizedEmail_ThenThrowsANotSupportedException()
         {
-            await Assert.ThrowsAsync<NotSupportedException>(() => _store.SetNormalizedEmailAsync(_userMock.Object, "email", CancellationToken.None)).ConfigureAwait(false);
+            await Assert.ThrowsAsync<NotSupportedException>(() => _store.SetNormalizedEmailAsync(_userMock.Object, "email", CancellationToken.None));
         }
     }
 }

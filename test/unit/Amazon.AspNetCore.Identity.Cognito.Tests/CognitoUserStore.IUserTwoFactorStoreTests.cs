@@ -25,7 +25,7 @@ namespace Amazon.AspNetCore.Identity.Cognito.Tests
     public partial class CognitoUserStoreTests
     {
         [Fact]
-        public async void Test_GivenAUser_WhenGetTwoFactorEnabledWithAnMFAOption_ThenTheResponseIsTrue()
+        public async Task Test_GivenAUser_WhenGetTwoFactorEnabledWithAnMFAOption_ThenTheResponseIsTrue()
         {
             var response = new AdminGetUserResponse()
             {
@@ -35,29 +35,29 @@ namespace Amazon.AspNetCore.Identity.Cognito.Tests
                 }
             };
             _cognitoClientMock.Setup(mock => mock.AdminGetUserAsync(It.IsAny<AdminGetUserRequest>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(response)).Verifiable();
-            var output = await _store.GetTwoFactorEnabledAsync(_userMock.Object, CancellationToken.None).ConfigureAwait(false);
+            var output = await _store.GetTwoFactorEnabledAsync(_userMock.Object, CancellationToken.None);
             Assert.True(output);
             _cognitoClientMock.Verify();
         }
 
         [Fact]
-        public async void Test_GivenAUser_WhenGetTwoFactorEnabledWithoutAnMFAOption_ThenTheResponseIsFalse()
+        public async Task Test_GivenAUser_WhenGetTwoFactorEnabledWithoutAnMFAOption_ThenTheResponseIsFalse()
         {
             var response = new AdminGetUserResponse()
             {
                 MFAOptions = new List<MFAOptionType>()
             };
             _cognitoClientMock.Setup(mock => mock.AdminGetUserAsync(It.IsAny<AdminGetUserRequest>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(response)).Verifiable();
-            var output = await _store.GetTwoFactorEnabledAsync(_userMock.Object, CancellationToken.None).ConfigureAwait(false);
+            var output = await _store.GetTwoFactorEnabledAsync(_userMock.Object, CancellationToken.None);
             Assert.False(output);
             _cognitoClientMock.Verify();
         }
 
         [Fact]
-        public async void Test_GivenAUser_WhenSetTwoFactorEnabled_ThenAdminSetUserSettingsAsyncIsCalled()
+        public async Task Test_GivenAUser_WhenSetTwoFactorEnabled_ThenAdminSetUserSettingsAsyncIsCalled()
         {
             _cognitoClientMock.Setup(mock => mock.AdminSetUserSettingsAsync(It.IsAny<AdminSetUserSettingsRequest>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(new AdminSetUserSettingsResponse())).Verifiable();
-            await _store.SetTwoFactorEnabledAsync(_userMock.Object, false, CancellationToken.None).ConfigureAwait(false);
+            await _store.SetTwoFactorEnabledAsync(_userMock.Object, false, CancellationToken.None);
             _cognitoClientMock.Verify();
         }
     }

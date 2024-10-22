@@ -34,7 +34,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <param name="user">The user whose password should be validated.</param>
         /// <param name="password">The password supplied for validation</param>
         /// <returns>The task object representing the asynchronous operation, containing the <see cref="IdentityResult"/>
-        /// of the operation.
+        /// of the operation.</returns>
         public async Task<IdentityResult> ValidateAsync(UserManager<CognitoUser> manager, CognitoUser user, string password)
         {
             // Retrieve the password policy set by the user's user pool
@@ -43,28 +43,31 @@ namespace Amazon.AspNetCore.Identity.Cognito
             var errorDescriber = new IdentityErrorDescriber();
             var errors = new List<IdentityError>();
 
+            if (password is null)
+                password = string.Empty;
+            
             if (password.Length < passwordPolicy.MinimumLength)
             {
-                errors.Add(errorDescriber.PasswordTooShort(passwordPolicy.MinimumLength));
+                errors.Add(errorDescriber.PasswordTooShort(passwordPolicy.MinimumLength ?? 0));
             }
 
-            if (!password.Any(char.IsLower) && passwordPolicy.RequireLowercase)
+            if (!password.Any(char.IsLower) && (passwordPolicy.RequireLowercase ?? false))
             {
                 errors.Add(errorDescriber.PasswordRequiresLower());
             }
 
-            if (!password.Any(char.IsUpper) && passwordPolicy.RequireUppercase)
+            if (!password.Any(char.IsUpper) && (passwordPolicy.RequireUppercase ?? false))
             {
                 errors.Add(errorDescriber.PasswordRequiresUpper());
             }
 
-            if (!password.Any(char.IsNumber) && passwordPolicy.RequireNumbers)
+            if (!password.Any(char.IsNumber) && (passwordPolicy.RequireNumbers ?? false))
             {
                 errors.Add(errorDescriber.PasswordRequiresDigit());
             }
 
             var passwordContainsASymbol = password.IndexOfAny(CognitoSymbols) >= 0;
-            if (!passwordContainsASymbol && passwordPolicy.RequireSymbols)
+            if (!passwordContainsASymbol && (passwordPolicy.RequireSymbols ?? false))
             {
                 errors.Add(errorDescriber.PasswordRequiresNonAlphanumeric());
             }

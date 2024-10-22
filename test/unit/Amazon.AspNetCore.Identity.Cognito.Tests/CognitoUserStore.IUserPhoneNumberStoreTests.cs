@@ -15,6 +15,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Amazon.AspNetCore.Identity.Cognito.Tests
@@ -22,9 +23,9 @@ namespace Amazon.AspNetCore.Identity.Cognito.Tests
     public partial class CognitoUserStoreTests
     {
         [Fact]
-        public async void Test_GivenAUser_WhenSetPhoneNumberConfirmed_ThenThrowsANotSupportedException()
+        public async Task Test_GivenAUser_WhenSetPhoneNumberConfirmed_ThenThrowsANotSupportedException()
         {
-            await Assert.ThrowsAsync<NotSupportedException>(() => _store.SetPhoneNumberConfirmedAsync(_userMock.Object, true, CancellationToken.None)).ConfigureAwait(false);
+            await Assert.ThrowsAsync<NotSupportedException>(() => _store.SetPhoneNumberConfirmedAsync(_userMock.Object, true, CancellationToken.None));
         }
         
     }

@@ -298,11 +298,11 @@ namespace Amazon.AspNetCore.Identity.Cognito
                     throw new CognitoServiceException("Failed to retrieve the list of users from Cognito.", e);
                 }
 
-                foreach (var user in response.Users)
+                foreach (var user in response.Users ?? new List<UserType>())
                 {
                     result.Add(new CognitoUser(user.Username, _pool.ClientID, _pool, _cognitoClient, null,
                     user.UserStatus.Value, user.Username,
-                    user.Attributes.ToDictionary(attribute => attribute.Name, attribute => attribute.Value)));
+                    user.Attributes?.ToDictionary(attribute => attribute.Name, attribute => attribute.Value) ?? new Dictionary<string, string>()));
                 }
 
             } while (!string.IsNullOrEmpty(response.PaginationToken));
@@ -327,7 +327,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
             try
             {
-                await _pool.SignUpAsync(user.UserID, password, user.Attributes, validationData).ConfigureAwait(false);
+                await _pool.SignUpAsync(user.UserID, password, user.Attributes ?? new Dictionary<string, string>(), validationData).ConfigureAwait(false);
                 return IdentityResult.Success;
             }
             catch (AmazonCognitoIdentityProviderException e)
@@ -509,7 +509,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             }
 
             var clientConfig = await _pool.GetUserPoolClientConfiguration().ConfigureAwait(false);
-            if (!clientConfig.ReadAttributes.Contains(attributeName))
+            if (!clientConfig.ReadAttributes?.Contains(attributeName) ?? true)
             {
                 throw new NotAuthorizedException(string.Format("Reading attribute {0} is not allowed by the user pool client configuration.", attributeName));
             }
@@ -543,7 +543,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
             var clientConfig = await _pool.GetUserPoolClientConfiguration().ConfigureAwait(false);
 
-            if (!clientConfig.WriteAttributes.Contains(attributeName))
+            if (!clientConfig.WriteAttributes?.Contains(attributeName) ?? true)
             {
                 throw new NotAuthorizedException(string.Format("Writing to attribute {0} is not allowed by the user pool client configuration.", attributeName));
             }

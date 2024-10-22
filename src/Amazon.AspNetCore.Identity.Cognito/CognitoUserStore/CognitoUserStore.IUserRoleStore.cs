@@ -112,7 +112,10 @@ namespace Amazon.AspNetCore.Identity.Cognito
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                await _pool.AdminSignupAsync(user.UserID, user.Attributes, validationData).ConfigureAwait(false);
+                await _pool.AdminSignupAsync(
+                    user.UserID, 
+                    user.Attributes ?? new Dictionary<string, string>(), 
+                    validationData ?? new Dictionary<string, string>()).ConfigureAwait(false);
                 return IdentityResult.Success;
             }
             catch (AmazonCognitoIdentityProviderException e)
@@ -191,9 +194,9 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 // Only update user writable attributes.
                 var clientConfig = await _pool.GetUserPoolClientConfiguration().ConfigureAwait(false);
-                var newValues = clientConfig.WriteAttributes
+                var newValues = clientConfig.WriteAttributes?
                     .Where(key => user.Attributes.ContainsKey(key))
-                    .ToDictionary(key => key, key => user.Attributes[key]);
+                    .ToDictionary(key => key, key => user.Attributes[key]) ?? new Dictionary<string, string>();
 
                 await _cognitoClient.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
                 {
@@ -218,7 +221,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         internal List<AttributeType> CreateAttributeList(IDictionary<string, string> attributeDict)
         {
             List<AttributeType> attributeList = new List<AttributeType>();
-            foreach (KeyValuePair<string, string> data in attributeDict)
+            foreach (KeyValuePair<string, string> data in attributeDict ?? new Dictionary<string, string>())
             {
                 AttributeType attribute = new AttributeType()
                 {
@@ -315,7 +318,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
                     UserPoolId = _pool.PoolID
                 }, cancellationToken).ConfigureAwait(false);
 
-                return response.Groups.Select(group => group.GroupName).ToList();
+                return response.Groups?.Select(group => group.GroupName).ToList() ?? new List<string>();
             }
             catch (AmazonCognitoIdentityProviderException e)
             {
@@ -341,7 +344,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             }
 
             var userRoles = await GetRolesAsync(user, cancellationToken).ConfigureAwait(false);
-            return userRoles.Contains(roleName);
+            return userRoles?.Contains(roleName) ?? false;
         }
 
         /// <summary>
@@ -364,8 +367,16 @@ namespace Amazon.AspNetCore.Identity.Cognito
                     UserPoolId = _pool.PoolID
                 }, cancellationToken).ConfigureAwait(false);
 
-                return response.Users.Select(user => _pool.GetUser(user.Username, user.UserStatus,
-                    user.Attributes.ToDictionary(att => att.Name, att => att.Value))).ToList() as IList<TUser>;
+                return response.Users?
+                    .Select(user => 
+                        _pool.GetUser(
+                            user.Username, 
+                            user.UserStatus,
+                            user.Attributes?
+                                .ToDictionary(att => att.Name, att => att.Value)
+                            ?? new Dictionary<string, string>()
+                            )
+                        ).ToList() as IList<TUser> ?? new List<TUser>();
             }
             catch (AmazonCognitoIdentityProviderException e)
             {

@@ -19,6 +19,7 @@ using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,11 +47,13 @@ namespace Amazon.AspNetCore.Identity.Cognito
                     UserPoolId = _pool.PoolID
                 }, cancellationToken).ConfigureAwait(false);
 
-                if (result.Users.Count > 0)
+                if (result.Users != null && result.Users.Count > 0)
                 {
                     return _pool.GetUser(result.Users[0].Username,
                         result.Users[0].UserStatus,
-                        result.Users[0].Attributes.ToDictionary(att => att.Name, att => att.Value)) as TUser;
+                        result.Users[0].Attributes?
+                            .ToDictionary(att => att.Name, att => att.Value) ??
+                                new Dictionary<string, string>()) as TUser;
                 }
             }
             catch (AmazonCognitoIdentityProviderException e)

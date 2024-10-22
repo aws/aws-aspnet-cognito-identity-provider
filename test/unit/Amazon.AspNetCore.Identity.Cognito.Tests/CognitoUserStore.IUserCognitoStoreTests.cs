@@ -46,70 +46,70 @@ namespace Amazon.AspNetCore.Identity.Cognito.Tests
         [Theory]
         [InlineData("FORCE_CHANGE_PASSWORD", true)]
         [InlineData("CONFIRMED", false)]
-        public async void Test_GivenAUserWithStatus_WhenIsPasswordChangeRequired_ThenResponseIsValid(string status, bool isPasswordChangeRequired)
+        public async Task Test_GivenAUserWithStatus_WhenIsPasswordChangeRequired_ThenResponseIsValid(string status, bool isPasswordChangeRequired)
         {
             var user = new CognitoUser("userID", "clientID", _cognitoPoolMock.Object, _cognitoClientMock.Object, null, status, null, null);
-            var output = await _store.IsPasswordChangeRequiredAsync(user, CancellationToken.None).ConfigureAwait(false);
+            var output = await _store.IsPasswordChangeRequiredAsync(user, CancellationToken.None);
             Assert.Equal(isPasswordChangeRequired, output);
         }
 
         [Theory]
         [InlineData("RESET_REQUIRED", true)]
         [InlineData("CONFIRMED", false)]
-        public async void Test_GivenAUserWithStatus_WhenIsPasswordResetRequired_ThenResponseIsValid(string status, bool isPasswordResetRequired)
+        public async Task Test_GivenAUserWithStatus_WhenIsPasswordResetRequired_ThenResponseIsValid(string status, bool isPasswordResetRequired)
         {
             var user = new CognitoUser("userID", "clientID", _cognitoPoolMock.Object, _cognitoClientMock.Object, null, status, null, null);
-            var output = await _store.IsPasswordResetRequiredAsync(user, CancellationToken.None).ConfigureAwait(false);
+            var output = await _store.IsPasswordResetRequiredAsync(user, CancellationToken.None);
             Assert.Equal(isPasswordResetRequired, output);
         }
 
         [Fact]
-        public async void Test_GivenAUser_WhenResetPassword_ThenTheRequestIsSuccessful()
+        public async Task Test_GivenAUser_WhenResetPassword_ThenTheRequestIsSuccessful()
         {
             _cognitoClientMock.Setup(mock => mock.AdminResetUserPasswordAsync(It.IsAny<AdminResetUserPasswordRequest>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(new AdminResetUserPasswordResponse())).Verifiable();
-            var output = await _store.ResetPasswordAsync(_userMock.Object, CancellationToken.None).ConfigureAwait(false);
+            var output = await _store.ResetPasswordAsync(_userMock.Object, CancellationToken.None);
             Assert.Equal(IdentityResult.Success, output);
             _cognitoClientMock.Verify();
         }
 
         [Fact]
-        public async void Test_GivenAUser_WhenCreate_ThenTheUserGetsAddedToThePool()
+        public async Task Test_GivenAUser_WhenCreate_ThenTheUserGetsAddedToThePool()
         {
-            var output = await _store.CreateAsync(_userMock.Object, "password", null, CancellationToken.None).ConfigureAwait(false);
+            var output = await _store.CreateAsync(_userMock.Object, "password", null, CancellationToken.None);
             Assert.Equal(IdentityResult.Success, output);
         }
 
         [Fact]
-        public async void Test_GivenAUser_WhenAdminConfirmSignUp_ThenTheRequestIsSuccessful()
+        public async Task Test_GivenAUser_WhenAdminConfirmSignUp_ThenTheRequestIsSuccessful()
         {
             _cognitoClientMock.Setup(mock => mock.AdminConfirmSignUpAsync(It.IsAny<AdminConfirmSignUpRequest>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(new AdminConfirmSignUpResponse())).Verifiable();
-            var output = await _store.AdminConfirmSignUpAsync(_userMock.Object, CancellationToken.None).ConfigureAwait(false);
+            var output = await _store.AdminConfirmSignUpAsync(_userMock.Object, CancellationToken.None);
             Assert.Equal(IdentityResult.Success, output);
             _cognitoClientMock.Verify();
         }
 
         [Fact]
-        public async void Test_GivenAUser_WhenGetUserAttributeVerificationCodeOtherThanEmailOrPhone_ThenThrowsArgumentException()
+        public async Task Test_GivenAUser_WhenGetUserAttributeVerificationCodeOtherThanEmailOrPhone_ThenThrowsArgumentException()
         {
-            await Assert.ThrowsAsync<ArgumentException>(() => _store.GetUserAttributeVerificationCodeAsync(_userMock.Object, "UNKNOWN_ATTRIBUTE", CancellationToken.None)).ConfigureAwait(false);
+            await Assert.ThrowsAsync<ArgumentException>(() => _store.GetUserAttributeVerificationCodeAsync(_userMock.Object, "UNKNOWN_ATTRIBUTE", CancellationToken.None));
         }
 
         [Fact]
-        public async void Test_GivenAUser_WhenGetUserAttributeVerificationCode_ThenTheRequestIsSuccessfun()
+        public async Task Test_GivenAUser_WhenGetUserAttributeVerificationCode_ThenTheRequestIsSuccessfun()
         {
             _cognitoClientMock.Setup(mock => mock.GetUserAttributeVerificationCodeAsync(It.IsAny<GetUserAttributeVerificationCodeRequest>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(new GetUserAttributeVerificationCodeResponse())).Verifiable();
             _userMock.Object.SessionTokens = new CognitoUserSession(null, null, null, DateTime.Now, DateTime.MaxValue);
-            var output = await _store.GetUserAttributeVerificationCodeAsync(_userMock.Object, CognitoAttribute.PhoneNumber.AttributeName, CancellationToken.None).ConfigureAwait(false);
+            var output = await _store.GetUserAttributeVerificationCodeAsync(_userMock.Object, CognitoAttribute.PhoneNumber.AttributeName, CancellationToken.None);
             Assert.Equal(IdentityResult.Success, output);
             _cognitoClientMock.Verify();
         }
 
         [Fact]
-        public async void Test_GivenAUser_WhenVerifyUserAttribute_ThenTheRequestIsSuccessfun()
+        public async Task Test_GivenAUser_WhenVerifyUserAttribute_ThenTheRequestIsSuccessfun()
         {
             _cognitoClientMock.Setup(mock => mock.VerifyUserAttributeAsync(It.IsAny<VerifyUserAttributeRequest>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(new VerifyUserAttributeResponse())).Verifiable();
             _userMock.Object.SessionTokens = new CognitoUserSession(null, null, null, DateTime.Now, DateTime.MaxValue);
-            var output = await _store.VerifyUserAttributeAsync(_userMock.Object, CognitoAttribute.PhoneNumber.AttributeName, "code", CancellationToken.None).ConfigureAwait(false);
+            var output = await _store.VerifyUserAttributeAsync(_userMock.Object, CognitoAttribute.PhoneNumber.AttributeName, "code", CancellationToken.None);
             Assert.Equal(IdentityResult.Success, output);
             _cognitoClientMock.Verify();
         }
