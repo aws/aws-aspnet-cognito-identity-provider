@@ -74,11 +74,10 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 throw new ArgumentNullException(nameof(email));
             }
-#if NETCOREAPP3_1
-            email = NormalizeEmail(email);
-#endif
 #if NETSTANDARD2_0
             email = NormalizeKey(email);
+#else
+            email = NormalizeEmail(email);
 #endif
             var user = await _userStore.FindByEmailAsync(email, CancellationToken).ConfigureAwait(false);
             if (user != null)
@@ -124,11 +123,10 @@ namespace Amazon.AspNetCore.Identity.Cognito
             {
                 throw new ArgumentNullException(nameof(userName));
             }
-#if NETCOREAPP3_1
-            userName = NormalizeName(userName);
-#endif
 #if NETSTANDARD2_0
             userName = NormalizeKey(userName);
+#else
+            userName = NormalizeName(userName);
 #endif
             var user = await _userStore.FindByNameAsync(userName, CancellationToken).ConfigureAwait(false);
             if (user != null)
@@ -180,7 +178,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the AuthFlowResponse object
         /// if the specified <paramref name="password" /> matches the one store for the <paramref name="user"/>,
         /// otherwise null.</returns>
-        public virtual Task<AuthFlowResponse> CheckPasswordAsync(TUser user, string password)
+        public new virtual Task<AuthFlowResponse> CheckPasswordAsync(TUser user, string password)
         {
             ThrowIfDisposed();
             if (user == null)

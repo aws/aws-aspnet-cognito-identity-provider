@@ -23,11 +23,17 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
 using System.Reflection;
+#if NET8_0
+using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class CognitoServiceCollectionExtensions
     {
+#if NET8_0
+        [RequiresUnreferencedCode("Identity middleware does not currently support trimming or native AOT.", Url = "https://aka.ms/aspnet/trimming")]
+#endif
         public static IServiceCollection AddCognitoIdentity(this IServiceCollection services, Action<IdentityOptions> identityOptions = null, string prefix = null)
         {
             services.InjectCognitoUser<CognitoUser>(identityOptions);
@@ -35,7 +41,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddCognitoUserPool();
             return services;
         }
-
+#if NET8_0
+        [RequiresUnreferencedCode("Identity middleware does not currently support trimming or native AOT.", Url = "https://aka.ms/aspnet/trimming")]
+#endif
         private static IServiceCollection InjectCognitoUser<TUser>(this IServiceCollection services, Action<IdentityOptions> identityOptions = null) where TUser : CognitoUser
         {
             if (identityOptions != null)

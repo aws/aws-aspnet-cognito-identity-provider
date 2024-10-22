@@ -53,7 +53,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
                     UserPoolId = _pool.PoolID
                 }, cancellationToken).ConfigureAwait(false);
 
-                return details.UserAttributes.Select(att => new Claim(att.Name, att.Value)).ToList();
+                return details.UserAttributes?.Select(att => new Claim(att.Name, att.Value)).ToList() ?? new List<Claim>();
             }
             catch (AmazonCognitoIdentityProviderException e)
             {
@@ -134,10 +134,10 @@ namespace Amazon.AspNetCore.Identity.Cognito
             var userClaims = await GetClaimsAsync(user, cancellationToken).ConfigureAwait(false);
 
             // Only removes the claims that the user actually have.
-            var matchedClaims = userClaims.Select(claim => new { claim.Type, claim.Value })
+            var matchedClaims = userClaims?.Select(claim => new { claim.Type, claim.Value })
                                             .Intersect(claims.Select(claim => new { claim.Type, claim.Value }));
 
-            if (matchedClaims.Any())
+            if (matchedClaims != null && matchedClaims.Any())
             {
                 try
                 {
@@ -182,8 +182,17 @@ namespace Amazon.AspNetCore.Identity.Cognito
                         UserPoolId = _pool.PoolID
                     }, cancellationToken).ConfigureAwait(false);
 
-                    return response.Users.Select(user => _pool.GetUser(user.Username, user.UserStatus,
-                        user.Attributes.ToDictionary(att => att.Name, att => att.Value))).ToList() as IList<TUser>;
+                    return response.Users?
+                        .Select(user => 
+                            _pool.GetUser(
+                                user.Username, 
+                                user.UserStatus,
+                                user.Attributes?
+                                    .ToDictionary(att => att.Name, att => att.Value)
+                                    ?? new Dictionary<string, string>()
+                                )
+                            )
+                        .ToList() as IList<TUser> ?? new List<TUser>();
                 }
                 catch (AmazonCognitoIdentityProviderException e)
                 {

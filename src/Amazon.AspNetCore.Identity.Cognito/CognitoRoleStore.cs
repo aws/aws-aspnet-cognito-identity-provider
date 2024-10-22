@@ -99,7 +99,7 @@ namespace Amazon.AspNetCore.Identity.Cognito
             }, cancellationToken).ConfigureAwait(false);
 
             return new CognitoRole(response.Group.GroupName, response.Group.Description,
-                response.Group.Precedence, response.Group.RoleArn) as TRole;
+                response.Group.Precedence ?? 0, response.Group.RoleArn) as TRole;
         }
 
         /// <summary>
