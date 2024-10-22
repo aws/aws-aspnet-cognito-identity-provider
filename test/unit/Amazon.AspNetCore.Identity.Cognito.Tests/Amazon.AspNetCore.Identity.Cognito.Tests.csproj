@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RollForward>Major</RollForward>
     <ApplicationIcon />
     <StartupObject />
   </PropertyGroup>
