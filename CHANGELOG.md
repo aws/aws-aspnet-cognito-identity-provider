@@ -1,3 +1,8 @@
+## Release 2025-03-03
+
+### Amazon.AspNetCore.Identity.Cognito (4.0.0-preview.2)
+* Update .NET SDK dependencies to v4.0.0-preview.8
+
 ## Release 2024-10-22
 
 ### Amazon.AspNetCore.Identity.Cognito (4.0.0-preview.1)
