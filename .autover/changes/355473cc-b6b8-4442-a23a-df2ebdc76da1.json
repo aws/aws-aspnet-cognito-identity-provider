@@ -4,7 +4,8 @@
       "Name": "Amazon.AspNetCore.Identity.Cognito",
       "Type": "Patch",
       "ChangelogMessages": [
-        "Update AWS SDK to Preview 11"
+        "Update AWS SDK to Preview 11",
+        "Update Amazon.Extensions.CognitoAuthentication version"
       ]
     }
   ]
