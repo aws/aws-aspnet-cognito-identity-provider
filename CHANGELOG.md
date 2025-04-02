@@ -1,3 +1,9 @@
+## Release 2025-04-02
+
+### Amazon.AspNetCore.Identity.Cognito (4.0.0-preview.3)
+* Update AWS SDK to Preview 11
+* Update Amazon.Extensions.CognitoAuthentication version
+
 ## Release 2025-03-03
 
 ### Amazon.AspNetCore.Identity.Cognito (4.0.0-preview.2)
