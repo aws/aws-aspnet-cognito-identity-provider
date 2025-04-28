@@ -39,10 +39,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="3.0.0-preview.3" />
-    <PackageReference Include="AWSSDK.CognitoIdentity" Version="4.0.0-preview.11" />
-    <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="4.0.0-preview.11" />
-    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.0-preview.11" />
+    <PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="3.0.0" />
+    <PackageReference Include="AWSSDK.CognitoIdentity" Version="4.0.0" />
+    <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="4.0.0" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
