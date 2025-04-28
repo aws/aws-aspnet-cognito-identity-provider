@@ -1,3 +1,8 @@
+## Release 2025-04-23
+
+### Amazon.AspNetCore.Identity.Cognito (3.0.3)
+* Updated cognito extensions version
+
 ## Release 2025-04-02
 
 ### Amazon.AspNetCore.Identity.Cognito (4.0.0-preview.3)
