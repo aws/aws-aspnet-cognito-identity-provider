@@ -1,0 +1,11 @@
+{
+  "Projects": [
+    {
+      "Name": "Amazon.AspNetCore.Identity.Cognito",
+      "Type": "Patch",
+      "ChangelogMessages": [
+        "Updating the .NET SDK dependencies to the latest version GA 4.0.0"
+      ]
+    }
+  ]
+}
