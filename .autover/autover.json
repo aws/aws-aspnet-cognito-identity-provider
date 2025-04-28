@@ -6,6 +6,7 @@
     }
   ],
   "UseCommitsForChangelog": false,
+  "UseSameVersionForAllProjects": false,
   "DefaultIncrementType": "Patch",
   "ChangeFilesDetermineIncrementType": true
 }

@@ -1,3 +1,8 @@
+## Release 2025-04-28
+
+### Amazon.AspNetCore.Identity.Cognito (4.0.0)
+* Updating the .NET SDK dependencies to the latest version GA 4.0.0
+
 ## Release 2025-04-23
 
 ### Amazon.AspNetCore.Identity.Cognito (3.0.3)
