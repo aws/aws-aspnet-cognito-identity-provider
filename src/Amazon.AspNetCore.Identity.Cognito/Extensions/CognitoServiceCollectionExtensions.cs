@@ -18,6 +18,7 @@ using Amazon.AspNetCore.Identity.Cognito.Exceptions;
 using Amazon.AspNetCore.Identity.Cognito.Extensions;
 using Amazon.CognitoIdentityProvider;
 using Amazon.Extensions.CognitoAuthentication;
+using Amazon.Runtime;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -99,7 +100,6 @@ namespace Microsoft.Extensions.DependencyInjection
     internal static class CognitoUserPoolFactory
     {
         private const string MissingConfigurationExceptionMessage = "No IConfiguration object instance was found in the service collection. Could not instanciate a CognitoUserPool object.";
-        private const string UserAgentHeader = "User-Agent";
         private static readonly string _assemblyFileVersion = GetAssemblyFileVersion();
         private static readonly string _userAgentSuffix = $"lib/CognitoASPNETCoreIdentityProvider#{_assemblyFileVersion}";
 
@@ -133,11 +133,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static void ServiceClientBeforeRequestEvent(object sender, Amazon.Runtime.RequestEventArgs e)
         {
-            Amazon.Runtime.WebServiceRequestEventArgs args = e as Amazon.Runtime.WebServiceRequestEventArgs;
-            if (args == null || !args.Headers.ContainsKey(UserAgentHeader) || args.Headers[UserAgentHeader].Contains(_userAgentSuffix))
-                return;
-
-            args.Headers[UserAgentHeader] = args.Headers[UserAgentHeader] + " " + _userAgentSuffix;
+            WebServiceRequestEventArgs args = e as WebServiceRequestEventArgs;
+            if (args != null && args.Request is Amazon.Runtime.Internal.IAmazonWebServiceRequest internalRequest && !internalRequest.UserAgentDetails.GetCustomUserAgentComponents().Contains(_userAgentSuffix))
+            {
+                internalRequest.UserAgentDetails.AddUserAgentComponent(_userAgentSuffix);
+            }
         }
 
         private static string GetAssemblyFileVersion()
