@@ -5,16 +5,21 @@ on:
   schedule:
   - cron: "0 0 * * *"
 
+permissions: {}
 
-permissions:
-  issues: write
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 jobs:
   cleanup:
     runs-on: ubuntu-latest
     name: Stale issue job
+    permissions:
+      issues: write # to label and close stale issues and PRs
     steps:
-    - uses: aws-actions/stale-issue-cleanup@5650b49bcd757a078f6ca06c373d7807b773f9bc #v7.1.0
+    - name: Clean up stale issues
+      uses: aws-actions/stale-issue-cleanup@5650b49bcd757a078f6ca06c373d7807b773f9bc #v7.1.0
       with:
         # Setting messages to an empty string will cause the automation to skip
         # that category
@@ -47,4 +52,3 @@ jobs:
         #loglevel: DEBUG
         # Set dry-run to true to not perform label or close actions.
         #dry-run: true
-  
