@@ -14,14 +14,17 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/aws/aws-aspnet-cognito-identity-provider/</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <Company>Amazon Web Services</Company>
     <SignAssembly>true</SignAssembly>
 
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true' or '$(TF_BUILD)' == 'true' or '$(CODEBUILD_BUILD_ID)' != ''">true</ContinuousIntegrationBuild>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    
+
     <Version>4.0.2</Version>
   </PropertyGroup>
 
@@ -49,6 +52,10 @@
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.8.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(SourceRevisionId)' != ''">
+    <SourceRoot Include="$(MSBuildThisFileDirectory)" SourceControl="git" RepositoryUrl="$(RepositoryUrl)" RevisionId="$(SourceRevisionId)" />
   </ItemGroup>
 
   <ItemGroup>

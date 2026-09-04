@@ -1,0 +1,11 @@
+{
+  "Projects": [
+    {
+      "Name": "Amazon.AspNetCore.Identity.Cognito",
+      "Type": "Patch",
+      "ChangelogMessages": [
+        "Add deterministic build settings and Source Link configuration (RepositoryType, Deterministic, ContinuousIntegrationBuild, SourceRoot) for reproducible builds and correct package source mapping."
+      ]
+    }
+  ]
+}
